@@ -8,6 +8,7 @@
  */
 const MODE_KEY = "plugzone-remember";
 const TAB_KEY = "plugzone-browser-session";
+const ID_KEY = "plugzone-remembered-id";
 const CHANNEL = "plugzone-session";
 
 const hasWindow = () => typeof window !== "undefined";
@@ -19,8 +20,21 @@ export function setRememberMe(remember: boolean) {
   else sessionStorage.setItem(TAB_KEY, "1");
 }
 
+/** Persist the sign-in identifier when "Remember me" is ticked; wipe it when not. */
+export function setRememberedIdentifier(identifier: string | null) {
+  if (!hasWindow()) return;
+  if (identifier) localStorage.setItem(ID_KEY, identifier);
+  else localStorage.removeItem(ID_KEY);
+}
+
+export function getRememberedIdentifier(): string {
+  if (!hasWindow()) return "";
+  return localStorage.getItem(ID_KEY) ?? "";
+}
+
 export function clearSessionMode() {
   if (!hasWindow()) return;
+  // Keep the remembered identifier across sign-out so the field stays prefilled.
   localStorage.removeItem(MODE_KEY);
   sessionStorage.removeItem(TAB_KEY);
 }

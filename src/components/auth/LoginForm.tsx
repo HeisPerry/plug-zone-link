@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isEmailLike, loginSchema } from "@/lib/validators";
 import { signInWithUsername } from "@/lib/auth.functions";
-import { setRememberMe } from "@/lib/session-mode";
+import { getRememberedIdentifier, setRememberedIdentifier, setRememberMe } from "@/lib/session-mode";
 import { Field } from "@/components/shared/Field";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { useToast } from "@/components/shared/Toast";
@@ -20,7 +20,11 @@ export function LoginForm() {
   const navigate = useNavigate();
   const toast = useToast();
   const usernameSignIn = useServerFn(signInWithUsername);
-  const [values, setValues] = useState({ identifier: "", password: "", remember: true });
+  const [values, setValues] = useState(() => ({
+    identifier: getRememberedIdentifier(),
+    password: "",
+    remember: true,
+  }));
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [attempts, setAttempts] = useState(0);
@@ -91,6 +95,7 @@ export function LoginForm() {
         }
       }
       setRememberMe(remember);
+      setRememberedIdentifier(remember ? identifier : null);
       // Daily streak logic runs from the dashboard on arrival.
       navigate({ to: "/dashboard" });
     } catch {
