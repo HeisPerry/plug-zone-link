@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { loginSchema } from "@/lib/validators";
 import { Field } from "@/components/shared/Field";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { useToast } from "@/components/shared/Toast";
 
 const MAX_ATTEMPTS = 5;
