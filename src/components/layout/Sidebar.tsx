@@ -4,6 +4,7 @@ import {
   Package,
   ShoppingBag,
   MessageSquare,
+  Bell,
   Users,
   CalendarCheck,
   Smartphone,
@@ -14,22 +15,34 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useMessages";
+import { useUnreadNotifications } from "@/hooks/useNotifications";
 
 export const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/ads", label: "My Ads", icon: Package },
   { to: "/orders", label: "Orders", icon: ShoppingBag },
   { to: "/messages", label: "Messages", icon: MessageSquare },
+  { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/friends", label: "Friends", icon: Users },
   { to: "/checkin", label: "Check-In", icon: CalendarCheck },
   { to: "/data-airtime", label: "Buy Data/Airtime", icon: Smartphone },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+function CountBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const { data: unread = 0 } = useUnreadCount();
+  const { data: unreadNotifs = 0 } = useUnreadNotifications();
 
   return (
     <nav className="flex flex-1 flex-col gap-0.5">
@@ -37,11 +50,8 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         <Link key={to} to={to} className="nav-link" onClick={onNavigate}>
           <Icon size={18} strokeWidth={2} />
           <span className="flex-1">{label}</span>
-          {to === "/messages" && unread > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
-              {unread > 99 ? "99+" : unread}
-            </span>
-          )}
+          {to === "/messages" && <CountBadge count={unread} />}
+          {to === "/notifications" && <CountBadge count={unreadNotifs} />}
         </Link>
       ))}
       {profile && (
