@@ -92,3 +92,22 @@ export function useUpdateOrderStatus() {
     },
   });
 }
+
+const ONGOING_STATUSES = ["pending", "accepted", "paid", "shipped", "in_progress", "disputed"];
+
+export function useOngoingOrdersCount() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["orders", "ongoing-count", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
+        .in("status", ONGOING_STATUSES);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+}
