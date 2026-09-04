@@ -145,6 +145,17 @@ function AdDetailPage() {
                 <div>Posted {formatDate(ad.created_at)}</div>
               </dl>
 
+              {ad.details && typeof ad.details === "object" && Object.keys(ad.details).length > 0 && (
+                <dl className="mt-4 grid gap-x-6 gap-y-2 border-t pt-4 sm:grid-cols-2">
+                  {Object.entries(ad.details as Record<string, unknown>).map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-4 text-[15px]">
+                      <dt className="capitalize text-muted-foreground">{k.replace(/_/g, " ")}</dt>
+                      <dd className="text-right font-medium text-foreground">{String(v)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+
               <div className="mt-6 flex flex-wrap gap-2">
                 {isOwner ? (
                   <>
