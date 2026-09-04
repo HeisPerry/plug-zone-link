@@ -70,9 +70,8 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r bg-background px-3 py-5 md:flex">
-      <Link to="/dashboard" className="mb-6 flex items-center gap-2 px-3 font-heading text-xl font-bold">
-        <Zap size={22} className="text-primary" />
-        PlugZone
+      <Link to="/dashboard" className="mb-6 flex items-center px-3">
+        <img src="/P.png" alt="BUY.SELL.CONNECT" className="h-8 w-auto" />
       </Link>
       <NavLinks />
     </aside>
