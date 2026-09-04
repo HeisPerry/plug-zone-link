@@ -9,6 +9,7 @@ import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState, ErrorState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
+import { PLATFORM_FEE_RATE } from "@/lib/constants";
 import type { Order, OrderWithDetails } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/orders")({
