@@ -29,7 +29,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/plugzone-logo.png.asset.json";
+import logoAsset from "@/assets/plugzone-mark.png.asset.json";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
