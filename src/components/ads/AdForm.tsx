@@ -15,7 +15,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/shared/Toast";
 import type { Ad } from "@/lib/types";
 
-type Errors = Record<string, string>;
+interface Errors {
+  title?: string;
+  description?: string;
+  price?: string;
+  currency?: string;
+  category?: string;
+  subcategory?: string;
+  location?: string;
+  form?: string;
+  [key: string]: string | undefined;
+}
 
 interface FormValues {
   title: string;
