@@ -12,6 +12,7 @@ import {
   Package,
   Plus,
   Settings,
+  ShoppingBag,
   Smartphone,
   Sun,
   User,
@@ -187,9 +188,64 @@ function AccountMenu() {
   );
 }
 
+const SHEET_LINKS = [
+  { to: "/ads", label: "My Ads", sub: "Manage your listings", icon: Package },
+  { to: "/messages", label: "Messages", sub: "Chat with buyers & sellers", icon: MessageSquare },
+  { to: "/orders", label: "My Orders", sub: "Track buying & selling", icon: ShoppingBag },
+  { to: "/friends", label: "Friends", sub: "Invite friends & earn", icon: Users, accent: true },
+  { to: "/checkin", label: "Daily Check-In", sub: "Claim your daily reward", icon: CalendarCheck },
+  { to: "/data-airtime", label: "Data & Airtime", sub: "Top up any network", icon: Smartphone },
+  { to: "/settings", label: "Settings", sub: "Account preferences", icon: Settings },
+  { to: "/support", label: "Support Center", sub: "Get help fast", icon: LifeBuoy },
+] as const;
+
+function SheetRow({
+  to,
+  label,
+  sub,
+  icon: Icon,
+  accent,
+  badge,
+  onClose,
+}: {
+  to: string;
+  label: string;
+  sub: string;
+  icon: typeof Package;
+  accent?: boolean | undefined;
+  badge?: number | undefined;
+  onClose: () => void;
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onClose}
+      className={cn(
+        "flex min-h-[60px] items-center gap-3 rounded-2xl border px-3 py-2.5 transition-colors",
+        accent ? "border-primary/30 bg-primary-soft" : "border-transparent hover:bg-muted",
+      )}
+    >
+      <span
+        className={cn(
+          "grid h-11 w-11 shrink-0 place-items-center rounded-xl",
+          accent ? "bg-primary/15 text-primary" : "bg-muted text-foreground",
+        )}
+      >
+        <Icon size={20} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className={cn("block truncate font-heading text-[15px] font-bold", accent && "text-primary")}>{label}</span>
+        <span className={cn("block truncate text-[13px]", accent ? "text-primary/80" : "text-muted-foreground")}>{sub}</span>
+      </span>
+      {badge ? <Count n={badge} /> : null}
+    </Link>
+  );
+}
+
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggle } = useTheme();
   const { data: unread = 0 } = useUnreadCount();
   const { data: ongoing = 0 } = useOngoingOrdersCount();
   const { data: wallet } = useWallet();
@@ -203,66 +259,92 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
-      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose} role="dialog" aria-modal="true" aria-label="Account menu">
+      <div className="absolute inset-0 bg-ink/45 backdrop-blur-sm" />
       <div
-        className="rise-in absolute inset-y-0 right-0 flex w-[19rem] max-w-[88%] flex-col bg-background px-4 pt-5 shadow-float"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+        className="rise-in absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-3xl bg-background shadow-float"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
-          <span className="font-heading text-lg font-extrabold">Menu</span>
-          <button onClick={onClose} aria-label="Close menu" className="icon-btn">
-            <X size={20} />
+        <div className="flex shrink-0 justify-center pb-1 pt-2.5">
+          <span className="h-1.5 w-11 rounded-full bg-border" />
+        </div>
+
+        {profile && (
+          <div className="flex shrink-0 items-center gap-3 border-b px-4 pb-4">
+            <Avatar name={profile.display_name} username={profile.username} src={profile.avatar_url} size={52} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-heading text-lg font-extrabold">{profile.display_name}</span>
+              <span className="block truncate text-[13px] text-muted-foreground">{user?.email ?? `@${profile.username}`}</span>
+            </span>
+            <button onClick={onClose} aria-label="Close menu" className="icon-btn shrink-0">
+              <X size={20} />
+            </button>
+          </div>
+        )}
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+          <Link
+            to="/wallet"
+            onClick={onClose}
+            className="mb-2 flex min-h-[60px] items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-primary-soft px-4 py-3 text-primary"
+          >
+            <span className="flex min-w-0 items-center gap-2 font-semibold">
+              <Wallet size={18} className="shrink-0" /> Wallet balance
+            </span>
+            <span className="shrink-0 font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
+          </Link>
+
+          {profile && (
+            <SheetRow to="/user/$username" label="Profile" sub="Edit your information" icon={User} onClose={onClose} />
+          )}
+          {SHEET_LINKS.map((l) => (
+            <SheetRow
+              key={l.to}
+              to={l.to}
+              label={l.label}
+              sub={l.sub}
+              icon={l.icon}
+              accent={"accent" in l ? l.accent : undefined}
+              badge={l.to === "/messages" ? unread : l.to === "/orders" ? ongoing : undefined}
+              onClose={onClose}
+            />
+          ))}
+        </div>
+
+        <div className="shrink-0 border-t">
+          <button
+            type="button"
+            onClick={toggle}
+            className="flex min-h-14 w-full items-center justify-between px-5 text-left font-heading font-bold"
+          >
+            Theme
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
         </div>
-        {profile && (
-          <Link to="/user/$username" params={{ username: profile.username }} onClick={onClose} className="mt-4 flex items-center gap-3 rounded-2xl border p-3">
-            <Avatar name={profile.display_name} username={profile.username} src={profile.avatar_url} size={44} />
-            <span className="min-w-0">
-              <span className="block truncate font-semibold">{profile.display_name}</span>
-              <span className="block truncate text-sm text-muted-foreground">@{profile.username}</span>
+        <div className="shrink-0 border-t px-3 py-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}>
+          <button
+            type="button"
+            className="flex min-h-[60px] w-full items-center gap-3 rounded-2xl px-3 text-left"
+            onClick={async () => {
+              onClose();
+              await signOut();
+              navigate({ to: "/login", replace: true });
+            }}
+          >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-destructive-soft text-destructive">
+              <LogOut size={20} />
             </span>
-          </Link>
-        )}
-        <Link to="/wallet" onClick={onClose} className="mt-3 flex items-center justify-between rounded-2xl bg-primary-soft px-4 py-3 text-primary">
-          <span className="flex items-center gap-2 font-semibold">
-            <Wallet size={18} /> Wallet
-          </span>
-          <span className="font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
-        </Link>
-        <button
-          className="mt-3 flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-destructive/30 bg-destructive-soft font-semibold text-destructive"
-          onClick={async () => {
-            onClose();
-            await signOut();
-            navigate({ to: "/login", replace: true });
-          }}
-        >
-          <LogOut size={18} />
-          Sign Out
-        </button>
-        <nav className="mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pb-2">
-          {PRIMARY_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
-              <span className="flex-1">{label}</span>
-              {to === "/orders" && <Count n={ongoing} />}
-            </Link>
-          ))}
-          <div className="my-2 border-t" />
-          {MENU_LINKS.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
-              <Icon size={18} />
-              <span className="flex-1">{label}</span>
-              {to === "/messages" && <Count n={unread} />}
-            </Link>
-          ))}
-        </nav>
-
+            <span className="min-w-0">
+              <span className="block font-heading text-[15px] font-bold text-destructive">Log Out</span>
+              <span className="block truncate text-[13px] text-muted-foreground">Sign out of your account</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
 
 export function TopNav() {
   const [drawer, setDrawer] = useState(false);
