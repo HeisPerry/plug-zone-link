@@ -56,17 +56,16 @@ function Count({ n, className }: { n: number; className?: string }) {
   );
 }
 
-export function Logo({ to = "/dashboard" }: { to?: "/" | "/dashboard" }) {
+export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboard"; size?: "sm" | "md" | "lg" }) {
   return (
-    <Link to={to} className="flex min-w-0 items-center gap-2 font-heading text-[19px] font-extrabold tracking-tight sm:gap-2.5 sm:text-[22px]">
+    <Link to={to} className="inline-flex shrink-0 items-center" aria-label="PlugZone — Buy. Sell. Connect.">
       <img
         src={logoAsset.url}
-        alt=""
-        width={72}
-        height={72}
-        className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-border sm:h-10 sm:w-10"
+        alt="PlugZone"
+        width={1244}
+        height={1244}
+        className={cn("w-auto", size === "sm" ? "h-9" : size === "lg" ? "h-16 sm:h-20" : "h-10 sm:h-12")}
       />
-      <span className="truncate">PlugZone</span>
     </Link>
   );
 }
