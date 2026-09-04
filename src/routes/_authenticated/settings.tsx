@@ -14,6 +14,8 @@ import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { useToast } from "@/components/shared/Toast";
 import { passwordSchema, profileSchema } from "@/lib/validators";
 import type { NotificationPrefs } from "@/lib/types";
+import { usePrefs } from "@/hooks/useNotifications";
+import { PUSH_CATEGORIES } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/settings")({
