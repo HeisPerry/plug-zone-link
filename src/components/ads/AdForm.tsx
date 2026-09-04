@@ -22,7 +22,6 @@ interface Errors {
   currency?: string;
   category?: string;
   subcategory?: string;
-  location?: string;
   form?: string;
   [key: string]: string | undefined;
 }
