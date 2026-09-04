@@ -1,0 +1,14 @@
+REVOKE ALL ON FUNCTION public.update_updated_at_column() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.profiles_lowercase_username() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.profiles_protect_counters() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.generate_affiliate_code() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.bump_conversation() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.is_username_available(TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.record_affiliate_click(TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_or_create_conversation(UUID) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.accept_friend_request(UUID) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.daily_check_in() FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.get_public_stats() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_profile_stats(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.delete_my_account() FROM PUBLIC, anon;
