@@ -10,7 +10,7 @@ import { clearReferral, readReferral } from "@/hooks/useAffiliate";
 
 type Errors = Partial<Record<"displayName" | "username" | "email" | "password" | "confirmPassword" | "referralCode" | "form", string>>;
 
-export function SignUpForm({ initialReferral }: { initialReferral?: string }) {
+export function SignUpForm({ initialReferral }: { initialReferral?: string | undefined }) {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     displayName: "",
@@ -140,7 +140,7 @@ export function SignUpForm({ initialReferral }: { initialReferral?: string }) {
       </Field>
 
       <Field label="Referral code (optional)" htmlFor="referralCode" error={errors.referralCode}>
-        <input id="referralCode" className="input uppercase" value={values.referralCode} onChange={set("referralCode")} placeholder="e.g. 7KQ2M9XA" />
+        <input id="referralCode" className="input uppercase" value={values.referralCode} onChange={set("referralCode")} placeholder="7KQ2M9XA" />
       </Field>
 
       {errors.form && <p className="field-error">{errors.form}</p>}
