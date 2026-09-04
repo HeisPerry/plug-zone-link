@@ -286,7 +286,7 @@ export function TopNav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-3">
           <WalletPill />
           <Link to="/ads/new" className="btn btn-ink hidden md:inline-flex">
             <Plus size={18} />
