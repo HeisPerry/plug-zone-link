@@ -132,12 +132,12 @@ export function SignUpForm({ initialReferral }: { initialReferral?: string | und
       </Field>
 
       <Field label="Password" htmlFor="password" error={errors.password}>
-        <input id="password" type="password" className="input" value={values.password} onChange={set("password")} autoComplete="new-password" />
+        <PasswordInput id="password" toggleLabel="password" value={values.password} onChange={set("password")} autoComplete="new-password" />
         <PasswordStrength password={values.password} />
       </Field>
 
       <Field label="Confirm password" htmlFor="confirmPassword" error={errors.confirmPassword}>
-        <input id="confirmPassword" type="password" className="input" value={values.confirmPassword} onChange={set("confirmPassword")} autoComplete="new-password" />
+        <PasswordInput id="confirmPassword" toggleLabel="confirm password" value={values.confirmPassword} onChange={set("confirmPassword")} autoComplete="new-password" />
       </Field>
 
       <Field label="Referral code (optional)" htmlFor="referralCode" error={errors.referralCode}>
