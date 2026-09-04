@@ -10,11 +10,17 @@ export function useUnreadCount() {
 
   useEffect(() => {
     if (!user) return;
+    // Anything addressed to me that arrived while I was away is now "delivered".
+    void supabase.rpc("mark_messages_delivered");
     // Unique per hook instance: several components (Sidebar, MobileNav) mount this hook at once,
     // and supabase.channel() returns an existing subscribed channel for a duplicate name.
     const channel = supabase
       .channel(`unread-${user.id}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const msg = payload.new as Message;
+          if (!msg.delivered_at) void supabase.from("messages").update({ delivered_at: new Date().toISOString() }).eq("id", msg.id).is("delivered_at", null);
+        }
         queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
         queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
       })
