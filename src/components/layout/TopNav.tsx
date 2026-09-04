@@ -18,7 +18,7 @@ import {
   Users,
   Wallet,
   X,
-  Zap,
+  
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
