@@ -1,20 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/types";
 import { answerSessionPings, clearSessionMode, shouldDropStoredSession } from "@/lib/session-mode";
 
-interface AuthContextValue {
-  user: User | null;
-  session: Session | null;
-  profile: Profile | null;
-  loading: boolean;
-  refreshProfile: () => Promise<void>;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext, type AuthContextValue } from "./auth-context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
