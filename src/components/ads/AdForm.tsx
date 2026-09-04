@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { adSchema, type AdFormValues } from "@/lib/validators";
 import {
   AD_CATEGORIES,
+  CURRENCIES,
   fieldsFor,
   subcategoriesFor,
   type DetailField,
@@ -14,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/shared/Toast";
 import type { Ad } from "@/lib/types";
 
-type Errors = Partial<Record<string, string>>;
+type Errors = Record<string, string>;
 
 // Coerce stored jsonb details (Json) into the string map the form uses.
 function toStringDetails(d: unknown): Record<string, string> {
@@ -41,6 +42,7 @@ export function AdForm({ ad }: { ad?: Ad }) {
     details: toStringDetails(ad?.details),
     location: ad?.location ?? "",
   });
+  const [images, setImages] = useState<string[]>(ad?.images ?? []);
   const [errors, setErrors] = useState<Errors>({});
 
   const set =
