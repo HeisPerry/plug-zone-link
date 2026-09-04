@@ -35,7 +35,6 @@ interface FormValues {
   category: string;
   subcategory: string;
   details: Record<string, string>;
-  location: string;
 }
 
 // Coerce stored jsonb details (Json) into the string map the form uses.
@@ -61,7 +60,6 @@ export function AdForm({ ad }: { ad?: Ad }) {
     category: ad?.category ?? "",
     subcategory: ad?.subcategory ?? "",
     details: toStringDetails(ad?.details),
-    location: ad?.location ?? "",
   });
   const [images, setImages] = useState<string[]>(ad?.images ?? []);
   const [errors, setErrors] = useState<Errors>({});
@@ -212,10 +210,6 @@ export function AdForm({ ad }: { ad?: Ad }) {
         <span className="label">Photos</span>
         <ImageUpload images={images} onChange={setImages} upload={(f) => uploadAdImage(user!.id, f)} />
       </div>
-
-      <Field label="Location" htmlFor="location" error={errors.location} hint="City or area, e.g. Ikeja, Lagos">
-        <input id="location" className="input" value={values.location} onChange={set("location")} />
-      </Field>
 
       {errors.form && <p className="field-error">{errors.form}</p>}
 

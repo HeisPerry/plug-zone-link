@@ -106,7 +106,6 @@ export function useSaveAd() {
         category: values.category,
         subcategory: values.subcategory || null,
         details,
-        location: values.location || null,
         images,
       };
       if (id) {
