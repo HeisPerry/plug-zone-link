@@ -17,7 +17,7 @@ export function AdRow({ ad, actions, showStatus = true }: { ad: Ad; actions?: Re
           <p className="truncate font-medium">{ad.title}</p>
           <p className="text-[15px] text-primary">{formatPrice(ad.price, ad.currency)}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <CategoryBadge>{ad.category}</CategoryBadge>
+            <CategoryBadge>{ad.subcategory ?? ad.category}</CategoryBadge>
             {showStatus && <StatusBadge status={ad.status} />}
             <span className="text-sm text-muted-foreground">{formatDate(ad.created_at)}</span>
           </div>
