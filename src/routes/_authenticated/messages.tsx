@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, Send } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversations, useSendMessage, useThread } from "@/hooks/useMessages";
+import { useIsOnline, useLastSeen, useTyping } from "@/hooks/usePresence";
 import { Avatar } from "@/components/shared/Avatar";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ListSkeleton, Skeleton } from "@/components/shared/SkeletonLoader";
-import { cn, formatRelative, truncate } from "@/lib/utils";
+import { cn, formatRelative, timeAgo, truncate } from "@/lib/utils";
+import type { Message } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   validateSearch: z.object({ c: z.string().uuid().optional() }),
