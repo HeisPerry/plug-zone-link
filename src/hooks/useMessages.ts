@@ -10,8 +10,10 @@ export function useUnreadCount() {
 
   useEffect(() => {
     if (!user) return;
+    // Unique per hook instance: several components (Sidebar, MobileNav) mount this hook at once,
+    // and supabase.channel() returns an existing subscribed channel for a duplicate name.
     const channel = supabase
-      .channel(`unread-${user.id}`)
+      .channel(`unread-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, () => {
         queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
         queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
