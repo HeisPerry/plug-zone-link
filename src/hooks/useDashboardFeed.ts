@@ -7,11 +7,12 @@ export const FEED_PAGE_SIZE = 20;
 export interface FeedFilters {
   search: string;
   category: string;
+  subcategory: string;
   minPrice: string;
   maxPrice: string;
 }
 
-export const EMPTY_FEED_FILTERS: FeedFilters = { search: "", category: "all", minPrice: "", maxPrice: "" };
+export const EMPTY_FEED_FILTERS: FeedFilters = { search: "", category: "all", subcategory: "all", minPrice: "", maxPrice: "" };
 
 function escapeLike(s: string) {
   return s.replace(/[%_,()]/g, (m) => `\\${m}`);
@@ -35,6 +36,7 @@ export function useDashboardFeed(filters: FeedFilters) {
         q = q.or(`title.ilike.${like},description.ilike.${like}`);
       }
       if (filters.category !== "all") q = q.eq("category", filters.category);
+      if (filters.subcategory !== "all") q = q.eq("subcategory", filters.subcategory);
       const min = Number(filters.minPrice);
       const max = Number(filters.maxPrice);
       if (filters.minPrice !== "" && !Number.isNaN(min)) q = q.gte("price", min);

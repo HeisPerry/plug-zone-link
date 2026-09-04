@@ -93,7 +93,7 @@ export function useSaveAd() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, values, images }: { id?: string | undefined; values: AdFormValues; images: string[] }) => {
+    mutationFn: async ({ id, values, images, details }: { id?: string | undefined; values: AdFormValues; images: string[]; details: Record<string, string> }) => {
       if (!user) throw new Error("Not signed in");
       const payload = {
         title: values.title,
@@ -101,6 +101,8 @@ export function useSaveAd() {
         price: values.price,
         currency: values.currency,
         category: values.category,
+        subcategory: values.subcategory,
+        details,
         location: values.location || null,
         images,
       };

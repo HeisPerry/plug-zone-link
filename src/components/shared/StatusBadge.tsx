@@ -12,6 +12,9 @@ const COLORS: Record<string, string> = {
   failed: "text-destructive",
   disputed: "text-destructive",
   rejected: "text-destructive",
+  declined: "text-destructive",
+  countered: "text-warning",
+  expired: "text-muted-foreground",
 };
 
 export function StatusBadge({ status, className }: { status: string; className?: string }) {

@@ -19,10 +19,10 @@
   --color-destructive-soft: #fdecec;
   --color-success: #16a34a;
   --color-warning: #d97706;
-  --color-mtn: #f5c400;
-  --color-airtel: #e11d2e;
-  --color-glo: #2f9e44;
-  --color-ninemobile: #0a6b3a;
+  --color-mtn: #ffcc00;
+  --color-airtel: #e60000;
+  --color-glo: #009900;
+  --color-ninemobile: #005a36;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -203,4 +203,7 @@
   border-radius: 999px;
   color: var(--color-muted-foreground);
   background-color: var(--color-background);
+  &:is(button) { min-height: 32px; padding: 0.3rem 0.75rem; cursor: pointer; }
+  &:is(button):hover { color: var(--color-foreground); border-color: var(--color-foreground); }
+  &[data-active="true"] { color: var(--color-primary); border-color: var(--color-primary); background-color: var(--color-primary-soft); }
 }

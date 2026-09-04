@@ -11,6 +11,9 @@ export type FriendRequest = Tables["friend_requests"]["Row"];
 export type Friendship = Tables["friendships"]["Row"];
 export type DailyCheckin = Tables["daily_checkins"]["Row"];
 export type DataAirtimeOrder = Tables["data_airtime_orders"]["Row"];
+export type Negotiation = Tables["negotiations"]["Row"];
+export type SavedContact = Tables["saved_contacts"]["Row"];
+export type AdDetails = Record<string, string>;
 
 export type ProfileLite = Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
 

@@ -45,9 +45,20 @@ export const adSchema = z.object({
   price: z.coerce.number().min(0, "Price cannot be negative"),
   currency: z.enum(CURRENCIES),
   category: z.enum(AD_CATEGORIES, { errorMap: () => ({ message: "Pick a category" }) }),
+  subcategory: z.string().trim().min(1, "Pick a sub-category").max(80),
   location: z.string().trim().max(120).optional().or(z.literal("")),
 });
 export type AdFormValues = z.infer<typeof adSchema>;
+
+export const offerSchema = z.object({
+  price: z.coerce.number().positive("Enter an amount above zero"),
+  message: z.string().trim().max(300, "Max 300 characters").optional().or(z.literal("")),
+});
+
+export const savedContactSchema = z.object({
+  label: z.string().trim().min(1, "Give this number a name").max(40, "Max 40 characters"),
+  phone_number: z.string().regex(/^0\d{10}$/, "Enter an 11-digit number starting with 0"),
+});
 
 export const profileSchema = z.object({
   display_name: z.string().trim().min(2, "Enter your name").max(60),
