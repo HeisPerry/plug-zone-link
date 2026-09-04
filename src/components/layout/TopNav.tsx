@@ -31,7 +31,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-const LOGO_URL = "/plugzone-mark.jpg";
+const LOGO_URL = "/plugzone-mark.png";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
@@ -64,8 +64,8 @@ export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboar
       <img
         src={LOGO_URL}
         alt=""
-        width={703}
-        height={625}
+        width={440}
+        height={408}
         className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-8 sm:h-11")}
       />
       <span
