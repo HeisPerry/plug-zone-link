@@ -79,12 +79,13 @@ export function Page({ children, className, wide }: { children: ReactNode; class
 export function PublicHeader({ right }: { right?: ReactNode }) {
   return (
     <header className="glass sticky top-0 z-40 border-b">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-3 sm:h-[72px] sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
         <Logo to="/" />
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           {right}
           <ThemeToggle />
         </div>
+
       </div>
     </header>
   );

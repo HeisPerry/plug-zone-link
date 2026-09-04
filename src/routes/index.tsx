@@ -50,14 +50,16 @@ function LandingPage() {
     <div className="min-h-screen">
       <PublicHeader
         right={
-          <nav className="flex items-center gap-2">
+          <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Link to="/login" className="btn btn-ghost btn-sm">
               Sign in
             </Link>
             <Link to="/signup" className="btn btn-primary btn-sm">
-              Create Account
+              <span className="sm:hidden">Sign up</span>
+              <span className="hidden sm:inline">Create Account</span>
             </Link>
           </nav>
+
         }
       />
 

@@ -29,7 +29,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/plugzone-logo.png.asset.json";
+import logoAsset from "@/assets/plugzone-mark.png.asset.json";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
@@ -58,17 +58,26 @@ function Count({ n, className }: { n: number; className?: string }) {
 
 export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboard"; size?: "sm" | "md" | "lg" }) {
   return (
-    <Link to={to} className="inline-flex shrink-0 items-center" aria-label="PlugZone — Buy. Sell. Connect.">
+    <Link to={to} className="inline-flex min-w-0 shrink items-center gap-2" aria-label="PlugZone — Buy. Sell. Connect.">
       <img
         src={logoAsset.url}
-        alt="PlugZone"
-        width={1244}
-        height={1244}
-        className={cn("w-auto", size === "sm" ? "h-9" : size === "lg" ? "h-16 sm:h-20" : "h-10 sm:h-12")}
+        alt=""
+        width={703}
+        height={625}
+        className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-8 sm:h-11")}
       />
+      <span
+        className={cn(
+          "truncate font-heading font-extrabold tracking-tight",
+          size === "sm" ? "text-lg" : size === "lg" ? "text-3xl sm:text-4xl" : "text-[17px] sm:text-2xl",
+        )}
+      >
+        PlugZone
+      </span>
     </Link>
   );
 }
+
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
@@ -196,7 +205,11 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
   return (
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
-      <div className="rise-in absolute inset-y-0 right-0 flex w-80 max-w-[88%] flex-col bg-background px-4 py-5 shadow-float" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="rise-in absolute inset-y-0 right-0 flex w-[19rem] max-w-[88%] flex-col bg-background px-4 pt-5 shadow-float"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <span className="font-heading text-lg font-extrabold">Menu</span>
           <button onClick={onClose} aria-label="Close menu" className="icon-btn">
@@ -218,16 +231,16 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
           <span className="font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
         </Link>
-        <nav className="mt-4 flex flex-1 flex-col gap-0.5 overflow-y-auto">
+        <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pb-2">
           {PRIMARY_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className="nav-link" onClick={onClose}>
+            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
               <span className="flex-1">{label}</span>
               {to === "/orders" && <Count n={ongoing} />}
             </Link>
           ))}
           <div className="my-2 border-t" />
           {MENU_LINKS.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className="nav-link" onClick={onClose}>
+            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
               <Icon size={18} />
               <span className="flex-1">{label}</span>
               {to === "/messages" && <Count n={unread} />}
@@ -235,7 +248,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           ))}
         </nav>
         <button
-          className="nav-link mt-3 w-full text-left text-muted-foreground"
+          className="mt-2 flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-destructive/30 bg-destructive-soft font-semibold text-destructive"
           onClick={async () => {
             onClose();
             await signOut();
@@ -245,6 +258,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           <LogOut size={18} />
           Sign Out
         </button>
+
       </div>
     </div>
   );
@@ -257,10 +271,11 @@ export function TopNav() {
 
   return (
     <header className="glass sticky top-0 z-40 border-b">
-      <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
-        <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
+        <div className="min-w-0 flex-1 lg:flex-none">
           <Logo />
         </div>
+
 
         <nav className="ml-8 hidden items-center gap-1 lg:flex" aria-label="Primary">
           {PRIMARY_LINKS.map(({ to, label }) => (
@@ -271,7 +286,7 @@ export function TopNav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-3">
           <WalletPill />
           <Link to="/ads/new" className="btn btn-ink hidden md:inline-flex">
             <Plus size={18} />
