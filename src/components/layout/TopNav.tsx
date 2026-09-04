@@ -29,7 +29,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/plugzone-logo.jpg.asset.json";
+import logoAsset from "@/assets/plugzone-logo.png.asset.json";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
@@ -56,17 +56,16 @@ function Count({ n, className }: { n: number; className?: string }) {
   );
 }
 
-export function Logo({ to = "/dashboard" }: { to?: "/" | "/dashboard" }) {
+export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboard"; size?: "sm" | "md" | "lg" }) {
   return (
-    <Link to={to} className="flex min-w-0 items-center gap-2 font-heading text-[19px] font-extrabold tracking-tight sm:gap-2.5 sm:text-[22px]">
+    <Link to={to} className="inline-flex shrink-0 items-center" aria-label="PlugZone — Buy. Sell. Connect.">
       <img
         src={logoAsset.url}
-        alt=""
-        width={72}
-        height={72}
-        className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-border sm:h-10 sm:w-10"
+        alt="PlugZone"
+        width={1244}
+        height={1244}
+        className={cn("w-auto", size === "sm" ? "h-9" : size === "lg" ? "h-16 sm:h-20" : "h-10 sm:h-12")}
       />
-      <span className="truncate">PlugZone</span>
     </Link>
   );
 }
@@ -258,8 +257,10 @@ export function TopNav() {
 
   return (
     <header className="glass sticky top-0 z-40 border-b">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
-        <Logo />
+      <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
+        <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
+          <Logo />
+        </div>
 
         <nav className="ml-8 hidden items-center gap-1 lg:flex" aria-label="Primary">
           {PRIMARY_LINKS.map(({ to, label }) => (

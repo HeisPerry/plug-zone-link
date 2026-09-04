@@ -99,7 +99,7 @@ export function PublicFooter({ compact }: { compact?: boolean }) {
           compact ? "py-5" : "py-8",
         )}
       >
-        {!compact && <Logo to="/" />}
+        {!compact && <Logo to="/" size="sm" />}
         <p>© 2026 PlugZone. All rights reserved.</p>
         <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2">
           <Link to="/terms" className="inline-flex min-h-11 items-center hover:text-foreground">
