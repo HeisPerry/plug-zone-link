@@ -116,7 +116,7 @@ export function LoginForm() {
       </Field>
       <div>
         <Field label="Password" htmlFor="password" error={errors.password}>
-          <input id="password" type="password" className="input" value={values.password} onChange={(e) => setValues((v) => ({ ...v, password: e.target.value }))} autoComplete="current-password" />
+          <PasswordInput id="password" value={values.password} onChange={(e) => setValues((v) => ({ ...v, password: e.target.value }))} autoComplete="current-password" />
         </Field>
         <button type="button" className="mt-2 text-sm font-medium text-primary" onClick={() => setResetMode(true)}>
           Forgot password?
