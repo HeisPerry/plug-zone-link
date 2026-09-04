@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
+import { MapPin, Tag } from "lucide-react";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useStartConversation } from "@/hooks/useMessages";
+import { isOpenOffer, useMakeOffer, useMyOfferOnAd } from "@/hooks/useNegotiations";
 import { PublicHeader } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
@@ -12,6 +13,8 @@ import { Modal } from "@/components/shared/Modal";
 import { Field } from "@/components/shared/Field";
 import { useToast } from "@/components/shared/Toast";
 import { Avatar } from "@/components/shared/Avatar";
+import { OfferModal } from "@/components/negotiations/OfferModal";
+import { getCategorySpec, NEGOTIATION_MAX_ROUNDS } from "@/lib/constants";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
 
 export const Route = createFileRoute("/ad/$adId")({
@@ -40,8 +43,18 @@ function AdDetailPage() {
   const place = usePlaceOrder();
   const start = useStartConversation();
   const update = useUpdateAdStatus();
+  const [offering, setOffering] = useState(false);
+  const makeOffer = useMakeOffer();
+  const { data: myOffer } = useMyOfferOnAd(user && ad && ad.seller_id !== user.id ? ad.id : undefined);
+  const openOffer = myOffer && isOpenOffer(myOffer) ? myOffer : null;
 
   const isOwner = !!user && ad?.seller_id === user.id;
+  const spec = getCategorySpec(ad?.category);
+  const detailEntries: [string, string][] = ad && ad.details && typeof ad.details === "object" && !Array.isArray(ad.details)
+    ? Object.entries(ad.details as Record<string, unknown>)
+        .filter(([, v]) => v !== null && v !== "" && v !== undefined)
+        .map(([k, v]) => [spec?.fields.find((f) => f.key === k)?.label ?? k.replace(/_/g, " "), String(v)])
+    : [];
   const headerRight = user ? (
     <Link to="/dashboard" className="btn btn-secondary btn-sm">
       Dashboard
@@ -116,6 +129,7 @@ function AdDetailPage() {
             <section>
               <div className="flex flex-wrap items-center gap-2">
                 <CategoryBadge>{ad.category}</CategoryBadge>
+                {ad.subcategory && <CategoryBadge>{ad.subcategory}</CategoryBadge>}
                 {ad.status !== "active" && <StatusBadge status={ad.status} />}
               </div>
               <h1 className="mt-3 text-[28px] sm:text-[34px]">{ad.title}</h1>
@@ -173,6 +187,50 @@ function AdDetailPage() {
                 )}
               </div>
 
+              {!isOwner && ad.status === "active" && (
+                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px]">
+                  {openOffer ? (
+                    <>
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <Tag size={15} className="text-primary" /> Your offer: <strong className="text-foreground">{formatPrice(openOffer.offered_price, ad.currency)}</strong> · round {openOffer.round_number}/{NEGOTIATION_MAX_ROUNDS} ·{" "}
+                        {openOffer.last_actor_id === user?.id ? "waiting for seller" : "seller countered — respond in Messages"}
+                      </span>
+                      {openOffer.conversation_id && (
+                        <Link to="/messages" search={{ c: openOffer.conversation_id }} className="font-medium text-primary">
+                          Track offer
+                        </Link>
+                      )}
+                    </>
+                  ) : (
+                    <button type="button" className="flex items-center gap-1.5 font-medium text-primary" onClick={() => requireAuth(() => setOffering(true))}>
+                      <Tag size={15} /> Make an Offer
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {detailEntries.length > 0 && (
+                <>
+                  <h2 className="mt-10 text-lg">Details</h2>
+                  <dl className="mt-2 divide-y border-y text-[15px]">
+                    {detailEntries.map(([k, v]) => (
+                      <div key={k} className="flex justify-between gap-4 py-2.5">
+                        <dt className="capitalize text-muted-foreground">{k}</dt>
+                        <dd className="text-right font-medium">
+                          {/^https?:\/\//i.test(v) ? (
+                            <a href={v} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                              Open link
+                            </a>
+                          ) : (
+                            v
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </>
+              )}
+
               <h2 className="mt-10 text-lg">Description</h2>
               <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed">{ad.description}</p>
             </section>
@@ -216,6 +274,30 @@ function AdDetailPage() {
           </form>
         )}
       </Modal>
+
+      {ad && offering && (
+        <OfferModal
+          open
+          onClose={() => setOffering(false)}
+          title="Make an offer"
+          listedPrice={Number(ad.price)}
+          currency={ad.currency}
+          submitLabel="Send Offer"
+          pending={makeOffer.isPending}
+          onSubmit={(price, message) =>
+            makeOffer.mutate(
+              { adId: ad.id, price, message },
+              {
+                onSuccess: () => {
+                  setOffering(false);
+                  toast.success("Offer sent to the seller");
+                },
+                onError: (e) => toast.error(e.message),
+              },
+            )
+          }
+        />
+      )}
 
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete this ad?">
         <p className="text-[15px] text-muted-foreground">This removes the ad from the marketplace permanently.</p>
