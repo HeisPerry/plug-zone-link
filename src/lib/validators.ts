@@ -34,9 +34,19 @@ export const signUpSchema = z
     message: "Passwords do not match",
   });
 
+export const isEmailLike = (v: string) => v.includes("@");
+
 export const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email"),
+  identifier: z
+    .string()
+    .trim()
+    .min(1, "Enter your username or email")
+    .max(255)
+    .refine((v) => (isEmailLike(v) ? z.string().email().safeParse(v).success : usernameSchema.safeParse(v).success), {
+      message: "Enter a valid username or email",
+    }),
   password: z.string().min(1, "Enter your password"),
+  remember: z.boolean(),
 });
 
 export const adSchema = z
