@@ -116,6 +116,11 @@ function AdDetailPage() {
             <section>
               <div className="flex flex-wrap items-center gap-2">
                 <CategoryBadge>{ad.category}</CategoryBadge>
+                {ad.subcategory && (
+                  <span className="rounded-full border px-2.5 py-0.5 text-[13px] text-muted-foreground">
+                    {ad.subcategory}
+                  </span>
+                )}
                 {ad.status !== "active" && <StatusBadge status={ad.status} />}
               </div>
               <h1 className="mt-3 text-[28px] sm:text-[34px]">{ad.title}</h1>
