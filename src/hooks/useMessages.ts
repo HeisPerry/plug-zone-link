@@ -114,6 +114,14 @@ export function useThread(conversationId: string | null) {
           }
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        (payload) => {
+          const msg = payload.new as Message;
+          queryClient.setQueryData<Message[]>(["thread", conversationId], (old = []) => old.map((m) => (m.id === msg.id ? { ...m, ...msg } : m)));
+        },
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
