@@ -54,6 +54,8 @@ function UserProfilePage() {
   const graph = useFriendGraph();
   const start = useStartConversation();
   const isMe = !!user && p?.id === user.id;
+  const online = useIsOnline(p?.id);
+  const { data: lastSeen } = useLastSeen(user && !isMe ? p?.id : null, online);
 
   const headerRight = user ? (
     <Link to="/dashboard" className="btn btn-secondary btn-sm">
