@@ -205,7 +205,11 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
   return (
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
-      <div className="rise-in absolute inset-y-0 right-0 flex w-80 max-w-[88%] flex-col bg-background px-4 py-5 shadow-float" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="rise-in absolute inset-y-0 right-0 flex w-[19rem] max-w-[88%] flex-col bg-background px-4 pt-5 shadow-float"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <span className="font-heading text-lg font-extrabold">Menu</span>
           <button onClick={onClose} aria-label="Close menu" className="icon-btn">
