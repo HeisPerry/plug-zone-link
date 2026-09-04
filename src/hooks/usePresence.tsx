@@ -48,6 +48,20 @@ export function useIsOnline(userId: string | null | undefined) {
   return !!userId && online.has(userId);
 }
 
+/** Last-seen time for a user, or null when they've hidden it. Skipped while they're online. */
+export function useLastSeen(userId: string | null | undefined, online: boolean) {
+  return useQuery({
+    queryKey: ["last-seen", userId],
+    enabled: !!userId && !online,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("last_seen_at, show_last_seen").eq("id", userId!).maybeSingle();
+      if (error) throw error;
+      return data?.show_last_seen ? (data.last_seen_at ?? null) : null;
+    },
+  });
+}
+
 /** Typing indicator for one conversation using Realtime broadcast (never stored). */
 export function useTyping(conversationId: string | null) {
   const { user } = useAuth();
