@@ -90,18 +90,74 @@ export function PublicHeader({ right }: { right?: ReactNode }) {
   );
 }
 
-export function PublicFooter() {
+export function PublicFooter({ compact }: { compact?: boolean }) {
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-10 text-sm text-muted-foreground sm:px-6 lg:px-8">
-        <Logo to="/" />
-        <nav className="flex flex-wrap gap-6">
-          <Link to="/signup">Sign Up</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/privacy">Privacy</Link>
+      <div
+        className={cn(
+          "mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 text-sm text-muted-foreground sm:px-6 lg:px-8",
+          compact ? "py-5" : "py-8",
+        )}
+      >
+        {!compact && <Logo to="/" />}
+        <p>© 2026 PlugZone. All rights reserved.</p>
+        <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2">
+          <Link to="/terms" className="inline-flex min-h-11 items-center hover:text-foreground">
+            Terms of Service
+          </Link>
+          <Link to="/privacy" className="inline-flex min-h-11 items-center hover:text-foreground">
+            Privacy Policy
+          </Link>
         </nav>
       </div>
     </footer>
+  );
+}
+
+/** Shared frame for the Terms and Privacy pages. */
+export function LegalPage({
+  title,
+  updated,
+  intro,
+  sections,
+}: {
+  title: string;
+  updated: string;
+  intro: string;
+  sections: { heading: string; body?: ReactNode; items?: string[] }[];
+}) {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <PublicHeader
+        right={
+          <Link to="/login" className="btn btn-ghost btn-sm">
+            Sign in
+          </Link>
+        }
+      />
+      <article className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+        <h1 className="text-[32px] sm:text-[40px]">{title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Last Updated: {updated}</p>
+        <p className="mt-6 text-[16px] leading-relaxed">{intro}</p>
+        <ol className="mt-10 space-y-8">
+          {sections.map((s, i) => (
+            <li key={s.heading}>
+              <h2 className="text-[19px]">
+                {i + 1}. {s.heading}
+              </h2>
+              {s.body && <div className="mt-2 text-[15px] leading-relaxed text-foreground/85">{s.body}</div>}
+              {s.items && (
+                <ul className="mt-2 grid list-disc gap-1 pl-5 text-[15px] leading-relaxed text-foreground/85 sm:grid-cols-2">
+                  {s.items.map((it) => (
+                    <li key={it}>{it}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
+      </article>
+      <PublicFooter />
+    </div>
   );
 }
