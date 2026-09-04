@@ -7,6 +7,7 @@ import { useAffiliateStats } from "@/hooks/useAffiliate";
 import { uploadAdImage } from "@/hooks/useAds";
 import { Page, PageHeader } from "@/components/layout/PageLayout";
 import { Field } from "@/components/shared/Field";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { Avatar } from "@/components/shared/Avatar";
 import { Modal } from "@/components/shared/Modal";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
