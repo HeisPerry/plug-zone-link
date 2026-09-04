@@ -40,6 +40,24 @@ export function useOrders(side: "buying" | "selling") {
   });
 }
 
+export function useAllOrders() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["orders", user?.id, "all"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return hydrateOrders(data);
+    },
+  });
+}
+
 export function useRecentOrders(limit = 5) {
   const { user } = useAuth();
   return useQuery({
@@ -89,6 +107,25 @@ export function useUpdateOrderStatus() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+const ONGOING_STATUSES = ["pending", "accepted", "paid", "shipped", "in_progress", "disputed"];
+
+export function useOngoingOrdersCount() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["orders", "ongoing-count", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
+        .in("status", ONGOING_STATUSES);
+      if (error) throw error;
+      return count ?? 0;
     },
   });
 }

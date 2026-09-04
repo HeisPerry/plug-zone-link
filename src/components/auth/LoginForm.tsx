@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { loginSchema } from "@/lib/validators";
+import { isEmailLike, loginSchema } from "@/lib/validators";
+import { signInWithUsername } from "@/lib/auth.functions";
+import { getRememberedIdentifier, setRememberedIdentifier, setRememberMe } from "@/lib/session-mode";
 import { Field } from "@/components/shared/Field";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { useToast } from "@/components/shared/Toast";
 
 const MAX_ATTEMPTS = 5;
 const LOCK_SECONDS = 30;
+const INVALID = "Incorrect username/email or password.";
+
+type Errors = { identifier?: string; password?: string; form?: string };
 
 export function LoginForm() {
   const navigate = useNavigate();
   const toast = useToast();
-  const [values, setValues] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+  const usernameSignIn = useServerFn(signInWithUsername);
+  const [values, setValues] = useState(() => ({
+    identifier: getRememberedIdentifier(),
+    password: "",
+    remember: true,
+  }));
+  const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
@@ -26,6 +39,7 @@ export function LoginForm() {
       if (Date.now() >= lockedUntil) {
         setLockedUntil(null);
         setAttempts(0);
+        setErrors({});
       }
     }, 500);
     return () => clearInterval(t);
@@ -34,14 +48,25 @@ export function LoginForm() {
   const locked = lockedUntil !== null && now < lockedUntil;
   const secondsLeft = locked ? Math.ceil((lockedUntil! - now) / 1000) : 0;
 
+  function failed(message: string) {
+    const next = attempts + 1;
+    setAttempts(next);
+    if (next >= MAX_ATTEMPTS) {
+      setLockedUntil(Date.now() + LOCK_SECONDS * 1000);
+      setErrors({ form: `Too many failed attempts. Try again in ${LOCK_SECONDS} seconds.` });
+    } else {
+      setErrors({ form: message });
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (locked) return;
+    if (locked || submitting) return;
     const parsed = loginSchema.safeParse(values);
     if (!parsed.success) {
-      const errs: typeof errors = {};
+      const errs: Errors = {};
       parsed.error.issues.forEach((i) => {
-        const k = i.path[0] as "email" | "password";
+        const k = i.path[0] as "identifier" | "password";
         if (!errs[k]) errs[k] = i.message;
       });
       setErrors(errs);
@@ -49,28 +74,42 @@ export function LoginForm() {
     }
     setErrors({});
     setSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword(parsed.data);
-    setSubmitting(false);
-    if (error) {
-      const next = attempts + 1;
-      setAttempts(next);
-      if (next >= MAX_ATTEMPTS) {
-        setLockedUntil(Date.now() + LOCK_SECONDS * 1000);
-        setErrors({ form: `Too many failed attempts. Try again in ${LOCK_SECONDS} seconds.` });
+    const { identifier, password, remember } = parsed.data;
+    try {
+      if (isEmailLike(identifier)) {
+        const { error } = await supabase.auth.signInWithPassword({ email: identifier, password });
+        if (error) {
+          failed(error.message === "Invalid login credentials" ? INVALID : error.message);
+          return;
+        }
       } else {
-        setErrors({ form: error.message === "Invalid login credentials" ? "Wrong email or password." : error.message });
+        const res = await usernameSignIn({ data: { username: identifier, password } });
+        if (!res.ok) {
+          failed(res.reason === "unconfirmed" ? "Please confirm your email address before signing in." : INVALID);
+          return;
+        }
+        const { error } = await supabase.auth.setSession({ access_token: res.access_token, refresh_token: res.refresh_token });
+        if (error) {
+          failed(INVALID);
+          return;
+        }
       }
-      return;
+      setRememberMe(remember);
+      setRememberedIdentifier(remember ? identifier : null);
+      // Daily streak logic runs from the dashboard on arrival.
+      navigate({ to: "/dashboard" });
+    } catch {
+      setErrors({ form: "We couldn't sign you in right now. Check your connection and try again." });
+    } finally {
+      setSubmitting(false);
     }
-    // Daily streak logic runs from the dashboard on arrival.
-    navigate({ to: "/dashboard" });
   }
 
   async function sendReset(e: React.FormEvent) {
     e.preventDefault();
-    const email = values.email.trim();
-    if (!email) {
-      setErrors({ email: "Enter your email first" });
+    const email = values.identifier.trim();
+    if (!isEmailLike(email)) {
+      setErrors({ identifier: "Enter the email address on your account" });
       return;
     }
     setSubmitting(true);
@@ -79,6 +118,7 @@ export function LoginForm() {
     if (error) setErrors({ form: error.message });
     else {
       toast.success("Password reset email sent");
+      setErrors({});
       setResetMode(false);
     }
   }
@@ -90,14 +130,22 @@ export function LoginForm() {
           <h2 className="text-2xl">Reset your password</h2>
           <p className="mt-1 text-[15px] text-muted-foreground">We'll email you a link to set a new one.</p>
         </div>
-        <Field label="Email" htmlFor="email" error={errors.email}>
-          <input id="email" type="email" className="input" value={values.email} onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))} autoComplete="email" />
+        <Field label="Email" htmlFor="reset-email" error={errors.identifier}>
+          <input
+            id="reset-email"
+            type="email"
+            className="input"
+            value={values.identifier}
+            onChange={(e) => setValues((v) => ({ ...v, identifier: e.target.value }))}
+            autoComplete="email"
+            inputMode="email"
+          />
         </Field>
         {errors.form && <p className="field-error">{errors.form}</p>}
         <button type="submit" className="btn btn-primary w-full" disabled={submitting}>
           {submitting ? "Sending…" : "Send Reset Link"}
         </button>
-        <button type="button" className="text-[15px] font-medium text-primary" onClick={() => setResetMode(false)}>
+        <button type="button" className="min-h-11 text-[15px] font-medium text-primary" onClick={() => setResetMode(false)}>
           Back to sign in
         </button>
       </form>
@@ -105,30 +153,76 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-5">
+    <form onSubmit={onSubmit} noValidate className="space-y-5" aria-busy={submitting}>
       <div>
         <h2 className="text-2xl">Sign in</h2>
         <p className="mt-1 text-[15px] text-muted-foreground">Welcome back.</p>
       </div>
-      <Field label="Email" htmlFor="email" error={errors.email}>
-        <input id="email" type="email" className="input" value={values.email} onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))} autoComplete="email" />
+
+      <Field label="Username or Email" htmlFor="identifier" error={errors.identifier}>
+        <input
+          id="identifier"
+          type="text"
+          className="input"
+          value={values.identifier}
+          onChange={(e) => setValues((v) => ({ ...v, identifier: e.target.value }))}
+          autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder="yourname or you@example.com"
+          aria-invalid={!!errors.identifier}
+        />
       </Field>
-      <div>
-        <Field label="Password" htmlFor="password" error={errors.password}>
-          <input id="password" type="password" className="input" value={values.password} onChange={(e) => setValues((v) => ({ ...v, password: e.target.value }))} autoComplete="current-password" />
-        </Field>
-        <button type="button" className="mt-2 text-sm font-medium text-primary" onClick={() => setResetMode(true)}>
+
+      <Field label="Password" htmlFor="password" error={errors.password}>
+        <PasswordInput
+          id="password"
+          value={values.password}
+          onChange={(e) => setValues((v) => ({ ...v, password: e.target.value }))}
+          autoComplete="current-password"
+          aria-invalid={!!errors.password}
+        />
+      </Field>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label htmlFor="remember" className="flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-[15px]">
+          <input
+            id="remember"
+            type="checkbox"
+            className="h-[18px] w-[18px] shrink-0 cursor-pointer rounded border-border accent-primary"
+            checked={values.remember}
+            onChange={(e) => setValues((v) => ({ ...v, remember: e.target.checked }))}
+          />
+          Remember me
+        </label>
+        <button
+          type="button"
+          className="min-h-11 text-[15px] font-medium text-primary"
+          onClick={() => {
+            setErrors({});
+            setResetMode(true);
+          }}
+        >
           Forgot password?
         </button>
       </div>
-      {errors.form && <p className="field-error">{locked ? `Too many failed attempts. Try again in ${secondsLeft}s.` : errors.form}</p>}
+
+      {errors.form && (
+        <p className="field-error" role="alert">
+          {locked ? `Too many failed attempts. Try again in ${secondsLeft}s.` : errors.form}
+        </p>
+      )}
+
       <button type="submit" className="btn btn-primary w-full" disabled={submitting || locked}>
+        {submitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
         {locked ? `Wait ${secondsLeft}s` : submitting ? "Signing in…" : "Sign In"}
       </button>
+
       <p className="text-[15px] text-muted-foreground">
         New here?{" "}
         <Link to="/signup" className="font-medium text-primary">
-          Create an account
+          Sign up
         </Link>
       </p>
     </form>

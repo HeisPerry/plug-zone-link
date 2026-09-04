@@ -95,13 +95,17 @@ export function useSaveAd() {
   return useMutation({
     mutationFn: async ({ id, values, images }: { id?: string | undefined; values: AdFormValues; images: string[] }) => {
       if (!user) throw new Error("Not signed in");
+      const details = Object.fromEntries(
+        Object.entries(values.details ?? {}).filter(([, v]) => String(v).trim() !== "")
+      );
       const payload = {
         title: values.title,
         description: values.description,
         price: values.price,
         currency: values.currency,
         category: values.category,
-        location: values.location || null,
+        subcategory: values.subcategory || null,
+        details,
         images,
       };
       if (id) {

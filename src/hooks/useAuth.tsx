@@ -1,19 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/lib/types";
+import { answerSessionPings, clearSessionMode, shouldDropStoredSession } from "@/lib/session-mode";
 
-interface AuthContextValue {
-  user: User | null;
-  session: Session | null;
-  profile: Profile | null;
-  loading: boolean;
-  refreshProfile: () => Promise<void>;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext, type AuthContextValue } from "./auth-context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -32,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    const stopAnswering = answerSessionPings();
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       if (!mounted) return;
       setSession(s);
@@ -45,12 +38,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
-      setSession(data.session);
-      await loadProfile(data.session?.user.id);
+      let current = data.session;
+      // "Remember me" was unticked and this is a fresh browser launch: drop the stored session.
+      if (current && (await shouldDropStoredSession())) {
+        clearSessionMode();
+        await supabase.auth.signOut();
+        current = null;
+        if (window.location.pathname !== "/login") window.location.replace("/login");
+      }
+      if (!mounted) return;
+      setSession(current);
+      await loadProfile(current?.user.id);
       setLoading(false);
     });
     return () => {
       mounted = false;
+      stopAnswering();
       sub.subscription.unsubscribe();
     };
   }, [loadProfile, queryClient]);
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         await queryClient.cancelQueries();
         queryClient.clear();
+        clearSessionMode();
         await supabase.auth.signOut();
       },
     }),

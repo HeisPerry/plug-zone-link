@@ -20,12 +20,14 @@ export type Database = {
           created_at: string
           currency: string
           description: string
+          details: Json
           id: string
           images: string[]
           location: string | null
           price: number
           seller_id: string
           status: string
+          subcategory: string | null
           title: string
           updated_at: string
         }
@@ -34,12 +36,14 @@ export type Database = {
           created_at?: string
           currency?: string
           description: string
+          details?: Json
           id?: string
           images?: string[]
           location?: string | null
           price: number
           seller_id: string
           status?: string
+          subcategory?: string | null
           title: string
           updated_at?: string
         }
@@ -48,12 +52,14 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
+          details?: Json
           id?: string
           images?: string[]
           location?: string | null
           price?: number
           seller_id?: string
           status?: string
+          subcategory?: string | null
           title?: string
           updated_at?: string
         }
@@ -178,6 +184,7 @@ export type Database = {
           id: string
           phone_number: string
           provider: string
+          recipient: string
           reference: string
           status: string
           type: string
@@ -190,6 +197,7 @@ export type Database = {
           id?: string
           phone_number: string
           provider: string
+          recipient?: string
           reference: string
           status?: string
           type: string
@@ -202,6 +210,7 @@ export type Database = {
           id?: string
           phone_number?: string
           provider?: string
+          recipient?: string
           reference?: string
           status?: string
           type?: string
@@ -294,29 +303,47 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_name: string | null
+          attachment_size: number | null
+          attachment_type: string | null
+          attachment_url: string | null
           content: string
           conversation_id: string
           created_at: string
+          delivered_at: string | null
           id: string
           read: boolean
+          read_at: string | null
           receiver_id: string
           sender_id: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           content: string
           conversation_id: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           read?: boolean
+          read_at?: string | null
           receiver_id: string
           sender_id: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           read?: boolean
+          read_at?: string | null
           receiver_id?: string
           sender_id?: string
         }
@@ -344,6 +371,166 @@ export type Database = {
           },
         ]
       }
+      negotiations: {
+        Row: {
+          ad_id: string
+          buyer_id: string
+          conversation_id: string | null
+          counter_offer_price: number | null
+          created_at: string
+          expires_at: string
+          id: string
+          last_actor_id: string
+          message: string | null
+          offered_price: number
+          order_id: string | null
+          original_price: number
+          previous_price: number | null
+          round_number: number
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ad_id: string
+          buyer_id: string
+          conversation_id?: string | null
+          counter_offer_price?: number | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_actor_id: string
+          message?: string | null
+          offered_price: number
+          order_id?: string | null
+          original_price: number
+          previous_price?: number | null
+          round_number?: number
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string
+          buyer_id?: string
+          conversation_id?: string | null
+          counter_offer_price?: number | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_actor_id?: string
+          message?: string | null
+          offered_price?: number
+          order_id?: string | null
+          original_price?: number
+          previous_price?: number | null
+          round_number?: number
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negotiations_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiations_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiations_last_actor_id_fkey"
+            columns: ["last_actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiations_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           ad_id: string
@@ -351,6 +538,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          payment_status: string
           quantity: number
           seller_id: string
           status: string
@@ -363,6 +551,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          payment_status?: string
           quantity?: number
           seller_id: string
           status?: string
@@ -375,6 +564,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          payment_status?: string
           quantity?: number
           seller_id?: string
           status?: string
@@ -415,10 +605,12 @@ export type Database = {
           display_name: string
           id: string
           last_check_in: string | null
+          last_seen_at: string | null
           longest_streak: number
           notification_prefs: Json
           phone_number: string | null
           referred_by: string | null
+          show_last_seen: boolean
           total_referrals: number
           updated_at: string
           username: string
@@ -432,10 +624,12 @@ export type Database = {
           display_name: string
           id: string
           last_check_in?: string | null
+          last_seen_at?: string | null
           longest_streak?: number
           notification_prefs?: Json
           phone_number?: string | null
           referred_by?: string | null
+          show_last_seen?: boolean
           total_referrals?: number
           updated_at?: string
           username: string
@@ -449,10 +643,12 @@ export type Database = {
           display_name?: string
           id?: string
           last_check_in?: string | null
+          last_seen_at?: string | null
           longest_streak?: number
           notification_prefs?: Json
           phone_number?: string | null
           referred_by?: string | null
+          show_last_seen?: boolean
           total_referrals?: number
           updated_at?: string
           username?: string
@@ -461,6 +657,111 @@ export type Database = {
           {
             foreignKeyName: "profiles_referred_by_fkey"
             columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          phone_number: string
+          provider: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          phone_number: string
+          provider?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          phone_number?: string
+          provider?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string | null
+          payee_id: string
+          payer_id: string
+          platform_fee: number
+          provider: string | null
+          reference: string
+          seller_earnings: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          payee_id: string
+          payer_id: string
+          platform_fee?: number
+          provider?: string | null
+          reference: string
+          seller_earnings?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          payee_id?: string
+          payer_id?: string
+          platform_fee?: number
+          provider?: string | null
+          reference?: string
+          seller_earnings?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payee_id_fkey"
+            columns: ["payee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payer_id_fkey"
+            columns: ["payer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -482,6 +783,8 @@ export type Database = {
         }[]
       }
       delete_my_account: { Args: never; Returns: undefined }
+      display_name_of: { Args: { p_user: string }; Returns: string }
+      expire_stale_negotiations: { Args: never; Returns: undefined }
       generate_affiliate_code: { Args: never; Returns: string }
       get_or_create_conversation: { Args: { p_other: string }; Returns: string }
       get_profile_stats: {
@@ -503,7 +806,37 @@ export type Database = {
         }[]
       }
       is_username_available: { Args: { p_username: string }; Returns: boolean }
+      make_offer: {
+        Args: { p_ad: string; p_message?: string; p_price: number }
+        Returns: string
+      }
+      mark_all_notifications_read: { Args: never; Returns: undefined }
+      mark_messages_delivered: { Args: never; Returns: number }
+      notify: {
+        Args: {
+          p_actor?: string
+          p_body: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_link: string
+          p_title: string
+          p_type: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      platform_fee_rate: { Args: never; Returns: number }
       record_affiliate_click: { Args: { p_code: string }; Returns: string }
+      respond_to_offer: {
+        Args: {
+          p_action: string
+          p_message?: string
+          p_negotiation: string
+          p_price?: number
+        }
+        Returns: undefined
+      }
+      touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

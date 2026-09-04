@@ -26,4 +26,23 @@ export type ConversationWithOther = Conversation & {
   unread: number;
 };
 
-export type NotificationPrefs = { messages: boolean; orders: boolean; friend_requests: boolean };
+export type Notification = Tables["notifications"]["Row"];
+export type Transaction = Tables["transactions"]["Row"];
+
+export type PushCategory = "messages" | "offers" | "orders" | "friends" | "payments" | "activity";
+
+export type NotificationPrefs = {
+  messages: boolean;
+  orders: boolean;
+  friend_requests: boolean;
+  push_enabled?: boolean;
+  push?: Partial<Record<PushCategory, boolean>>;
+};
+
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
+  messages: true,
+  orders: true,
+  friend_requests: true,
+  push_enabled: false,
+  push: { messages: true, offers: true, orders: true, friends: true, payments: true, activity: true },
+};

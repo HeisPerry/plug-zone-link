@@ -10,9 +10,17 @@ export function useUnreadCount() {
 
   useEffect(() => {
     if (!user) return;
+    // Anything addressed to me that arrived while I was away is now "delivered".
+    void supabase.rpc("mark_messages_delivered");
+    // Unique per hook instance: several components (Sidebar, MobileNav) mount this hook at once,
+    // and supabase.channel() returns an existing subscribed channel for a duplicate name.
     const channel = supabase
-      .channel(`unread-${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, () => {
+      .channel(`unread-${user.id}-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const msg = payload.new as Message;
+          if (!msg.delivered_at) void supabase.from("messages").update({ delivered_at: new Date().toISOString() }).eq("id", msg.id).is("delivered_at", null);
+        }
         queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
         queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
       })
@@ -90,7 +98,7 @@ export function useThread(conversationId: string | null) {
   useEffect(() => {
     if (!conversationId || !user) return;
     const channel = supabase
-      .channel(`thread-${conversationId}`)
+      .channel(`thread-${conversationId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
@@ -104,6 +112,14 @@ export function useThread(conversationId: string | null) {
               queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
             });
           }
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        (payload) => {
+          const msg = payload.new as Message;
+          queryClient.setQueryData<Message[]>(["thread", conversationId], (old = []) => old.map((m) => (m.id === msg.id ? { ...m, ...msg } : m)));
         },
       )
       .subscribe();
@@ -135,15 +151,53 @@ export function useThread(conversationId: string | null) {
   });
 }
 
+/** Looks up a single conversation directly — used when it was just created and isn't in the cached list yet. */
+export function useConversation(conversationId: string | undefined) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["conversation", conversationId],
+    enabled: !!conversationId && !!user,
+    queryFn: async (): Promise<ConversationWithOther | null> => {
+      const { data: c, error } = await supabase.from("conversations").select("*").eq("id", conversationId!).maybeSingle();
+      if (error) throw error;
+      if (!c) return null;
+      const otherId = c.participant_one === user!.id ? c.participant_two : c.participant_one;
+      const { data: p } = await supabase.from("profiles").select("id, username, display_name, avatar_url").eq("id", otherId).maybeSingle();
+      return { ...c, other: (p as ProfileLite | null) ?? { id: otherId, username: "unknown", display_name: "Unknown user", avatar_url: null }, lastMessage: null, unread: 0 };
+    },
+  });
+}
+
+export const MESSAGE_FILES_BUCKET = "message-files";
+export const MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024;
+
+export type OutgoingMessage = { content: string; file?: File | null };
+
 export function useSendMessage(conversationId: string | null, receiverId: string | undefined) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async ({ content, file }: OutgoingMessage) => {
       if (!conversationId || !receiverId || !user) throw new Error("No conversation selected");
+      const text = content.trim();
+      if (!text && !file) throw new Error("Write a message or attach a file");
+
+      let attachment: Partial<Pick<Message, "attachment_url" | "attachment_name" | "attachment_type" | "attachment_size">> = {};
+      if (file) {
+        if (file.size > MAX_ATTACHMENT_BYTES) throw new Error("Files must be 20 MB or smaller");
+        const safeName = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
+        const path = `${conversationId}/${user.id}/${Date.now()}-${safeName}`;
+        const { error: upErr } = await supabase.storage.from(MESSAGE_FILES_BUCKET).upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false });
+        if (upErr) throw upErr;
+        // Private bucket: store a long-lived signed URL that both participants can open.
+        const { data: signed, error: signErr } = await supabase.storage.from(MESSAGE_FILES_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+        if (signErr || !signed) throw signErr ?? new Error("Could not prepare the file link");
+        attachment = { attachment_url: signed.signedUrl, attachment_name: file.name, attachment_type: file.type || "application/octet-stream", attachment_size: file.size };
+      }
+
       const { data, error } = await supabase
         .from("messages")
-        .insert({ conversation_id: conversationId, sender_id: user.id, receiver_id: receiverId, content })
+        .insert({ conversation_id: conversationId, sender_id: user.id, receiver_id: receiverId, content: text || (file ? `Sent a file: ${file.name}` : ""), ...attachment })
         .select("*")
         .single();
       if (error) throw error;

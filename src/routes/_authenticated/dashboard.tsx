@@ -8,11 +8,13 @@ import { useRecentOrders } from "@/hooks/useOrders";
 import { useConversations, useUnreadCount } from "@/hooks/useMessages";
 import { useCheckIn } from "@/hooks/useCheckIn";
 import { useToast } from "@/components/shared/Toast";
-import { Page } from "@/components/layout/PageLayout";
+import { Page, PageHero } from "@/components/layout/PageLayout";
+import { Plus, Search } from "lucide-react";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ListSkeleton, StatSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Avatar } from "@/components/shared/Avatar";
+import { DashboardFeed } from "@/components/feed/DashboardFeed";
 import { formatDate, formatRelative, truncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -66,26 +68,40 @@ function DashboardPage() {
   ];
 
   return (
-    <Page wide>
-      <div>
-        <h1 className="text-2xl sm:text-3xl">Welcome back, {profile?.display_name ?? "there"}</h1>
-        <p className="mt-1 text-[15px] text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
-      </div>
-
-      <section className="mt-8">
-        {counts.isLoading ? (
-          <StatSkeleton />
-        ) : (
-          <div className="flex gap-4 overflow-x-auto pb-1 hide-scrollbar">
-            {stats.map((s) => (
-              <Link key={s.label} to={s.to} className="panel min-w-[180px] flex-1 p-5 transition-colors hover:border-foreground">
-                <p className="text-sm text-muted-foreground">{s.label}</p>
-                <p className="mt-1 font-heading text-3xl font-bold">{s.value ?? "—"}</p>
-              </Link>
-            ))}
+    <>
+      <PageHero
+        eyebrow="Marketplace"
+        title={<>Welcome back, {profile?.display_name?.split(" ")[0] ?? "there"}</>}
+        subtitle={`${format(new Date(), "EEEE, d MMMM yyyy")} · Browse fresh listings, track your orders and keep your streak alive.`}
+        action={
+          <div className="flex gap-2">
+            <Link to="/ads/new" className="btn btn-ink">
+              <Plus size={18} /> Post an Ad
+            </Link>
+            <a href="#feed" className="btn btn-secondary">
+              <Search size={18} /> Browse
+            </a>
           </div>
-        )}
-      </section>
+        }
+      >
+        <div className="mt-10">
+          {counts.isLoading ? (
+            <StatSkeleton />
+          ) : (
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {stats.map((s) => (
+                <Link key={s.label} to={s.to} className="panel p-5 transition-transform hover:-translate-y-0.5">
+                  <p className="text-sm text-muted-foreground">{s.label}</p>
+                  <p className="mt-1 font-heading text-[30px] font-extrabold leading-none">{s.value ?? "—"}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </PageHero>
+    <Page wide className="pt-2">
+      <div id="feed" />
+      <DashboardFeed />
 
       <section className="mt-12">
         <div className="flex items-baseline justify-between">
@@ -100,7 +116,7 @@ function DashboardPage() {
           ) : !orders.data?.length ? (
             <EmptyState title="No orders yet" body="Orders you place or receive will show up here." />
           ) : (
-            <ul className="divide-y border-y">
+            <ul className="panel divide-y overflow-hidden px-5">
               {orders.data.map((o) => {
                 const other = o.buyer_id === user?.id ? o.seller : o.buyer;
                 return (
@@ -134,7 +150,7 @@ function DashboardPage() {
           ) : !convos.data?.length ? (
             <EmptyState title="No conversations yet" body="Message a seller from any ad to start chatting." />
           ) : (
-            <ul className="divide-y border-y">
+            <ul className="panel divide-y overflow-hidden px-5">
               {convos.data.slice(0, 3).map((c) => (
                 <li key={c.id}>
                   <Link to="/messages" search={{ c: c.id }} className="flex items-center gap-3 py-3.5">
@@ -153,5 +169,6 @@ function DashboardPage() {
         </div>
       </section>
     </Page>
+    </>
   );
 }

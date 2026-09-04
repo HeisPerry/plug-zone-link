@@ -5,13 +5,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserActiveAds } from "@/hooks/useAds";
 import { useFriendGraph } from "@/hooks/useFriends";
 import { useStartConversation } from "@/hooks/useMessages";
-import { PublicHeader } from "@/components/layout/PageLayout";
+import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { Avatar } from "@/components/shared/Avatar";
 import { AdRow } from "@/components/ads/AdRow";
 import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RelationshipButton } from "@/components/friends/RelationshipButton";
-import { formatDate } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
+import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
 export const Route = createFileRoute("/user/$username")({
@@ -53,6 +54,8 @@ function UserProfilePage() {
   const graph = useFriendGraph();
   const start = useStartConversation();
   const isMe = !!user && p?.id === user.id;
+  const online = useIsOnline(p?.id);
+  const { data: lastSeen } = useLastSeen(user && !isMe ? p?.id : null, online);
 
   const headerRight = user ? (
     <Link to="/dashboard" className="btn btn-secondary btn-sm">
@@ -65,7 +68,7 @@ function UserProfilePage() {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <PublicHeader right={headerRight} />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:py-12">
         {isLoading ? (
@@ -85,10 +88,18 @@ function UserProfilePage() {
         ) : (
           <>
             <section className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <Avatar name={p.display_name} username={p.username} src={p.avatar_url} size={80} />
+              <div className="relative self-start">
+                <Avatar name={p.display_name} username={p.username} src={p.avatar_url} size={80} />
+                {online && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-background bg-primary" aria-hidden="true" />}
+              </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-[28px] sm:text-[34px]">{p.display_name}</h1>
                 <p className="text-[15px] text-muted-foreground">@{p.username}</p>
+                {!isMe && user && (
+                  <p className="mt-1 text-sm">
+                    {online ? <span className="font-medium text-primary">Online</span> : <span className="text-muted-foreground">{lastSeen ? `Last seen ${timeAgo(lastSeen)}` : "Offline"}</span>}
+                  </p>
+                )}
                 {p.bio && <p className="mt-3 max-w-xl text-[15px]">{p.bio}</p>}
                 <p className="mt-2 text-sm text-muted-foreground">Member since {formatDate(p.created_at)}</p>
               </div>
@@ -148,6 +159,7 @@ function UserProfilePage() {
           </>
         )}
       </div>
+      <PublicFooter compact />
     </div>
   );
 }

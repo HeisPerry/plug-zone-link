@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useStartConversation } from "@/hooks/useMessages";
-import { PublicHeader } from "@/components/layout/PageLayout";
+import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { Modal } from "@/components/shared/Modal";
@@ -66,7 +65,7 @@ function AdDetailPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <PublicHeader right={headerRight} />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
         {isLoading ? (
@@ -116,6 +115,11 @@ function AdDetailPage() {
             <section>
               <div className="flex flex-wrap items-center gap-2">
                 <CategoryBadge>{ad.category}</CategoryBadge>
+                {ad.subcategory && (
+                  <span className="rounded-full border px-2.5 py-0.5 text-[13px] text-muted-foreground">
+                    {ad.subcategory}
+                  </span>
+                )}
                 {ad.status !== "active" && <StatusBadge status={ad.status} />}
               </div>
               <h1 className="mt-3 text-[28px] sm:text-[34px]">{ad.title}</h1>
@@ -132,13 +136,19 @@ function AdDetailPage() {
               </div>
 
               <dl className="mt-4 space-y-1.5 text-[15px] text-muted-foreground">
-                {ad.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} /> {ad.location}
-                  </div>
-                )}
                 <div>Posted {formatDate(ad.created_at)}</div>
               </dl>
+
+              {ad.details && typeof ad.details === "object" && Object.keys(ad.details).length > 0 && (
+                <dl className="mt-4 grid gap-x-6 gap-y-2 border-t pt-4 sm:grid-cols-2">
+                  {Object.entries(ad.details as Record<string, unknown>).map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-4 text-[15px]">
+                      <dt className="capitalize text-muted-foreground">{k.replace(/_/g, " ")}</dt>
+                      <dd className="text-right font-medium text-foreground">{String(v)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
 
               <div className="mt-6 flex flex-wrap gap-2">
                 {isOwner ? (
@@ -242,6 +252,7 @@ function AdDetailPage() {
           </button>
         </div>
       </Modal>
+      <PublicFooter compact />
     </div>
   );
 }
