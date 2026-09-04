@@ -64,12 +64,12 @@ export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboar
         alt=""
         width={703}
         height={625}
-        className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-9 sm:h-11")}
+        className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-8 sm:h-11")}
       />
       <span
         className={cn(
           "truncate font-heading font-extrabold tracking-tight",
-          size === "sm" ? "text-lg" : size === "lg" ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl",
+          size === "sm" ? "text-lg" : size === "lg" ? "text-3xl sm:text-4xl" : "text-[17px] sm:text-2xl",
         )}
       >
         PlugZone
