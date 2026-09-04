@@ -18,7 +18,7 @@ export function PasswordInput({ toggleLabel = "Password", className = "", ...pro
 
   return (
     <div className="relative">
-      <input type={type} className={`input pr-11 ${className}`} {...props} />
+      <input type={type} className={`input pr-[4.5rem] ${className}`} {...props} />
       <button
         id={toggleId}
         type="button"
@@ -26,9 +26,10 @@ export function PasswordInput({ toggleLabel = "Password", className = "", ...pro
         aria-label={`${visible ? "Hide" : "Show"} ${toggleLabel}`}
         title={`${visible ? "Hide" : "Show"} ${toggleLabel}`}
         onClick={() => setVisible((v) => !v)}
-        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:text-foreground"
+        className="absolute inset-y-0 right-0 flex items-center gap-1.5 px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:text-foreground"
       >
-        {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+        {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        <span aria-hidden="true">{visible ? "Hide" : "Show"}</span>
       </button>
     </div>
   );
