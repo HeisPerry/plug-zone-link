@@ -140,7 +140,7 @@ export function SignUpForm({ initialReferral }: { initialReferral?: string | und
       </Field>
 
       <Field label="Referral code (optional)" htmlFor="referralCode" error={errors.referralCode}>
-        <input id="referralCode" className="input uppercase" value={values.referralCode} onChange={set("referralCode")} placeholder="e.g. 7KQ2M9XA" />
+        <input id="referralCode" className="input uppercase" value={values.referralCode} onChange={set("referralCode")} placeholder="7KQ2M9XA" />
       </Field>
 
       {errors.form && <p className="field-error">{errors.form}</p>}
