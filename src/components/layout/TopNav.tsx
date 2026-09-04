@@ -231,7 +231,18 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
           <span className="font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
         </Link>
-        <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pb-2">
+        <button
+          className="mt-3 flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-destructive/30 bg-destructive-soft font-semibold text-destructive"
+          onClick={async () => {
+            onClose();
+            await signOut();
+            navigate({ to: "/login", replace: true });
+          }}
+        >
+          <LogOut size={18} />
+          Sign Out
+        </button>
+        <nav className="mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pb-2">
           {PRIMARY_LINKS.map(({ to, label }) => (
             <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
               <span className="flex-1">{label}</span>
@@ -247,17 +258,6 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
             </Link>
           ))}
         </nav>
-        <button
-          className="mt-2 flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-destructive/30 bg-destructive-soft font-semibold text-destructive"
-          onClick={async () => {
-            onClose();
-            await signOut();
-            navigate({ to: "/login", replace: true });
-          }}
-        >
-          <LogOut size={18} />
-          Sign Out
-        </button>
 
       </div>
     </div>
