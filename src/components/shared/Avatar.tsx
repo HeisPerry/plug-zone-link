@@ -19,8 +19,8 @@ export function Avatar({
   }
   return (
     <div
-      style={{ ...style, backgroundColor: avatarColor(username) }}
-      className={cn("flex shrink-0 items-center justify-center rounded-full font-heading font-bold text-primary-foreground", className)}
+      style={{ ...style, backgroundColor: avatarColor(username), color: "#fff" }}
+      className={cn("flex shrink-0 items-center justify-center rounded-full font-heading font-bold ", className)}
       aria-hidden="true"
     >
       {initials(name || username)}

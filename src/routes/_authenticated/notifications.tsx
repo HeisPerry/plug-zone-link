@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CheckCheck } from "lucide-react";
-import { Page, PageHeader } from "@/components/layout/PageLayout";
+import { Page, PageHero } from "@/components/layout/PageLayout";
 import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications, useUnreadNotifications } from "@/hooks/useNotifications";
 import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState, ErrorState } from "@/components/shared/EmptyState";
@@ -19,17 +19,20 @@ function NotificationsPage() {
   const markAll = useMarkAllNotificationsRead();
 
   return (
-    <Page>
-      <PageHeader
-        title="Notifications"
+    <>
+      <PageHero
+        compact
+        eyebrow="Notifications"
+        title="Stay in the loop"
         subtitle={unread ? `${unread} unread` : "You're all caught up"}
         action={
-          <button className="btn btn-secondary btn-sm" onClick={() => markAll.mutate()} disabled={!unread || markAll.isPending}>
+          <button className="btn btn-secondary" onClick={() => markAll.mutate()} disabled={!unread || markAll.isPending}>
             <CheckCheck size={16} /> Mark All as Read
           </button>
         }
       />
-      <div className="mt-6">
+    <Page>
+      <div>
         {isLoading ? (
           <ListSkeleton rows={6} />
         ) : isError ? (
@@ -45,7 +48,7 @@ function NotificationsPage() {
             }
           />
         ) : (
-          <ul className="divide-y border-y">
+          <ul className="panel divide-y overflow-hidden px-5">
             {data.map((n) => (
               <NotificationRow key={n.id} n={n} />
             ))}
@@ -53,6 +56,7 @@ function NotificationsPage() {
         )}
       </div>
     </Page>
+    </>
   );
 }
 

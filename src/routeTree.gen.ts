@@ -26,6 +26,8 @@ import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
 import { Route as UserUsernameRouteImport } from './routes/user.$username'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
@@ -118,6 +120,16 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AdAdIdRoute = AdAdIdRouteImport.update({
   id: '/ad/$adId',
   path: '/ad/$adId',
@@ -162,6 +174,8 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
@@ -185,6 +199,8 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
@@ -210,6 +226,8 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
@@ -235,6 +253,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/orders'
     | '/settings'
+    | '/support'
+    | '/wallet'
     | '/ad/$adId'
     | '/user/$username'
     | '/ads/new'
@@ -258,6 +278,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/orders'
     | '/settings'
+    | '/support'
+    | '/wallet'
     | '/ad/$adId'
     | '/user/$username'
     | '/ads/new'
@@ -282,6 +304,8 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/orders'
     | '/_authenticated/settings'
+    | '/_authenticated/support'
+    | '/_authenticated/wallet'
     | '/ad/$adId'
     | '/user/$username'
     | '/_authenticated/ads/new'
@@ -424,6 +448,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/support': {
+      id: '/_authenticated/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wallet': {
+      id: '/_authenticated/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/ad/$adId': {
       id: '/ad/$adId'
       path: '/ad/$adId'
@@ -471,6 +509,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedAdsAdIdEditRoute: typeof AuthenticatedAdsAdIdEditRoute
@@ -485,6 +525,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedAdsAdIdEditRoute: AuthenticatedAdsAdIdEditRoute,

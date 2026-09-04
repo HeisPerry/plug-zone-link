@@ -15,6 +15,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PresenceProvider } from "@/hooks/usePresence";
 import { ToastProvider } from "@/components/shared/Toast";
 import { SessionTimeout } from "@/components/layout/SessionTimeout";
+import { ThemeProvider, THEME_INIT_SCRIPT } from "@/hooks/useTheme";
 
 function NotFoundComponent() {
   return (
@@ -92,8 +93,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -109,6 +111,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
           <PresenceProvider>
@@ -118,6 +121,7 @@ function RootComponent() {
           </PresenceProvider>
         </AuthProvider>
       </ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
