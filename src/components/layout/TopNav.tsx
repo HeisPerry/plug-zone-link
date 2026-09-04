@@ -12,6 +12,7 @@ import {
   Package,
   Plus,
   Settings,
+  ShoppingBag,
   Smartphone,
   Sun,
   User,
@@ -211,8 +212,8 @@ function SheetRow({
   label: string;
   sub: string;
   icon: typeof Package;
-  accent?: boolean;
-  badge?: number;
+  accent?: boolean | undefined;
+  badge?: number | undefined;
   onClose: () => void;
 }) {
   return (
