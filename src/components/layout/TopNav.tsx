@@ -258,9 +258,9 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
     };
   }, [open]);
 
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose} role="dialog" aria-modal="true" aria-label="Account menu">
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
+    <div className="fixed inset-0 z-[100] lg:hidden" onClick={onClose} role="dialog" aria-modal="true" aria-label="Account menu">
       <div className="absolute inset-0 bg-ink/45 backdrop-blur-sm" />
       <div
         className="rise-in absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-3xl bg-background shadow-float"
