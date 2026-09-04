@@ -110,9 +110,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <AuthProvider>
-          <SessionTimeout />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <PresenceProvider>
+            <SessionTimeout />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </PresenceProvider>
         </AuthProvider>
       </ToastProvider>
     </QueryClientProvider>
