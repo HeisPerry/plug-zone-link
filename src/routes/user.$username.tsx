@@ -85,10 +85,18 @@ function UserProfilePage() {
         ) : (
           <>
             <section className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <Avatar name={p.display_name} username={p.username} src={p.avatar_url} size={80} />
+              <div className="relative self-start">
+                <Avatar name={p.display_name} username={p.username} src={p.avatar_url} size={80} />
+                {online && <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-background bg-primary" aria-hidden="true" />}
+              </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-[28px] sm:text-[34px]">{p.display_name}</h1>
                 <p className="text-[15px] text-muted-foreground">@{p.username}</p>
+                {!isMe && user && (
+                  <p className="mt-1 text-sm">
+                    {online ? <span className="font-medium text-primary">Online</span> : <span className="text-muted-foreground">{lastSeen ? `Last seen ${timeAgo(lastSeen)}` : "Offline"}</span>}
+                  </p>
+                )}
                 {p.bio && <p className="mt-3 max-w-xl text-[15px]">{p.bio}</p>}
                 <p className="mt-2 text-sm text-muted-foreground">Member since {formatDate(p.created_at)}</p>
               </div>
