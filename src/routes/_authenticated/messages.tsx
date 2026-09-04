@@ -35,7 +35,7 @@ function MessagesPage() {
   const select = (id: string | undefined) => navigate({ to: "/messages", search: id ? { c: id } : {}, replace: false });
 
   return (
-    <div className="-mb-24 flex h-[calc(100dvh-73px-4rem)] lg:-mb-12 lg:h-[calc(100dvh-73px)]">
+    <div className="-mb-24 flex h-[calc(100dvh-64px-4rem)] lg:-mb-12 lg:h-[calc(100dvh-73px)]">
       <aside className={cn("flex w-full flex-col border-r md:w-80 lg:w-96", activeId && "hidden md:flex")}>
         <div className="border-b px-5 py-4">
           <h1 className="text-2xl">Messages</h1>
