@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { Logo, ThemeToggle } from "@/components/layout/TopNav";
 
@@ -23,9 +24,22 @@ export function AuthLayout({ children, headline, points }: { children: ReactNode
         </div>
         <p className="hidden text-sm text-muted-foreground lg:block">Trusted by buyers and sellers across Nigeria.</p>
       </aside>
-      <section className="relative flex items-start justify-center px-6 py-10 sm:px-10 lg:items-center lg:px-16">
+      <section className="relative flex flex-col px-6 py-10 sm:px-10 lg:px-16">
         <ThemeToggle className="absolute right-4 top-4" />
-        <div className="panel w-full max-w-md p-6 sm:p-8">{children}</div>
+        <div className="flex flex-1 items-start justify-center lg:items-center">
+          <div className="panel w-full max-w-md p-6 sm:p-8">{children}</div>
+        </div>
+        <footer className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          <p>© 2026 PlugZone. All rights reserved.</p>
+          <nav aria-label="Legal" className="flex gap-6">
+            <Link to="/terms" className="inline-flex min-h-11 items-center hover:text-foreground">
+              Terms of Service
+            </Link>
+            <Link to="/privacy" className="inline-flex min-h-11 items-center hover:text-foreground">
+              Privacy Policy
+            </Link>
+          </nav>
+        </footer>
       </section>
     </div>
   );

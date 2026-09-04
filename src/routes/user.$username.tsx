@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserActiveAds } from "@/hooks/useAds";
 import { useFriendGraph } from "@/hooks/useFriends";
 import { useStartConversation } from "@/hooks/useMessages";
-import { PublicHeader } from "@/components/layout/PageLayout";
+import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { Avatar } from "@/components/shared/Avatar";
 import { AdRow } from "@/components/ads/AdRow";
 import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
@@ -68,7 +68,7 @@ function UserProfilePage() {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <PublicHeader right={headerRight} />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:py-12">
         {isLoading ? (
@@ -159,6 +159,7 @@ function UserProfilePage() {
           </>
         )}
       </div>
+      <PublicFooter compact />
     </div>
   );
 }

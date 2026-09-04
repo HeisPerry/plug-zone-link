@@ -4,7 +4,7 @@ import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaceOrder } from "@/hooks/useOrders";
 import { useStartConversation } from "@/hooks/useMessages";
-import { PublicHeader } from "@/components/layout/PageLayout";
+import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { Modal } from "@/components/shared/Modal";
@@ -65,7 +65,7 @@ function AdDetailPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <PublicHeader right={headerRight} />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
         {isLoading ? (
@@ -252,6 +252,7 @@ function AdDetailPage() {
           </button>
         </div>
       </Modal>
+      <PublicFooter compact />
     </div>
   );
 }
