@@ -295,9 +295,6 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
             <span className="shrink-0 font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
           </Link>
 
-          {profile && (
-            <SheetRow to="/user/$username" label="Profile" sub="Edit your information" icon={User} onClose={onClose} />
-          )}
           {SHEET_LINKS.map((l) => (
             <SheetRow
               key={l.to}
