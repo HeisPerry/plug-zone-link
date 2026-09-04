@@ -53,7 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSessionMode();
         await supabase.auth.signOut();
         current = null;
-        if (window.location.pathname !== "/login") navigate({ to: "/login", replace: true });
+        // Full reload so no in-memory state from the dropped session survives.
+        if (window.location.pathname !== "/login") window.location.replace("/login");
       }
       if (!mounted) return;
       setSession(current);
