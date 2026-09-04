@@ -248,7 +248,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           ))}
         </nav>
         <button
-          className="mt-2 flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-danger/30 bg-danger-soft font-semibold text-danger"
+          className="mt-2 flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-destructive/30 bg-destructive-soft font-semibold text-destructive"
           onClick={async () => {
             onClose();
             await signOut();
