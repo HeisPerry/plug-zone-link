@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useMessages";
 import { useUnreadNotifications } from "@/hooks/useNotifications";
+import { useOngoingOrdersCount } from "@/hooks/useOrders";
 
 export const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -43,6 +44,7 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const { data: unread = 0 } = useUnreadCount();
   const { data: unreadNotifs = 0 } = useUnreadNotifications();
+  const { data: ongoingOrders = 0 } = useOngoingOrdersCount();
 
   return (
     <nav className="flex flex-1 flex-col gap-0.5">
@@ -50,6 +52,7 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         <Link key={to} to={to} className="nav-link" onClick={onNavigate}>
           <Icon size={18} strokeWidth={2} />
           <span className="flex-1">{label}</span>
+          {to === "/orders" && <CountBadge count={ongoingOrders} />}
           {to === "/messages" && <CountBadge count={unread} />}
           {to === "/notifications" && <CountBadge count={unreadNotifs} />}
         </Link>
