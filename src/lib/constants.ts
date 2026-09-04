@@ -1,15 +1,15 @@
 export const APP_NAME = "PlugZone";
 
 export const AD_CATEGORIES = [
-  "Electronics",
-  "Fashion",
-  "Services",
-  "Vehicles",
-  "Property",
-  "Food",
-  "Health",
-  "Education",
-  "Other",
+  "Gaming",
+  "VPNs & Proxies",
+  "Social Media Services",
+  "Subscriptions",
+  "Freelancing & Accounts",
+  "Courses & Toolkits",
+  "Verification Services",
+  "Websites & Templates",
+  "Other Digital Services",
 ] as const;
 export type AdCategory = (typeof AD_CATEGORIES)[number];
 
