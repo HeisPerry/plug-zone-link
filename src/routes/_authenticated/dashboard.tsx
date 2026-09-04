@@ -87,6 +87,8 @@ function DashboardPage() {
         )}
       </section>
 
+      <DashboardFeed />
+
       <section className="mt-12">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xl">Recent orders</h2>
