@@ -1,34 +1,51 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import { Page, PageHero } from "@/components/layout/PageLayout";
-import { useOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
+import { Page } from "@/components/layout/PageLayout";
+import { useAllOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ListSkeleton } from "@/components/shared/SkeletonLoader";
-import { EmptyState, ErrorState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
 import type { Order, OrderWithDetails } from "@/lib/types";
+import emptyOrders from "@/assets/empty-orders.png";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({ meta: [{ title: "Orders — PlugZone" }] }),
   component: OrdersPage,
 });
 
+type Tab = "all" | "pending" | "completed" | "cancelled";
+const TABS: { key: Tab; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "pending", label: "Pending" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
+];
+
+function matchesTab(o: Order, tab: Tab) {
+  if (tab === "all") return true;
+  if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "disputed";
+  if (tab === "cancelled") return o.status === "cancelled" || o.status === "refunded";
+  return o.status === tab;
+}
+
 function OrdersPage() {
-  const [tab, setTab] = useState<"buying" | "selling">("buying");
-  const { data, isLoading, isError, refetch } = useOrders(tab);
+  const { user } = useAuth();
+  const [tab, setTab] = useState<Tab>("all");
+  const { data, isLoading, isError, refetch } = useAllOrders();
   const [open, setOpen] = useState<string | null>(null);
+  const filtered = useMemo(() => (data ?? []).filter((o) => matchesTab(o, tab)), [data, tab]);
 
   return (
-    <>
-      <PageHero compact eyebrow="Orders" title="Your orders" subtitle="Everything you're buying and selling, with live status updates." />
-    <Page wide className="pt-4">
-      <div className="flex border-b">
-        {(["buying", "selling"] as const).map((t) => (
-          <button key={t} className="tab capitalize" data-active={tab === t} onClick={() => setTab(t)}>
-            {t}
+    <Page wide className="pt-8">
+      <h1 className="font-heading text-[28px] font-bold tracking-tight sm:text-[32px]">Orders</h1>
+      <div className="mt-6 flex gap-2 overflow-x-auto border-b hide-scrollbar">
+        {TABS.map((t) => (
+          <button key={t.key} className="tab text-[17px] sm:text-[19px]" data-active={tab === t.key} onClick={() => setTab(t.key)}>
+            {t.label}
           </button>
         ))}
       </div>
@@ -37,32 +54,26 @@ function OrdersPage() {
           <ListSkeleton rows={5} />
         ) : isError ? (
           <ErrorState onRetry={() => refetch()} />
-        ) : !data?.length ? (
-          <EmptyState
-            title={tab === "buying" ? "You haven't placed any orders" : "No one has ordered from you yet"}
-            body={tab === "buying" ? "Find an ad you like and place an order to see it here." : "Share your ads with friends to get your first order."}
-            action={
-              tab === "selling" ? (
-                <Link to="/ads" className="btn btn-primary">
-                  Go to My Ads
-                </Link>
-              ) : (
-                <Link to="/" className="btn btn-primary">
-                  Browse Ads
-                </Link>
-              )
-            }
-          />
+        ) : !filtered.length ? (
+          <div className="flex flex-col items-center px-4 py-10 text-center sm:py-14 rise-in">
+            <img src={emptyOrders} alt="" width={1024} height={768} loading="lazy" className="w-full max-w-[420px]" />
+            <h2 className="mt-4 font-heading text-[26px] font-bold tracking-tight sm:text-[32px]">No orders found</h2>
+            <p className="mt-2 text-[17px] text-muted-foreground">
+              {tab === "all" ? "You have not made any orders yet." : `You have no ${tab} orders.`}
+            </p>
+            <Link to="/" className="btn btn-primary btn-lg mt-7">
+              Go to Marketplace
+            </Link>
+          </div>
         ) : (
           <ul className="panel divide-y overflow-hidden px-5">
-            {data.map((o) => (
-              <OrderItem key={o.id} order={o} side={tab} expanded={open === o.id} onToggle={() => setOpen(open === o.id ? null : o.id)} />
+            {filtered.map((o) => (
+              <OrderItem key={o.id} order={o} side={o.buyer_id === user?.id ? "buying" : "selling"} expanded={open === o.id} onToggle={() => setOpen(open === o.id ? null : o.id)} />
             ))}
           </ul>
         )}
       </div>
     </Page>
-    </>
   );
 }
 
@@ -84,6 +95,7 @@ function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDet
     <li>
       <button onClick={onToggle} className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 py-4 text-left" aria-expanded={expanded}>
         <span className="min-w-0 flex-1 basis-56 truncate font-medium">{o.ad.title}</span>
+        <span className="pill text-xs capitalize">{side}</span>
         <span className="text-[15px] text-muted-foreground">@{other.username}</span>
         <span className="text-[15px] text-muted-foreground">×{o.quantity}</span>
         <span className="font-medium">{formatPrice(o.total_price, o.ad.currency)}</span>
