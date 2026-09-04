@@ -31,7 +31,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-const LOGO_URL = "/plugzone-mark.jpg";
+const LOGO_URL = "/plugzone-mark.png";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
