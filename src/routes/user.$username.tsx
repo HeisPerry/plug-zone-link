@@ -11,7 +11,8 @@ import { AdRow } from "@/components/ads/AdRow";
 import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RelationshipButton } from "@/components/friends/RelationshipButton";
-import { formatDate } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
+import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
 export const Route = createFileRoute("/user/$username")({
