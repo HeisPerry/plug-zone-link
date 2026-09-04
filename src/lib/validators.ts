@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AD_CATEGORIES, CURRENCIES } from "./constants";
+import { AD_CATEGORIES, CURRENCIES, fieldsFor, subcategoriesFor } from "./constants";
 
 export const passwordRules = [
   { id: "length", label: "At least 8 characters", test: (p: string) => p.length >= 8 },
@@ -39,14 +39,35 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password"),
 });
 
-export const adSchema = z.object({
-  title: z.string().trim().min(3, "Title is too short").max(120, "Max 120 characters"),
-  description: z.string().trim().min(10, "Describe the item in more detail").max(2000, "Max 2000 characters"),
-  price: z.coerce.number().min(0, "Price cannot be negative"),
-  currency: z.enum(CURRENCIES),
-  category: z.enum(AD_CATEGORIES, { errorMap: () => ({ message: "Pick a category" }) }),
-  location: z.string().trim().max(120).optional().or(z.literal("")),
-});
+export const adSchema = z
+  .object({
+    title: z.string().trim().min(3, "Title is too short").max(120, "Max 120 characters"),
+    description: z.string().trim().min(10, "Describe the item in more detail").max(2000, "Max 2000 characters"),
+    price: z.coerce.number().min(0, "Price cannot be negative"),
+    currency: z.enum(CURRENCIES),
+    category: z.enum(AD_CATEGORIES, { errorMap: () => ({ message: "Pick a category" }) }),
+    subcategory: z.string().trim().max(60).optional().or(z.literal("")),
+    details: z.record(z.string(), z.string()).optional(),
+    location: z.string().trim().max(120).optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    const subs = subcategoriesFor(data.category);
+    if (subs.length > 0) {
+      if (!data.subcategory) {
+        ctx.addIssue({ path: ["subcategory"], code: z.ZodIssueCode.custom, message: "Pick a subcategory" });
+      } else if (!subs.some((s) => s.name === data.subcategory)) {
+        ctx.addIssue({ path: ["subcategory"], code: z.ZodIssueCode.custom, message: "Invalid subcategory for this category" });
+      }
+    }
+    const fields = fieldsFor(data.category, data.subcategory);
+    const details = data.details ?? {};
+    for (const f of fields) {
+      const val = (details[f.key] ?? "").trim();
+      if (f.required && !val) {
+        ctx.addIssue({ path: [`details.${f.key}`], code: z.ZodIssueCode.custom, message: `${f.label} is required` });
+      }
+    }
+  });
 export type AdFormValues = z.infer<typeof adSchema>;
 
 export const profileSchema = z.object({
