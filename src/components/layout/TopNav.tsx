@@ -57,11 +57,15 @@ function Count({ n, className }: { n: number; className?: string }) {
 
 export function Logo({ to = "/dashboard" }: { to?: "/" | "/dashboard" }) {
   return (
-    <Link to={to} className="flex items-center gap-2.5 font-heading text-[22px] font-extrabold tracking-tight">
-      <span className="brand-gradient flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground shadow-glow">
-        <Zap size={18} strokeWidth={2.5} className="text-background" />
-      </span>
-      PlugZone
+    <Link to={to} className="flex min-w-0 items-center gap-2 font-heading text-[19px] font-extrabold tracking-tight sm:gap-2.5 sm:text-[22px]">
+      <img
+        src={logoAsset.url}
+        alt=""
+        width={72}
+        height={72}
+        className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-border sm:h-10 sm:w-10"
+      />
+      <span className="truncate">PlugZone</span>
     </Link>
   );
 }
