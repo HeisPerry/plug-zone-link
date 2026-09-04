@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { isEmailLike, loginSchema } from "@/lib/validators";
 import { signInWithUsername } from "@/lib/auth.functions";
+import { setRememberMe } from "@/lib/session-mode";
 import { Field } from "@/components/shared/Field";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { useToast } from "@/components/shared/Toast";
@@ -19,7 +20,7 @@ export function LoginForm() {
   const navigate = useNavigate();
   const toast = useToast();
   const usernameSignIn = useServerFn(signInWithUsername);
-  const [values, setValues] = useState({ identifier: "", password: "" });
+  const [values, setValues] = useState({ identifier: "", password: "", remember: true });
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [attempts, setAttempts] = useState(0);
@@ -69,7 +70,7 @@ export function LoginForm() {
     }
     setErrors({});
     setSubmitting(true);
-    const { identifier, password } = parsed.data;
+    const { identifier, password, remember } = parsed.data;
     try {
       if (isEmailLike(identifier)) {
         const { error } = await supabase.auth.signInWithPassword({ email: identifier, password });
@@ -89,6 +90,7 @@ export function LoginForm() {
           return;
         }
       }
+      setRememberMe(remember);
       // Daily streak logic runs from the dashboard on arrival.
       navigate({ to: "/dashboard" });
     } catch {
@@ -178,7 +180,17 @@ export function LoginForm() {
         />
       </Field>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label htmlFor="remember" className="flex min-h-11 cursor-pointer select-none items-center gap-2.5 text-[15px]">
+          <input
+            id="remember"
+            type="checkbox"
+            className="h-[18px] w-[18px] shrink-0 cursor-pointer rounded border-border accent-primary"
+            checked={values.remember}
+            onChange={(e) => setValues((v) => ({ ...v, remember: e.target.checked }))}
+          />
+          Remember me
+        </label>
         <button
           type="button"
           className="min-h-11 text-[15px] font-medium text-primary"

@@ -46,6 +46,7 @@ export const loginSchema = z.object({
       message: "Enter a valid username or email",
     }),
   password: z.string().min(1, "Enter your password"),
+  remember: z.boolean(),
 });
 
 export const adSchema = z
