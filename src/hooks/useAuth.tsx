@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSessionMode();
         await supabase.auth.signOut();
         current = null;
+        if (window.location.pathname !== "/login") navigate({ to: "/login", replace: true });
       }
       if (!mounted) return;
       setSession(current);
