@@ -68,8 +68,8 @@ export function useMyOfferOnAd(adId: string | undefined) {
 export function useMakeOffer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ adId, price, message }: { adId: string; price: number; message?: string }) => {
-      const { data, error } = await supabase.rpc("make_offer", { p_ad: adId, p_price: price, p_message: message || undefined });
+    mutationFn: async ({ adId, price, message }: { adId: string; price: number; message?: string | undefined }) => {
+      const { data, error } = await supabase.rpc("make_offer", { p_ad: adId, p_price: price, ...(message ? { p_message: message } : {}) });
       if (error) throw error;
       return data as string;
     },
@@ -83,8 +83,13 @@ export function useMakeOffer() {
 export function useRespondToOffer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, action, price, message }: { id: string; action: "accept" | "decline" | "counter"; price?: number; message?: string }) => {
-      const { error } = await supabase.rpc("respond_to_offer", { p_negotiation: id, p_action: action, p_price: price, p_message: message || undefined });
+    mutationFn: async ({ id, action, price, message }: { id: string; action: "accept" | "decline" | "counter"; price?: number | undefined; message?: string | undefined }) => {
+      const { error } = await supabase.rpc("respond_to_offer", {
+        p_negotiation: id,
+        p_action: action,
+        ...(price !== undefined ? { p_price: price } : {}),
+        ...(message ? { p_message: message } : {}),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
