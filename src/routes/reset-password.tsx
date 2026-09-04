@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { passwordSchema } from "@/lib/validators";
 import { Field } from "@/components/shared/Field";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { useToast } from "@/components/shared/Toast";
 
