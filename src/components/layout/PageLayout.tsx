@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
+import { useNotificationRealtime } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  // One realtime subscription for the whole signed-in app: live badge counts + browser push.
+  useNotificationRealtime();
   return (
     <div className="min-h-screen">
       <Sidebar />
