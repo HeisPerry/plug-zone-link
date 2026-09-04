@@ -34,7 +34,7 @@ export function useNotificationRealtime() {
         queryClient.setQueryData<number>(["notifications-unread", user.id], (old = 0) => old + 1);
         if (canShowPush(prefs, n.type)) {
           try {
-            const browserNotif = new Notification(n.title, { body: n.body ?? undefined, tag: n.id, icon: "/favicon.ico" });
+            const browserNotif = new Notification(n.title, { body: n.body ?? "", tag: n.id, icon: "/favicon.ico" });
             browserNotif.onclick = () => {
               window.focus();
               if (n.link) window.location.assign(n.link);
