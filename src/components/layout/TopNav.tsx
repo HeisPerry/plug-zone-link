@@ -231,16 +231,16 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
           <span className="font-heading font-bold">{wallet ? formatPrice(wallet.balance, wallet.currency) : "—"}</span>
         </Link>
-        <nav className="mt-4 flex flex-1 flex-col gap-0.5 overflow-y-auto">
+        <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pb-2">
           {PRIMARY_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className="nav-link" onClick={onClose}>
+            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
               <span className="flex-1">{label}</span>
               {to === "/orders" && <Count n={ongoing} />}
             </Link>
           ))}
           <div className="my-2 border-t" />
           {MENU_LINKS.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className="nav-link" onClick={onClose}>
+            <Link key={to} to={to} className="nav-link min-h-11" onClick={onClose}>
               <Icon size={18} />
               <span className="flex-1">{label}</span>
               {to === "/messages" && <Count n={unread} />}
@@ -248,7 +248,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           ))}
         </nav>
         <button
-          className="nav-link mt-3 w-full text-left text-muted-foreground"
+          className="mt-2 flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-danger/30 bg-danger-soft font-semibold text-danger"
           onClick={async () => {
             onClose();
             await signOut();
@@ -258,6 +258,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           <LogOut size={18} />
           Sign Out
         </button>
+
       </div>
     </div>
   );
