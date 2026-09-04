@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { signUpSchema, usernameSchema } from "@/lib/validators";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Field } from "@/components/shared/Field";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { PasswordStrength } from "./PasswordStrength";
 import { clearReferral, readReferral } from "@/hooks/useAffiliate";
 
