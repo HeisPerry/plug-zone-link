@@ -58,7 +58,10 @@ function AdDetailPage() {
   );
 
   function requireAuth(fn: () => void) {
-    if (!user) return navigate({ to: "/login" });
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
     fn();
   }
 

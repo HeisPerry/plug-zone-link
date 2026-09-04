@@ -18,7 +18,12 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads/new'
 import { Route as AuthenticatedAdsAdIdEditRouteImport } from './routes/_authenticated/ads/$adId.edit'
@@ -67,10 +72,35 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCheckinRoute = AuthenticatedCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFriendsRoute = AuthenticatedFriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AdAdIdRoute = AdAdIdRouteImport.update({
+  id: '/ad/$adId',
+  path: '/ad/$adId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdsIndexRoute = AuthenticatedAdsIndexRouteImport.update({
   id: '/ads/',
@@ -98,7 +128,12 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/checkin': typeof AuthenticatedCheckinRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/friends': typeof AuthenticatedFriendsRoute
+  '/messages': typeof AuthenticatedMessagesRoute
+  '/orders': typeof AuthenticatedOrdersRoute
+  '/ad/$adId': typeof AdAdIdRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
@@ -112,7 +147,12 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/checkin': typeof AuthenticatedCheckinRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/friends': typeof AuthenticatedFriendsRoute
+  '/messages': typeof AuthenticatedMessagesRoute
+  '/orders': typeof AuthenticatedOrdersRoute
+  '/ad/$adId': typeof AdAdIdRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
@@ -128,7 +168,12 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/friends': typeof AuthenticatedFriendsRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/ad/$adId': typeof AdAdIdRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
@@ -144,7 +189,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/checkin'
     | '/dashboard'
+    | '/friends'
+    | '/messages'
+    | '/orders'
+    | '/ad/$adId'
     | '/ads/new'
     | '/ads/'
     | '/ads/$adId/edit'
@@ -158,7 +208,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/checkin'
     | '/dashboard'
+    | '/friends'
+    | '/messages'
+    | '/orders'
+    | '/ad/$adId'
     | '/ads/new'
     | '/ads'
     | '/ads/$adId/edit'
@@ -173,7 +228,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/_authenticated/checkin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/friends'
+    | '/_authenticated/messages'
+    | '/_authenticated/orders'
+    | '/ad/$adId'
     | '/_authenticated/ads/new'
     | '/_authenticated/ads/'
     | '/_authenticated/ads/$adId/edit'
@@ -189,6 +249,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
+  AdAdIdRoute: typeof AdAdIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -256,12 +317,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/checkin': {
+      id: '/_authenticated/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof AuthenticatedCheckinRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/friends': {
+      id: '/_authenticated/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof AuthenticatedFriendsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/orders': {
+      id: '/_authenticated/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthenticatedOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/ad/$adId': {
+      id: '/ad/$adId'
+      path: '/ad/$adId'
+      fullPath: '/ad/$adId'
+      preLoaderRoute: typeof AdAdIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ads/': {
       id: '/_authenticated/ads/'
@@ -288,14 +384,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedAdsAdIdEditRoute: typeof AuthenticatedAdsAdIdEditRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedAdsAdIdEditRoute: AuthenticatedAdsAdIdEditRoute,
@@ -314,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
+  AdAdIdRoute: AdAdIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
