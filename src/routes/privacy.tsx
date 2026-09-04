@@ -67,7 +67,7 @@ function PrivacyPage() {
         },
         {
           heading: "Cookies",
-          body: "We use cookies and similar browser storage for sessions and sign-in, security, remembering preferences such as theme and \"Remember me\", analytics, and core Platform functionality.",
+          body: "We use cookies and similar browser storage for sessions and sign-in, security, remembering preferences such as theme, analytics, and core Platform functionality.",
         },
         {
           heading: "Security",
