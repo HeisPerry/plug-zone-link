@@ -239,7 +239,7 @@ function DetailInput({
 }: {
   field: DetailField;
   value: string;
-  error?: string;
+  error: string | undefined;
   onChange: (val: string) => void;
 }) {
   const id = `detail-${field.key}`;
