@@ -13,6 +13,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ListSkeleton, StatSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Avatar } from "@/components/shared/Avatar";
+import { DashboardFeed } from "@/components/feed/DashboardFeed";
 import { formatDate, formatRelative, truncate } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
