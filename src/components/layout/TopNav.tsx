@@ -58,17 +58,26 @@ function Count({ n, className }: { n: number; className?: string }) {
 
 export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboard"; size?: "sm" | "md" | "lg" }) {
   return (
-    <Link to={to} className="inline-flex shrink-0 items-center" aria-label="PlugZone — Buy. Sell. Connect.">
+    <Link to={to} className="inline-flex min-w-0 shrink items-center gap-2" aria-label="PlugZone — Buy. Sell. Connect.">
       <img
         src={logoAsset.url}
-        alt="PlugZone"
-        width={1244}
-        height={1244}
-        className={cn("w-auto", size === "sm" ? "h-9" : size === "lg" ? "h-16 sm:h-20" : "h-10 sm:h-12")}
+        alt=""
+        width={703}
+        height={625}
+        className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-9 sm:h-11")}
       />
+      <span
+        className={cn(
+          "truncate font-heading font-extrabold tracking-tight",
+          size === "sm" ? "text-lg" : size === "lg" ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl",
+        )}
+      >
+        PlugZone
+      </span>
     </Link>
   );
 }
+
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
