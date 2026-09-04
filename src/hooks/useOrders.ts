@@ -40,6 +40,24 @@ export function useOrders(side: "buying" | "selling") {
   });
 }
 
+export function useAllOrders() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["orders", user?.id, "all"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return hydrateOrders(data);
+    },
+  });
+}
+
 export function useRecentOrders(limit = 5) {
   const { user } = useAuth();
   return useQuery({
