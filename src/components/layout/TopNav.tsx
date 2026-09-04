@@ -18,7 +18,7 @@ import {
   Users,
   Wallet,
   X,
-  Zap,
+  
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -29,6 +29,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/plugzone-logo.jpg.asset.json";
 
 const PRIMARY_LINKS = [
   { to: "/dashboard", label: "Marketplace" },
@@ -57,11 +58,15 @@ function Count({ n, className }: { n: number; className?: string }) {
 
 export function Logo({ to = "/dashboard" }: { to?: "/" | "/dashboard" }) {
   return (
-    <Link to={to} className="flex items-center gap-2.5 font-heading text-[22px] font-extrabold tracking-tight">
-      <span className="brand-gradient flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground shadow-glow">
-        <Zap size={18} strokeWidth={2.5} className="text-background" />
-      </span>
-      PlugZone
+    <Link to={to} className="flex min-w-0 items-center gap-2 font-heading text-[19px] font-extrabold tracking-tight sm:gap-2.5 sm:text-[22px]">
+      <img
+        src={logoAsset.url}
+        alt=""
+        width={72}
+        height={72}
+        className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-border sm:h-10 sm:w-10"
+      />
+      <span className="truncate">PlugZone</span>
     </Link>
   );
 }
@@ -253,7 +258,7 @@ export function TopNav() {
 
   return (
     <header className="glass sticky top-0 z-40 border-b">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
         <Logo />
 
         <nav className="ml-8 hidden items-center gap-1 lg:flex" aria-label="Primary">
