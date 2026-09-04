@@ -90,7 +90,7 @@ function PurchaseFlow({ type, onDone }: { type: "data" | "airtime"; onDone: (o: 
     if (!nigerianPhone.safeParse(phone).success) errs.phone = "Enter an 11-digit number starting with 0";
     if (type === "airtime") {
       const a = airtimeAmount.safeParse(amount);
-      if (!a.success) errs.amount = a.error.issues[0]?.message;
+      if (!a.success) errs.amount = a.error.issues[0]?.message ?? "Enter a valid amount";
     }
     setErrors(errs);
     if (Object.keys(errs).length) return;
