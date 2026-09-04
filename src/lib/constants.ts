@@ -1,4 +1,7 @@
 export const APP_NAME = "PlugZone";
+/** Marketplace commission taken from each paid order. Mirrors `platform_fee_rate()` in the database. */
+export const PLATFORM_FEE_RATE = 0.05;
+export const PAYMENT_STATUSES = ["unpaid", "pending", "paid", "failed", "refunded"] as const;
 
 export const AD_CATEGORIES = [
   "Gaming",

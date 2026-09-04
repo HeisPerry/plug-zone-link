@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, Send } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversations, useSendMessage, useThread } from "@/hooks/useMessages";
+import { useIsOnline, useLastSeen, useTyping } from "@/hooks/usePresence";
 import { Avatar } from "@/components/shared/Avatar";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ListSkeleton, Skeleton } from "@/components/shared/SkeletonLoader";
-import { cn, formatRelative, truncate } from "@/lib/utils";
+import { cn, formatRelative, timeAgo, truncate } from "@/lib/utils";
+import type { Message } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   validateSearch: z.object({ c: z.string().uuid().optional() }),
@@ -85,24 +87,54 @@ function MessagesPage() {
   );
 }
 
+function messageStatus(m: Message): "Sent" | "Delivered" | "Read" {
+  if (m.read || m.read_at) return "Read";
+  if (m.delivered_at) return "Delivered";
+  return "Sent";
+}
+
 function Thread({ conversationId, other, onBack }: { conversationId: string; other: { id: string; display_name: string; username: string; avatar_url: string | null }; onBack: () => void }) {
   const { user } = useAuth();
   const { data: messages, isLoading } = useThread(conversationId);
   const send = useSendMessage(conversationId, other.id);
+  const { othersTyping, sendTyping } = useTyping(conversationId);
+  const online = useIsOnline(other.id);
+  const { data: lastSeen } = useLastSeen(other.id, online);
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const stopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages?.length]);
+  }, [messages?.length, othersTyping]);
+
+  useEffect(() => () => {
+    if (stopTimer.current) clearTimeout(stopTimer.current);
+  }, []);
+
+  function onType(value: string) {
+    setText(value);
+    if (value.trim()) {
+      sendTyping(true);
+      if (stopTimer.current) clearTimeout(stopTimer.current);
+      stopTimer.current = setTimeout(() => sendTyping(false), 2500);
+    } else {
+      sendTyping(false);
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const content = text.trim();
     if (!content) return;
     setText("");
+    if (stopTimer.current) clearTimeout(stopTimer.current);
+    sendTyping(false);
     send.mutate(content, { onError: () => setText(content) });
   }
+
+  // Only the last message I sent carries a status label, to keep the thread quiet.
+  const lastMineId = [...(messages ?? [])].reverse().find((m) => m.sender_id === user?.id)?.id;
 
   return (
     <>
@@ -110,10 +142,15 @@ function Thread({ conversationId, other, onBack }: { conversationId: string; oth
         <button onClick={onBack} className="-ml-2 flex h-11 w-11 items-center justify-center md:hidden" aria-label="Back to conversations">
           <ArrowLeft size={20} />
         </button>
-        <Avatar name={other.display_name} username={other.username} src={other.avatar_url} size={36} />
+        <div className="relative">
+          <Avatar name={other.display_name} username={other.username} src={other.avatar_url} size={36} />
+          {online && <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-primary" aria-hidden="true" />}
+        </div>
         <div className="min-w-0">
           <p className="truncate font-medium leading-tight">{other.display_name}</p>
-          <p className="text-sm text-muted-foreground">@{other.username}</p>
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {othersTyping ? <span className="text-primary">Typing...</span> : online ? "Online" : lastSeen ? `Last seen ${timeAgo(lastSeen)}` : "Offline"}
+          </p>
         </div>
       </header>
 
@@ -131,21 +168,32 @@ function Thread({ conversationId, other, onBack }: { conversationId: string; oth
             {messages.map((m) => {
               const mine = m.sender_id === user?.id;
               return (
-                <li key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+                <li key={m.id} className={cn("flex flex-col", mine ? "items-end" : "items-start")}>
                   <div className={cn("max-w-[78%] rounded-lg px-3.5 py-2 text-[15px]", mine ? "bg-primary-soft" : "bg-muted border")}>
                     <p className="whitespace-pre-line break-words">{m.content}</p>
                     <p className="mt-0.5 text-right text-[11px] text-muted-foreground">{format(new Date(m.created_at), "HH:mm")}</p>
                   </div>
+                  {mine && m.id === lastMineId && (
+                    <span className={cn("mt-1 flex items-center gap-1 text-[11px]", messageStatus(m) === "Read" ? "text-primary" : "text-muted-foreground")}>
+                      {messageStatus(m) === "Sent" ? <Check size={12} /> : <CheckCheck size={12} />}
+                      {messageStatus(m)}
+                    </span>
+                  )}
                 </li>
               );
             })}
+            {othersTyping && (
+              <li className="flex justify-start">
+                <div className="rounded-lg border bg-muted px-3.5 py-2 text-[13px] text-muted-foreground">Typing...</div>
+              </li>
+            )}
           </ul>
         )}
         <div ref={bottomRef} />
       </div>
 
       <form onSubmit={submit} className="flex gap-2 border-t p-3 sm:p-4">
-        <input className="input" placeholder="Write a message" value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} aria-label="Message" />
+        <input className="input" placeholder="Write a message" value={text} onChange={(e) => onType(e.target.value)} maxLength={2000} aria-label="Message" />
         <button type="submit" className="btn btn-primary shrink-0" disabled={!text.trim() || send.isPending}>
           <Send size={16} /> Send
         </button>

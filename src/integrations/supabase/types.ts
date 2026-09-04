@@ -306,8 +306,10 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          delivered_at: string | null
           id: string
           read: boolean
+          read_at: string | null
           receiver_id: string
           sender_id: string
         }
@@ -315,8 +317,10 @@ export type Database = {
           content: string
           conversation_id: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           read?: boolean
+          read_at?: string | null
           receiver_id: string
           sender_id: string
         }
@@ -324,8 +328,10 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
           read?: boolean
+          read_at?: string | null
           receiver_id?: string
           sender_id?: string
         }
@@ -456,6 +462,63 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           ad_id: string
@@ -463,6 +526,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          payment_status: string
           quantity: number
           seller_id: string
           status: string
@@ -475,6 +539,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          payment_status?: string
           quantity?: number
           seller_id: string
           status?: string
@@ -487,6 +552,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          payment_status?: string
           quantity?: number
           seller_id?: string
           status?: string
@@ -527,10 +593,12 @@ export type Database = {
           display_name: string
           id: string
           last_check_in: string | null
+          last_seen_at: string | null
           longest_streak: number
           notification_prefs: Json
           phone_number: string | null
           referred_by: string | null
+          show_last_seen: boolean
           total_referrals: number
           updated_at: string
           username: string
@@ -544,10 +612,12 @@ export type Database = {
           display_name: string
           id: string
           last_check_in?: string | null
+          last_seen_at?: string | null
           longest_streak?: number
           notification_prefs?: Json
           phone_number?: string | null
           referred_by?: string | null
+          show_last_seen?: boolean
           total_referrals?: number
           updated_at?: string
           username: string
@@ -561,10 +631,12 @@ export type Database = {
           display_name?: string
           id?: string
           last_check_in?: string | null
+          last_seen_at?: string | null
           longest_streak?: number
           notification_prefs?: Json
           phone_number?: string | null
           referred_by?: string | null
+          show_last_seen?: boolean
           total_referrals?: number
           updated_at?: string
           username?: string
@@ -614,6 +686,76 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string | null
+          payee_id: string
+          payer_id: string
+          platform_fee: number
+          provider: string | null
+          reference: string
+          seller_earnings: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          payee_id: string
+          payer_id: string
+          platform_fee?: number
+          provider?: string | null
+          reference: string
+          seller_earnings?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          payee_id?: string
+          payer_id?: string
+          platform_fee?: number
+          provider?: string | null
+          reference?: string
+          seller_earnings?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payee_id_fkey"
+            columns: ["payee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -629,6 +771,7 @@ export type Database = {
         }[]
       }
       delete_my_account: { Args: never; Returns: undefined }
+      display_name_of: { Args: { p_user: string }; Returns: string }
       expire_stale_negotiations: { Args: never; Returns: undefined }
       generate_affiliate_code: { Args: never; Returns: string }
       get_or_create_conversation: { Args: { p_other: string }; Returns: string }
@@ -655,6 +798,22 @@ export type Database = {
         Args: { p_ad: string; p_message?: string; p_price: number }
         Returns: string
       }
+      mark_all_notifications_read: { Args: never; Returns: undefined }
+      mark_messages_delivered: { Args: never; Returns: number }
+      notify: {
+        Args: {
+          p_actor?: string
+          p_body: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_link: string
+          p_title: string
+          p_type: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      platform_fee_rate: { Args: never; Returns: number }
       record_affiliate_click: { Args: { p_code: string }; Returns: string }
       respond_to_offer: {
         Args: {
@@ -665,6 +824,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

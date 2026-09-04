@@ -14,6 +14,8 @@ import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { useToast } from "@/components/shared/Toast";
 import { passwordSchema, profileSchema } from "@/lib/validators";
 import type { NotificationPrefs } from "@/lib/types";
+import { usePrefs } from "@/hooks/useNotifications";
+import { PUSH_CATEGORIES } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -243,22 +245,68 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 }
 
 function NotificationsSection() {
-  const { profile, user, refreshProfile } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const toast = useToast();
-  const prefs = (profile?.notification_prefs as NotificationPrefs | null) ?? { messages: true, orders: true, friend_requests: true };
+  const prefs = usePrefs();
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
 
-  async function set(key: keyof NotificationPrefs, value: boolean) {
-    const next = { ...prefs, [key]: value };
+  useEffect(() => {
+    setPermission("Notification" in window ? Notification.permission : "unsupported");
+  }, []);
+
+  async function save(next: NotificationPrefs) {
     const { error } = await supabase.from("profiles").update({ notification_prefs: next }).eq("id", user!.id);
     if (error) return toast.error(error.message);
     await refreshProfile();
   }
 
+  async function enablePush(on: boolean) {
+    if (!on) return save({ ...prefs, push_enabled: false });
+    if (permission === "unsupported") return toast.error("This browser does not support notifications");
+    let p: NotificationPermission = Notification.permission;
+    if (p === "default") p = await Notification.requestPermission();
+    setPermission(p);
+    if (p !== "granted") return toast.error("Notifications are blocked in your browser settings");
+    await save({ ...prefs, push_enabled: true });
+    toast.success("Browser notifications enabled");
+  }
+
   return (
-    <Section title="Email notifications">
-      <Toggle label="New messages" checked={prefs.messages} onChange={(v) => set("messages", v)} />
-      <Toggle label="New orders" checked={prefs.orders} onChange={(v) => set("orders", v)} />
-      <Toggle label="Friend requests" checked={prefs.friend_requests} onChange={(v) => set("friend_requests", v)} />
+    <>
+      <Section title="Email notifications">
+        <Toggle label="New messages" checked={prefs.messages} onChange={(v) => save({ ...prefs, messages: v })} />
+        <Toggle label="New orders" checked={prefs.orders} onChange={(v) => save({ ...prefs, orders: v })} />
+        <Toggle label="Friend requests" checked={prefs.friend_requests} onChange={(v) => save({ ...prefs, friend_requests: v })} />
+      </Section>
+      <Section title="Browser notifications">
+        <p className="text-[15px] text-muted-foreground">Get a desktop or phone notification while PlugZone is open in a tab. We only ask for permission when you switch this on.</p>
+        <Toggle label="Enable browser notifications" checked={!!prefs.push_enabled && permission === "granted"} onChange={enablePush} />
+        {permission === "denied" && <p className="text-sm text-destructive">Notifications are blocked for this site. Allow them in your browser's site settings, then try again.</p>}
+        {prefs.push_enabled && permission === "granted" && (
+          <div className="space-y-1 border-t pt-3">
+            {PUSH_CATEGORIES.map((c) => (
+              <Toggle key={c.key} label={c.label} checked={prefs.push?.[c.key] !== false} onChange={(v) => save({ ...prefs, push: { ...prefs.push, [c.key]: v } })} />
+            ))}
+          </div>
+        )}
+      </Section>
+      <PrivacySection />
+    </>
+  );
+}
+
+function PrivacySection() {
+  const { profile, user, refreshProfile } = useAuth();
+  const toast = useToast();
+  async function set(v: boolean) {
+    const { error } = await supabase.from("profiles").update({ show_last_seen: v }).eq("id", user!.id);
+    if (error) return toast.error(error.message);
+    await refreshProfile();
+  }
+  return (
+    <Section title="Privacy">
+      <Toggle label="Show when I was last online" checked={profile?.show_last_seen ?? true} onChange={set} />
+      <p className="text-sm text-muted-foreground">Others always see whether you're online right now while you have PlugZone open.</p>
     </Section>
   );
 }

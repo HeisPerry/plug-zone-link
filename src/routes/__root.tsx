@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
+import { PresenceProvider } from "@/hooks/usePresence";
 import { ToastProvider } from "@/components/shared/Toast";
 import { SessionTimeout } from "@/components/layout/SessionTimeout";
 
@@ -110,9 +111,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <AuthProvider>
-          <SessionTimeout />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <PresenceProvider>
+            <SessionTimeout />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </PresenceProvider>
         </AuthProvider>
       </ToastProvider>
     </QueryClientProvider>

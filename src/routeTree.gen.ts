@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDataAirtimeRouteImport } from './routes/_authenticated/data-airtime'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
@@ -101,6 +102,12 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/ad/$adId': typeof AdAdIdRoute
@@ -174,6 +182,7 @@ export interface FileRoutesByTo {
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/ad/$adId': typeof AdAdIdRoute
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/ad/$adId': typeof AdAdIdRoute
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/data-airtime'
     | '/friends'
     | '/messages'
+    | '/notifications'
     | '/orders'
     | '/settings'
     | '/ad/$adId'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/data-airtime'
     | '/friends'
     | '/messages'
+    | '/notifications'
     | '/orders'
     | '/settings'
     | '/ad/$adId'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authenticated/data-airtime'
     | '/_authenticated/friends'
     | '/_authenticated/messages'
+    | '/_authenticated/notifications'
     | '/_authenticated/orders'
     | '/_authenticated/settings'
     | '/ad/$adId'
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/orders': {
       id: '/_authenticated/orders'
       path: '/orders'
@@ -448,6 +468,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDataAirtimeRoute: typeof AuthenticatedDataAirtimeRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
@@ -461,6 +482,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDataAirtimeRoute: AuthenticatedDataAirtimeRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,

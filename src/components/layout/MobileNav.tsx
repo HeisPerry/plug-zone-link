@@ -1,34 +1,39 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, Package, MessageSquare, CalendarCheck, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, MessageSquare, Bell, Menu, X } from "lucide-react";
 import { NavLinks } from "./Sidebar";
 import { useUnreadCount } from "@/hooks/useMessages";
+import { useUnreadNotifications } from "@/hooks/useNotifications";
 
 const TABS = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
   { to: "/ads", label: "Ads", icon: Package },
   { to: "/messages", label: "Messages", icon: MessageSquare },
-  { to: "/checkin", label: "Check-In", icon: CalendarCheck },
+  { to: "/notifications", label: "Alerts", icon: Bell },
 ] as const;
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const { data: unread = 0 } = useUnreadCount();
+  const { data: unreadNotifs = 0 } = useUnreadNotifications();
 
   return (
     <>
       <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background md:hidden" aria-label="Main">
-        {TABS.map(({ to, label, icon: Icon }) => (
-          <Link
-            key={to}
-            to={to}
-            className="relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground data-[status=active]:text-primary"
-          >
-            <Icon size={20} />
-            {label}
-            {to === "/messages" && unread > 0 && <span className="absolute right-[calc(50%-18px)] top-2 h-2 w-2 rounded-full bg-primary" />}
-          </Link>
-        ))}
+        {TABS.map(({ to, label, icon: Icon }) => {
+          const dot = (to === "/messages" && unread > 0) || (to === "/notifications" && unreadNotifs > 0);
+          return (
+            <Link
+              key={to}
+              to={to}
+              className="relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground data-[status=active]:text-primary"
+            >
+              <Icon size={20} />
+              {label}
+              {dot && <span className="absolute right-[calc(50%-18px)] top-2 h-2 w-2 rounded-full bg-primary" />}
+            </Link>
+          );
+        })}
         <button
           onClick={() => setOpen(true)}
           className="flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground"
