@@ -10,7 +10,7 @@ import { clearReferral, readReferral } from "@/hooks/useAffiliate";
 
 type Errors = Partial<Record<"displayName" | "username" | "email" | "password" | "confirmPassword" | "referralCode" | "form", string>>;
 
-export function SignUpForm({ initialReferral }: { initialReferral?: string }) {
+export function SignUpForm({ initialReferral }: { initialReferral?: string | undefined }) {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     displayName: "",
