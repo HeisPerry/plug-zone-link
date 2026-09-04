@@ -211,10 +211,10 @@ function AccountSection() {
       </form>
       <form onSubmit={changePassword} className="space-y-3 pt-4" noValidate>
         <Field label="Current password" htmlFor="current">
-          <input id="current" type="password" className="input" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+          <PasswordInput id="current" toggleLabel="current password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
         </Field>
         <Field label="New password" htmlFor="newpw" error={pwErr ?? undefined}>
-          <input id="newpw" type="password" className="input" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
+          <PasswordInput id="newpw" toggleLabel="new password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
           {pw && <PasswordStrength password={pw} />}
         </Field>
         <button type="submit" className="btn btn-secondary" disabled={busy === "pw" || !pw}>
