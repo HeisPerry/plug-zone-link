@@ -9,7 +9,6 @@ import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState, ErrorState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
-import { PLATFORM_FEE_RATE } from "@/lib/constants";
 import type { Order, OrderWithDetails } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/orders")({
@@ -123,12 +122,6 @@ function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDet
                 <StatusBadge status={o.payment_status} />
               </dd>
             </div>
-            {!isBuyer && (
-              <div>
-                <dt className="text-sm text-muted-foreground">You receive after {PLATFORM_FEE_RATE * 100}% fee</dt>
-                <dd>{formatPrice(Number(o.total_price) * (1 - PLATFORM_FEE_RATE), o.ad.currency)}</dd>
-              </div>
-            )}
             {o.notes && (
               <div className="sm:col-span-2">
                 <dt className="text-sm text-muted-foreground">Note</dt>
