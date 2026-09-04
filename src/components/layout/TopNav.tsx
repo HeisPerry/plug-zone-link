@@ -322,27 +322,39 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
         </div>
-        <div className="shrink-0 border-t px-3 py-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}>
+        <div
+          className="grid shrink-0 grid-cols-2 gap-2 border-t px-3 py-3"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+        >
+          {profile ? (
+            <Link
+              to="/user/$username"
+              params={{ username: profile.username }}
+              onClick={onClose}
+              className="flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border bg-muted px-3 font-heading text-[15px] font-bold"
+            >
+              <User size={18} />
+              Profile
+            </Link>
+          ) : (
+            <span />
+          )}
           <button
             type="button"
-            className="flex min-h-[60px] w-full items-center gap-3 rounded-2xl px-3 text-left"
+            className="flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-destructive-soft px-3 font-heading text-[15px] font-bold text-destructive"
             onClick={async () => {
               onClose();
               await signOut();
               navigate({ to: "/login", replace: true });
             }}
           >
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-destructive-soft text-destructive">
-              <LogOut size={20} />
-            </span>
-            <span className="min-w-0">
-              <span className="block font-heading text-[15px] font-bold text-destructive">Log Out</span>
-              <span className="block truncate text-[13px] text-muted-foreground">Sign out of your account</span>
-            </span>
+            <LogOut size={18} />
+            Log Out
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
