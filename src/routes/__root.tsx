@@ -14,7 +14,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PresenceProvider } from "@/hooks/usePresence";
 import { ToastProvider } from "@/components/shared/Toast";
-import { SessionTimeout } from "@/components/layout/SessionTimeout";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/hooks/useTheme";
 
 function NotFoundComponent() {
@@ -115,7 +114,6 @@ function RootComponent() {
       <ToastProvider>
         <AuthProvider>
           <PresenceProvider>
-            <SessionTimeout />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </PresenceProvider>
