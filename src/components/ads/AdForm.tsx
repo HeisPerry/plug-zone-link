@@ -17,6 +17,17 @@ import type { Ad } from "@/lib/types";
 
 type Errors = Record<string, string>;
 
+interface FormValues {
+  title: string;
+  description: string;
+  price: string;
+  currency: (typeof CURRENCIES)[number];
+  category: string;
+  subcategory: string;
+  details: Record<string, string>;
+  location: string;
+}
+
 // Coerce stored jsonb details (Json) into the string map the form uses.
 function toStringDetails(d: unknown): Record<string, string> {
   if (!d || typeof d !== "object") return {};
@@ -32,12 +43,12 @@ export function AdForm({ ad }: { ad?: Ad }) {
   const toast = useToast();
   const navigate = useNavigate();
   const save = useSaveAd();
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<FormValues>({
     title: ad?.title ?? "",
     description: ad?.description ?? "",
     price: ad ? String(ad.price) : "",
     currency: (ad?.currency ?? "NGN") as (typeof CURRENCIES)[number],
-    category: (ad?.category ?? "") as string,
+    category: ad?.category ?? "",
     subcategory: ad?.subcategory ?? "",
     details: toStringDetails(ad?.details),
     location: ad?.location ?? "",
