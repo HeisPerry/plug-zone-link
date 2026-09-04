@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
+import { Logo } from "@/components/layout/TopNav";
 import { ArrowRight, MessageSquare, ShieldCheck, Zap } from "lucide-react";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { useRecentAds } from "@/hooks/useAds";
@@ -12,7 +13,7 @@ import { formatPrice } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PlugZone — Buy and sell directly, no middleman" },
+      { title: "PlugZone | BUY.SELL.CONNECT" },
       { name: "description", content: "Post ads, receive orders, chat with buyers in real time, add friends, and buy data bundles. PlugZone is a peer-to-peer marketplace." },
       { property: "og:title", content: "PlugZone — Buy and sell directly, no middleman" },
       { property: "og:description", content: "Post ads, receive orders, chat with buyers, and buy data bundles on PlugZone." },
@@ -63,7 +64,8 @@ function LandingPage() {
       <section className="hero-surface border-b">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
         <div className="rise-in">
-          <span className="pill mb-6">Peer-to-peer digital marketplace</span>
+          <Logo to="/" size="lg" />
+          <span className="pill mb-6 mt-6 block w-fit">Peer-to-peer digital marketplace</span>
           <h1 className="max-w-2xl text-[40px] sm:text-[56px] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
           <p className="mt-6 max-w-lg text-lg text-muted-foreground sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
           <div className="mt-8 flex flex-wrap gap-3">
