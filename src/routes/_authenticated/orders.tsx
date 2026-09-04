@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import { Page, PageHeader } from "@/components/layout/PageLayout";
+import { Page, PageHero } from "@/components/layout/PageLayout";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -22,9 +22,10 @@ function OrdersPage() {
   const [open, setOpen] = useState<string | null>(null);
 
   return (
-    <Page wide>
-      <PageHeader title="Orders" />
-      <div className="mt-6 flex border-b">
+    <>
+      <PageHero compact eyebrow="Orders" title="Your orders" subtitle="Everything you're buying and selling, with live status updates." />
+    <Page wide className="pt-4">
+      <div className="flex border-b">
         {(["buying", "selling"] as const).map((t) => (
           <button key={t} className="tab capitalize" data-active={tab === t} onClick={() => setTab(t)}>
             {t}
@@ -53,7 +54,7 @@ function OrdersPage() {
             }
           />
         ) : (
-          <ul className="divide-y border-y">
+          <ul className="panel divide-y overflow-hidden px-5">
             {data.map((o) => (
               <OrderItem key={o.id} order={o} side={tab} expanded={open === o.id} onToggle={() => setOpen(open === o.id ? null : o.id)} />
             ))}
@@ -61,6 +62,7 @@ function OrdersPage() {
         )}
       </div>
     </Page>
+    </>
   );
 }
 

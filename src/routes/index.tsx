@@ -3,7 +3,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { PublicHeader } from "@/components/layout/PageLayout";
+import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
+import { ArrowRight, MessageSquare, ShieldCheck, Zap } from "lucide-react";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { useRecentAds } from "@/hooks/useAds";
 import { formatPrice } from "@/lib/utils";
@@ -59,58 +60,69 @@ function LandingPage() {
         }
       />
 
-      <section className="mx-auto grid max-w-6xl gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:pb-28 lg:pt-24">
-        <div>
-          <h1 className="max-w-2xl text-[36px] sm:text-[48px] lg:text-[60px]">Buy and sell directly, no middleman.</h1>
-          <p className="mt-5 max-w-lg text-lg text-muted-foreground">Post an ad, get orders from real people nearby, and close the deal in chat.</p>
-          <Link to="/signup" className="btn btn-primary btn-lg mt-8">
-            Create Account
-          </Link>
+      <section className="hero-surface border-b">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
+        <div className="rise-in">
+          <span className="pill mb-6">Peer-to-peer digital marketplace</span>
+          <h1 className="max-w-2xl text-[40px] sm:text-[56px] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
+          <p className="mt-6 max-w-lg text-lg text-muted-foreground sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/signup" className="btn btn-primary btn-lg">
+              Create Account <ArrowRight size={18} />
+            </Link>
+            <Link to="/login" className="btn btn-secondary btn-lg">
+              Sign in
+            </Link>
+          </div>
         </div>
-        <dl className="grid grid-cols-3 gap-px border bg-border lg:grid-cols-1">
+        <dl className="panel grid grid-cols-3 divide-x overflow-hidden lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
           {[
             { label: "Members", value: stats?.total_users },
             { label: "Ads posted", value: stats?.total_ads },
             { label: "Orders completed", value: stats?.completed_orders },
           ].map((s) => (
-            <div key={s.label} className="bg-background p-5 lg:flex lg:items-baseline lg:justify-between lg:px-6">
+            <div key={s.label} className="p-5 lg:flex lg:items-baseline lg:justify-between lg:px-7 lg:py-6">
               <dt className="text-sm text-muted-foreground">{s.label}</dt>
               <dd className="mt-1 font-heading text-2xl font-bold lg:mt-0 lg:text-3xl">{isLoading ? <Skeleton className="h-8 w-16" /> : n(s.value)}</dd>
             </div>
           ))}
         </dl>
+      </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl">How it works</h2>
-        <ol className="relative mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
-          <div className="absolute left-5 top-0 hidden h-px w-[calc(100%-2.5rem)] bg-border md:block md:top-5" aria-hidden="true" />
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <h2 className="text-3xl sm:text-4xl">How it works</h2>
+        <ol className="mt-10 grid gap-4 md:grid-cols-3">
           {[
-            "Post your ad with photos and pricing.",
-            "Buyers find you and place orders.",
-            "Chat, finalize, and complete the deal.",
+            { icon: Zap, t: "Post your ad", d: "Add photos, pricing and details in about a minute." },
+            { icon: MessageSquare, t: "Get orders and chat", d: "Buyers find you, make offers and talk to you in real time." },
+            { icon: ShieldCheck, t: "Close the deal safely", d: "Payment is tracked on every order and earnings land in your wallet." },
           ].map((step, i) => (
-            <li key={step} className="relative flex gap-4 md:block">
-              <span className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-background font-heading text-sm font-bold">
-                {i + 1}
-              </span>
-              <p className="max-w-xs pt-1.5 text-[17px] md:mt-5 md:pt-0">{step}</p>
+            <li key={step.t} className="panel p-7">
+              <div className="flex items-center justify-between">
+                <span className="icon-tile h-12 w-12 rounded-2xl">
+                  <step.icon size={22} />
+                </span>
+                <span className="font-heading text-sm font-bold text-muted-foreground">0{i + 1}</span>
+              </div>
+              <h3 className="mt-6 text-xl">{step.t}</h3>
+              <p className="mt-2 text-[15px] text-muted-foreground">{step.d}</p>
             </li>
           ))}
         </ol>
       </section>
 
       {ads && ads.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-2xl sm:text-3xl">Latest ads</h2>
+            <h2 className="text-3xl sm:text-4xl">Latest ads</h2>
             <Link to="/signup" className="text-[15px] font-medium text-primary">
               Sign up to see more
             </Link>
           </div>
           <div className="mt-6 flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
             {ads.map((ad) => (
-              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-64 shrink-0 overflow-hidden">
+              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-64 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5">
                 {ad.images[0] ? (
                   <img src={ad.images[0]} alt={ad.title} className="aspect-[4/3] w-full object-cover" loading="lazy" />
                 ) : (
@@ -126,8 +138,8 @@ function LandingPage() {
         </section>
       )}
 
-      <section className="border-y bg-muted">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 sm:px-6 md:grid-cols-5">
+      <section className="hero-surface border-y">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-12 sm:px-6 md:grid-cols-5 lg:px-8">
           {[
             { v: stats?.total_ads, l: "ads posted" },
             { v: stats?.completed_orders, l: "completed orders" },
@@ -136,22 +148,14 @@ function LandingPage() {
             { v: stats?.total_users, l: "members" },
           ].map((s) => (
             <div key={s.l}>
-              <p className="font-heading text-xl font-bold">{isLoading ? "…" : `${n(s.v)}`}</p>
+              <p className="font-heading text-2xl font-extrabold">{isLoading ? "…" : `${n(s.v)}`}</p>
               <p className="text-sm text-muted-foreground">{s.l}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-10 text-sm text-muted-foreground sm:px-6">
-        <span className="font-heading font-bold text-foreground">PlugZone</span>
-        <nav className="flex flex-wrap gap-6">
-          <Link to="/signup">Sign Up</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/privacy">Privacy</Link>
-        </nav>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
