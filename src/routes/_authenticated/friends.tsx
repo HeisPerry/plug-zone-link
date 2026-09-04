@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Page, PageHeader } from "@/components/layout/PageLayout";
-import { useFriendActions, useFriendGraph, useSearchPeople, type Relationship } from "@/hooks/useFriends";
+import { useFriendActions, useFriendGraph, useSearchPeople } from "@/hooks/useFriends";
 import { useStartConversation } from "@/hooks/useMessages";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Avatar } from "@/components/shared/Avatar";
@@ -9,6 +9,7 @@ import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import type { ProfileLite } from "@/lib/types";
+import { RelationshipButton } from "@/components/friends/RelationshipButton";
 
 export const Route = createFileRoute("/_authenticated/friends")({
   head: () => ({ meta: [{ title: "Friends — PlugZone" }] }),
@@ -130,35 +131,6 @@ function RequestsTab() {
         )}
       </section>
     </div>
-  );
-}
-
-export function RelationshipButton({ rel, userId, className }: { rel: Relationship; userId: string; className?: string }) {
-  const { send, accept } = useFriendActions();
-  const toast = useToast();
-  const base = className ?? "btn btn-sm";
-  if (rel.kind === "friends")
-    return (
-      <button className={`${base} btn-secondary`} disabled>
-        Friends
-      </button>
-    );
-  if (rel.kind === "outgoing")
-    return (
-      <button className={`${base} btn-secondary`} disabled>
-        Pending
-      </button>
-    );
-  if (rel.kind === "incoming")
-    return (
-      <button className={`${base} btn-primary`} onClick={() => accept.mutate(rel.requestId, { onSuccess: () => toast.success("Friend request accepted") })}>
-        Accept
-      </button>
-    );
-  return (
-    <button className={`${base} btn-primary`} disabled={send.isPending} onClick={() => send.mutate(userId, { onSuccess: () => toast.success("Friend request sent"), onError: (e) => toast.error(e.message) })}>
-      Add Friend
-    </button>
   );
 }
 

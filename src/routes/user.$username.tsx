@@ -10,7 +10,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { AdRow } from "@/components/ads/AdRow";
 import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { RelationshipButton } from "./_authenticated/friends";
+import { RelationshipButton } from "@/components/friends/RelationshipButton";
 import { formatDate } from "@/lib/utils";
 import { useToast } from "@/components/shared/Toast";
 
