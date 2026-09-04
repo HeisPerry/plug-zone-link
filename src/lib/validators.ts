@@ -48,7 +48,6 @@ export const adSchema = z
     category: z.enum(AD_CATEGORIES, { errorMap: () => ({ message: "Pick a category" }) }),
     subcategory: z.string().trim().max(60).optional().or(z.literal("")),
     details: z.record(z.string(), z.string()).optional(),
-    location: z.string().trim().max(120).optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     const subs = subcategoriesFor(data.category);

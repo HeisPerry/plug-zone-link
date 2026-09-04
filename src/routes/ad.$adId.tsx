@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaceOrder } from "@/hooks/useOrders";
@@ -137,11 +136,6 @@ function AdDetailPage() {
               </div>
 
               <dl className="mt-4 space-y-1.5 text-[15px] text-muted-foreground">
-                {ad.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} /> {ad.location}
-                  </div>
-                )}
                 <div>Posted {formatDate(ad.created_at)}</div>
               </dl>
 
