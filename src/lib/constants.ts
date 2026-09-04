@@ -1,148 +1,234 @@
 export const APP_NAME = "PlugZone";
 
-// ===== Category taxonomy =====
-export type FieldSpec = {
+export const AD_CATEGORIES = [
+  "Electronics",
+  "Fashion",
+  "Services",
+  "Vehicles",
+  "Property",
+  "Food",
+  "Health",
+  "Education",
+  "Other",
+] as const;
+export type AdCategory = (typeof AD_CATEGORIES)[number];
+
+export type DetailFieldType = "text" | "textarea" | "select" | "number" | "url" | "checkbox";
+
+export interface DetailField {
   key: string;
   label: string;
-  type: "text" | "textarea" | "select" | "url";
-  options?: readonly string[];
-  hint?: string;
+  type: DetailFieldType;
+  placeholder?: string;
+  options?: string[];
   required?: boolean;
-};
-
-export interface CategorySpec {
-  name: string;
-  subcategories: readonly string[];
-  fields: readonly FieldSpec[];
+  hint?: string;
 }
 
-const DELIVERY: FieldSpec = {
-  key: "delivery_method",
-  label: "Delivery method",
-  type: "select",
-  options: ["Instant (auto-delivered)", "Within 1 hour", "Within 24 hours", "Within 3 days", "Agreed in chat"],
-  required: true,
-};
-const WARRANTY: FieldSpec = { key: "warranty", label: "Warranty / replacement", type: "select", options: ["None", "24 hours", "7 days", "30 days", "Lifetime"] };
-const CREDENTIALS: FieldSpec = {
-  key: "credential_type",
-  label: "What the buyer receives",
-  type: "select",
-  options: ["Full account login", "Invite to my account", "Activation key", "Gift card / voucher code", "Shared access link"],
-  required: true,
-};
-const REGION: FieldSpec = { key: "region", label: "Region / country restriction", type: "text", hint: "e.g. Works worldwide, Nigeria only" };
-const DURATION: FieldSpec = {
-  key: "duration",
-  label: "Access duration",
-  type: "select",
-  options: ["1 month", "3 months", "6 months", "12 months", "Lifetime"],
-  required: true,
-};
+export interface Subcategory {
+  name: string;
+  fields: DetailField[];
+}
 
-export const CATEGORY_TAXONOMY: readonly CategorySpec[] = [
-  {
-    name: "Gaming",
-    subcategories: ["Game Accounts", "In-Game Currency & Items", "Game Boosts & Coaching", "Game Keys & Digital Codes", "Console & PC Gaming Accessories", "Game Mods & Cheats"],
-    fields: [
-      { key: "game_title", label: "Game", type: "text", hint: "e.g. Fortnite, Valorant, Call of Duty", required: true },
-      { key: "platform", label: "Platform", type: "select", options: ["PC", "PlayStation", "Xbox", "Nintendo Switch", "Mobile (iOS/Android)", "Cross-platform"], required: true },
-      { key: "account_level", label: "Level / rank / quantity", type: "text", hint: "e.g. Level 120, Radiant, 10,000 V-Bucks" },
-      DELIVERY,
-      WARRANTY,
-    ],
-  },
-  {
-    name: "VPNs & Proxies",
-    subcategories: ["Residential Proxies", "Datacenter Proxies", "Mobile Proxies", "VPN Accounts", "Dedicated IPs", "SOCKS5 Proxies"],
-    fields: [
-      { key: "provider_name", label: "Provider / brand", type: "text", hint: "e.g. NordVPN, ExpressVPN, Bright Data", required: true },
-      { key: "locations", label: "Available locations", type: "text", hint: "e.g. US, UK, Nigeria" },
-      { key: "bandwidth", label: "Bandwidth / IP count", type: "text", hint: "e.g. Unlimited, 10 GB, 50 IPs" },
-      DURATION,
-      DELIVERY,
-      WARRANTY,
-    ],
-  },
-  {
-    name: "Social Media Services",
-    subcategories: ["Followers, Likes & Views", "Verified Badges / Account Verification", "Pre-aged Social Media Accounts", "Engagement Services", "Social Media Management Services"],
-    fields: [
-      { key: "platform", label: "Platform", type: "select", options: ["Instagram", "TikTok", "Twitter/X", "Facebook", "YouTube", "Snapchat", "LinkedIn", "Telegram", "Multiple"], required: true },
-      { key: "quantity", label: "Quantity / package", type: "text", hint: "e.g. 1,000 followers, 5,000 views" },
-      { key: "account_age", label: "Account age (for accounts)", type: "text", hint: "e.g. Created 2019" },
-      DELIVERY,
-      WARRANTY,
-    ],
-  },
-  {
-    name: "Subscriptions",
-    subcategories: ["Streaming Services", "Software Licenses", "Gaming Passes", "Cloud Storage", "News & Entertainment Subscriptions", "Lifetime Software Deals"],
-    fields: [
-      { key: "service_name", label: "Service", type: "text", hint: "e.g. Netflix Premium, Microsoft 365, Xbox Game Pass", required: true },
-      { key: "plan_tier", label: "Plan / tier", type: "text", hint: "e.g. Premium 4K, Family, Pro" },
-      CREDENTIALS,
-      DURATION,
-      REGION,
-      DELIVERY,
-      WARRANTY,
-    ],
-  },
-  {
-    name: "Freelancing & Accounts",
-    subcategories: ["Freelance Services", "Premium Platform Accounts", "Verified Business Accounts", "API Keys & Developer Access", "Freelance Tools & Resources"],
-    fields: [
-      { key: "platform", label: "Platform / service", type: "text", hint: "e.g. LinkedIn Premium, GitHub Pro, Fiverr", required: true },
-      { key: "turnaround", label: "Turnaround time", type: "text", hint: "e.g. 3 business days" },
-      { key: "revisions", label: "Revisions included", type: "text", hint: "e.g. 2 revisions" },
-      DELIVERY,
-    ],
-  },
-  {
-    name: "Courses & Toolkits",
-    subcategories: ["Online Course Access", "Educational Materials & E-books", "Professional Certifications & Study Guides", "Digital Marketing Toolkits", "SEO Software Access & Shared Accounts", "Business & Operational Templates"],
-    fields: [
-      { key: "provider_name", label: "Platform / author", type: "text", hint: "e.g. Udemy, Coursera, own course" },
-      { key: "format", label: "Format", type: "select", options: ["Video course", "PDF / e-book", "Shared account access", "Template pack", "Live sessions"], required: true },
-      { key: "file_url", label: "Preview or sample link", type: "url", hint: "Optional public link to a preview" },
-      DELIVERY,
-    ],
-  },
-  {
-    name: "Verification Services",
-    subcategories: ["Phone Number / SMS Verification", "Email Verification Services", "Identity / KYC Verification Assistance", "Address Verification", "Document Verification", "Platform-Specific Account Verification Services"],
-    fields: [
-      { key: "platform", label: "Platform to verify", type: "text", hint: "e.g. WhatsApp, Telegram, PayPal", required: true },
-      { key: "countries", label: "Countries supported", type: "text", hint: "e.g. US, UK, NG" },
-      { key: "turnaround", label: "Turnaround time", type: "text", hint: "e.g. 10 minutes" },
-      DELIVERY,
-    ],
-  },
-  {
-    name: "Websites & Templates",
-    subcategories: ["WordPress Themes & Plugins", "Shopify Templates", "Landing Page Templates", "Email Marketing Templates", "Website Scripts & Source Code", "Code Snippets", "Turnkey / Full Website Builds"],
-    fields: [
-      { key: "tech_stack", label: "Built with", type: "text", hint: "e.g. WordPress, Shopify Liquid, React, HTML/CSS", required: true },
-      { key: "demo_url", label: "Live demo link", type: "url", hint: "Public URL buyers can preview" },
-      { key: "file_url", label: "Download / file link", type: "url", hint: "Private link shared after purchase (Drive, Dropbox, GitHub)" },
-      { key: "license", label: "License", type: "select", options: ["Single site", "Unlimited sites", "Personal use", "Commercial use", "Resale rights"], required: true },
-      { key: "support", label: "Support included", type: "text", hint: "e.g. 30 days email support" },
-    ],
-  },
-  {
-    name: "Other Digital Services",
-    subcategories: ["Health Services", "Education & Tutoring", "General Digital Services"],
-    fields: [
-      { key: "service_details", label: "Service format", type: "text", hint: "e.g. 1-hour video call, weekly sessions" },
-      DELIVERY,
-    ],
-  },
-] as const;
+export interface CategorySpec {
+  name: AdCategory;
+  subcategories: Subcategory[];
+}
 
-export const AD_CATEGORIES = CATEGORY_TAXONOMY.map((c) => c.name) as [string, ...string[]];
+// 9-category taxonomy. Each subcategory carries its own dynamic fields,
+// stored as JSONB in ads.details. Fields are intentionally sparse — only
+// show what a buyer in that niche needs to vet the listing.
+export const CATEGORY_TAXONOMY: CategorySpec[] = [
+  {
+    name: "Electronics",
+    subcategories: [
+      { name: "Phones & Tablets", fields: [
+        { key: "brand", label: "Brand", type: "select", options: ["Apple","Samsung","Google","Xiaomi","Oppo","Tecno","Infinix","Huawei","Nokia","Other"], required: true },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Open box","Like new","Fairly used","For parts"], required: true },
+        { key: "storage", label: "Storage", type: "text", placeholder: "e.g. 128GB" },
+        { key: "ram", label: "RAM", type: "text", placeholder: "e.g. 6GB" },
+        { key: "warranty", label: "Warranty left", type: "text", placeholder: "e.g. 3 months / none" },
+      ]},
+      { name: "Laptops & Computers", fields: [
+        { key: "brand", label: "Brand", type: "select", options: ["Apple","HP","Dell","Lenovo","Asus","Acer","Microsoft","Other"], required: true },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Open box","Like new","Fairly used","For parts"], required: true },
+        { key: "cpu", label: "Processor", type: "text", placeholder: "e.g. M2 / i5-1135G7" },
+        { key: "ram", label: "RAM", type: "text", placeholder: "e.g. 16GB" },
+        { key: "storage", label: "Storage", type: "text", placeholder: "e.g. 512GB SSD" },
+      ]},
+      { name: "Audio & Wearables", fields: [
+        { key: "brand", label: "Brand", type: "select", options: ["Apple","Sony","Bose","JBL","Samsung","Anker","Other"], required: true },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Open box","Like new","Fairly used"], required: true },
+      ]},
+      { name: "TVs & Home Electronics", fields: [
+        { key: "brand", label: "Brand", type: "text", required: true },
+        { key: "size", label: "Screen size", type: "text", placeholder: "e.g. 43 inches" },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Open box","Like new","Fairly used"], required: true },
+      ]},
+    ],
+  },
+  {
+    name: "Fashion",
+    subcategories: [
+      { name: "Men's Clothing", fields: [
+        { key: "size", label: "Size", type: "select", options: ["XS","S","M","L","XL","XXL","XXXL"] },
+        { key: "brand", label: "Brand", type: "text" },
+        { key: "condition", label: "Condition", type: "select", options: ["New with tags","New without tags","Like new","Fairly used"], required: true },
+      ]},
+      { name: "Women's Clothing", fields: [
+        { key: "size", label: "Size", type: "select", options: ["XS","S","M","L","XL","XXL"] },
+        { key: "brand", label: "Brand", type: "text" },
+        { key: "condition", label: "Condition", type: "select", options: ["New with tags","New without tags","Like new","Fairly used"], required: true },
+      ]},
+      { name: "Shoes", fields: [
+        { key: "size", label: "Shoe size", type: "text", placeholder: "e.g. 42 / UK 8", required: true },
+        { key: "brand", label: "Brand", type: "text" },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Like new","Fairly used"], required: true },
+      ]},
+      { name: "Bags & Accessories", fields: [
+        { key: "brand", label: "Brand", type: "text" },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Like new","Fairly used"], required: true },
+      ]},
+    ],
+  },
+  {
+    name: "Services",
+    subcategories: [
+      { name: "Web & Design", fields: [
+        { key: "portfolio", label: "Portfolio link", type: "url", placeholder: "https://…" },
+        { key: "turnaround", label: "Turnaround", type: "text", placeholder: "e.g. 3 days" },
+      ]},
+      { name: "Repairs & Maintenance", fields: [
+        { key: "specialty", label: "Specialty", type: "text", placeholder: "e.g. AC, phones, cars" },
+        { key: "area", label: "Service area", type: "text", placeholder: "e.g. Lagos mainland" },
+      ]},
+      { name: "Tutoring & Lessons", fields: [
+        { key: "subject", label: "Subject", type: "text", required: true },
+        { key: "level", label: "Level", type: "select", options: ["Primary","JSS","SSS","Undergraduate","Professional"] },
+        { key: "mode", label: "Mode", type: "select", options: ["Online","In-person","Hybrid"] },
+      ]},
+      { name: "Cleaning & Home", fields: [
+        { key: "frequency", label: "Frequency", type: "select", options: ["One-off","Weekly","Monthly"] },
+        { key: "area", label: "Service area", type: "text" },
+      ]},
+    ],
+  },
+  {
+    name: "Vehicles",
+    subcategories: [
+      { name: "Cars", fields: [
+        { key: "make", label: "Make", type: "text", required: true, placeholder: "e.g. Toyota" },
+        { key: "model", label: "Model", type: "text", required: true },
+        { key: "year", label: "Year", type: "number", placeholder: "e.g. 2018" },
+        { key: "mileage", label: "Mileage", type: "text", placeholder: "e.g. 45,000 km" },
+        { key: "transmission", label: "Transmission", type: "select", options: ["Automatic","Manual"] },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Foreign used","Nigerian used","For parts"] },
+      ]},
+      { name: "Motorcycles & Tricycles", fields: [
+        { key: "make", label: "Make", type: "text", required: true },
+        { key: "model", label: "Model", type: "text" },
+        { key: "year", label: "Year", type: "number" },
+        { key: "mileage", label: "Mileage", type: "text" },
+      ]},
+      { name: "Auto Parts", fields: [
+        { key: "part", label: "Part", type: "text", required: true },
+        { key: "compatible", label: "Compatible with", type: "text", placeholder: "e.g. 2015 Corolla" },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Fairly used"] },
+      ]},
+    ],
+  },
+  {
+    name: "Property",
+    subcategories: [
+      { name: "For Rent", fields: [
+        { key: "type", label: "Type", type: "select", options: ["Self-contained","1 bedroom","2 bedroom","3 bedroom","Shop","Office"], required: true },
+        { key: "furnished", label: "Furnished", type: "select", options: ["Yes","No","Semi"] },
+        { key: "lease", label: "Lease term", type: "select", options: ["Monthly","6 months","Yearly"] },
+        { key: "rooms", label: "Rooms", type: "number" },
+      ]},
+      { name: "For Sale", fields: [
+        { key: "type", label: "Type", type: "select", options: ["Land","House","Flat","Commercial"], required: true },
+        { key: "area_size", label: "Area", type: "text", placeholder: "e.g. 600 sqm" },
+        { key: "title_type", label: "Title document", type: "select", options: ["C of O","Governor's consent","Registered survey","None"] },
+      ]},
+      { name: "Short Let", fields: [
+        { key: "type", label: "Type", type: "select", options: ["Apartment","Room","Full house"] },
+        { key: "rate", label: "Rate", type: "text", placeholder: "e.g. ₦25k/night" },
+        { key: "amenities", label: "Amenities", type: "textarea", placeholder: "WiFi, pool, parking…" },
+      ]},
+    ],
+  },
+  {
+    name: "Food",
+    subcategories: [
+      { name: "Cooked Meals", fields: [
+        { key: "cuisine", label: "Cuisine", type: "text", placeholder: "e.g. Nigerian, Continental" },
+        { key: "serves", label: "Serves", type: "number", placeholder: "e.g. 4 people" },
+        { key: "delivery", label: "Delivery", type: "select", options: ["Yes","Pickup only"] },
+      ]},
+      { name: "Groceries & Produce", fields: [
+        { key: "unit", label: "Unit", type: "text", placeholder: "e.g. per crate, per kg" },
+        { key: "freshness", label: "Freshness", type: "select", options: ["Fresh","Frozen"] },
+      ]},
+      { name: "Snacks & Bakery", fields: [
+        { key: "type", label: "Type", type: "text", placeholder: "e.g. cakes, pastries, chin-chin" },
+        { key: "min_order", label: "Min order", type: "text", placeholder: "e.g. 1 dozen" },
+      ]},
+    ],
+  },
+  {
+    name: "Health",
+    subcategories: [
+      { name: "Wellness & Beauty", fields: [
+        { key: "type", label: "Type", type: "select", options: ["Skincare","Haircare","Supplements","Devices","Cosmetics"] },
+        { key: "brand", label: "Brand", type: "text" },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Unopened","Like new"] },
+      ]},
+      { name: "Fitness Equipment", fields: [
+        { key: "type", label: "Equipment", type: "text", required: true },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Like new","Fairly used"] },
+      ]},
+      { name: "Medical Supplies", fields: [
+        { key: "type", label: "Type", type: "text", required: true },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Sealed"] },
+        { key: "expiry", label: "Expiry", type: "text", placeholder: "if applicable" },
+      ]},
+    ],
+  },
+  {
+    name: "Education",
+    subcategories: [
+      { name: "Books & Materials", fields: [
+        { key: "subject", label: "Subject", type: "text" },
+        { key: "level", label: "Level", type: "select", options: ["Primary","JSS","SSS","Undergraduate","Professional"] },
+        { key: "condition", label: "Condition", type: "select", options: ["New","Like new","Fairly used"] },
+      ]},
+      { name: "Courses & Coaching", fields: [
+        { key: "topic", label: "Topic", type: "text", required: true },
+        { key: "format", label: "Format", type: "select", options: ["Online video","Live class","1-on-1","PDF"] },
+        { key: "duration", label: "Duration", type: "text", placeholder: "e.g. 6 weeks" },
+        { key: "link", label: "Course link", type: "url" },
+      ]},
+    ],
+  },
+  {
+    name: "Other",
+    subcategories: [
+      { name: "General", fields: [
+        { key: "note", label: "Extra details", type: "textarea", placeholder: "Anything buyers should know" },
+      ]},
+    ],
+  },
+];
 
-export function getCategorySpec(name: string | null | undefined): CategorySpec | undefined {
-  return CATEGORY_TAXONOMY.find((c) => c.name === name);
+export function subcategoriesFor(category: string | undefined): Subcategory[] {
+  if (!category) return [];
+  return CATEGORY_TAXONOMY.find((c) => c.name === category)?.subcategories ?? [];
+}
+
+export function fieldsFor(category: string | undefined, subcategory: string | undefined): DetailField[] {
+  if (!category || !subcategory) return [];
+  return subcategoriesFor(category).find((s) => s.name === subcategory)?.fields ?? [];
 }
 
 export const CURRENCIES = ["NGN", "USD", "GHS", "KES"] as const;
@@ -151,77 +237,44 @@ export const AD_STATUSES = ["active", "paused", "sold"] as const;
 
 export const ORDER_STATUSES = ["pending", "accepted", "completed", "cancelled", "disputed"] as const;
 
-export const NEGOTIATION_MAX_ROUNDS = 5;
-
-// ===== Telco providers =====
 export const PROVIDERS = ["MTN", "Airtel", "Glo", "9mobile"] as const;
 export type Provider = (typeof PROVIDERS)[number];
-
-export const PROVIDER_COLORS: Record<Provider, string> = {
-  MTN: "#FFCC00",
-  Airtel: "#E60000",
-  Glo: "#009900",
-  "9mobile": "#005A36",
-};
-
-export type PlanDuration = "Daily" | "Weekly" | "Monthly" | "Social";
-export const PLAN_DURATIONS: readonly PlanDuration[] = ["Daily", "Weekly", "Monthly", "Social"];
 
 export interface DataPlan {
   id: string;
   label: string;
   validity: string;
-  duration: PlanDuration;
   price: number;
-  note?: string;
-}
-
-const VOLUMES = ["500MB", "1GB", "2GB", "3GB", "5GB", "10GB", "20GB", "50GB"] as const;
-const VOLUME_MB: Record<(typeof VOLUMES)[number], number> = { "500MB": 500, "1GB": 1024, "2GB": 2048, "3GB": 3072, "5GB": 5120, "10GB": 10240, "20GB": 20480, "50GB": 51200 };
-
-// Base ₦ per GB per provider for a monthly plan; daily/weekly are cheaper per plan but shorter.
-const RATE_PER_GB: Record<Provider, number> = { MTN: 560, Airtel: 540, Glo: 480, "9mobile": 520 };
-const DURATION_FACTOR: Record<Exclude<PlanDuration, "Social">, { factor: number; validity: string; volumes: readonly string[] }> = {
-  Daily: { factor: 0.55, validity: "1 day", volumes: ["500MB", "1GB", "2GB"] },
-  Weekly: { factor: 0.8, validity: "7 days", volumes: ["500MB", "1GB", "2GB", "3GB", "5GB"] },
-  Monthly: { factor: 1, validity: "30 days", volumes: VOLUMES },
-};
-
-function round50(n: number) {
-  return Math.max(50, Math.round(n / 50) * 50);
-}
-
-function buildPlans(provider: Provider): DataPlan[] {
-  const slug = provider.toLowerCase();
-  const plans: DataPlan[] = [];
-  for (const dur of ["Daily", "Weekly", "Monthly"] as const) {
-    const { factor, validity, volumes } = DURATION_FACTOR[dur];
-    for (const v of volumes) {
-      const gb = VOLUME_MB[v as (typeof VOLUMES)[number]] / 1024;
-      // Larger bundles get a bulk discount
-      const bulk = gb >= 20 ? 0.8 : gb >= 10 ? 0.88 : gb >= 5 ? 0.94 : 1;
-      plans.push({ id: `${slug}-${dur.toLowerCase()}-${v.toLowerCase()}`, label: v, validity, duration: dur, price: round50(gb * RATE_PER_GB[provider] * factor * bulk) });
-    }
-  }
-  const social = RATE_PER_GB[provider] * 0.45;
-  plans.push(
-    { id: `${slug}-social-whatsapp`, label: "WhatsApp 1GB", validity: "30 days", duration: "Social", price: round50(social), note: "WhatsApp only" },
-    { id: `${slug}-social-facebook`, label: "Facebook 1GB", validity: "30 days", duration: "Social", price: round50(social), note: "Facebook only" },
-    { id: `${slug}-social-instagram`, label: "Instagram 1GB", validity: "30 days", duration: "Social", price: round50(social * 1.1), note: "Instagram only" },
-    { id: `${slug}-social-combo`, label: "Social Combo 2GB", validity: "30 days", duration: "Social", price: round50(social * 2), note: "WhatsApp, Facebook, Instagram" },
-  );
-  return plans;
 }
 
 export const DATA_PLANS: Record<Provider, DataPlan[]> = {
-  MTN: buildPlans("MTN"),
-  Airtel: buildPlans("Airtel"),
-  Glo: buildPlans("Glo"),
-  "9mobile": buildPlans("9mobile"),
+  MTN: [
+    { id: "mtn-500mb", label: "500MB", validity: "30 days", price: 350 },
+    { id: "mtn-1gb", label: "1GB", validity: "30 days", price: 600 },
+    { id: "mtn-2gb", label: "2GB", validity: "30 days", price: 1200 },
+    { id: "mtn-5gb", label: "5GB", validity: "30 days", price: 2800 },
+    { id: "mtn-10gb", label: "10GB", validity: "30 days", price: 5200 },
+  ],
+  Airtel: [
+    { id: "airtel-500mb", label: "500MB", validity: "30 days", price: 340 },
+    { id: "airtel-1gb", label: "1GB", validity: "30 days", price: 580 },
+    { id: "airtel-2gb", label: "2GB", validity: "30 days", price: 1150 },
+    { id: "airtel-5gb", label: "5GB", validity: "30 days", price: 2700 },
+    { id: "airtel-10gb", label: "10GB", validity: "30 days", price: 5000 },
+  ],
+  Glo: [
+    { id: "glo-1gb", label: "1GB", validity: "30 days", price: 500 },
+    { id: "glo-2gb", label: "2GB", validity: "30 days", price: 1000 },
+    { id: "glo-5gb", label: "5GB", validity: "30 days", price: 2400 },
+    { id: "glo-10gb", label: "10GB", validity: "30 days", price: 4500 },
+  ],
+  "9mobile": [
+    { id: "9m-500mb", label: "500MB", validity: "30 days", price: 300 },
+    { id: "9m-1gb", label: "1GB", validity: "30 days", price: 550 },
+    { id: "9m-2gb", label: "2GB", validity: "30 days", price: 1100 },
+    { id: "9m-5gb", label: "5GB", validity: "30 days", price: 2600 },
+  ],
 };
-
-export const AIRTIME_MIN = 50;
-export const AIRTIME_MAX = 50000;
 
 export const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100] as const;
 

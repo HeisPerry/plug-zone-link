@@ -1,79 +1,116 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { adSchema, type AdFormValues } from "@/lib/validators";
-import { CATEGORY_TAXONOMY, CURRENCIES, getCategorySpec, type FieldSpec } from "@/lib/constants";
+import {
+  AD_CATEGORIES,
+  CURRENCIES,
+  fieldsFor,
+  subcategoriesFor,
+  type DetailField,
+} from "@/lib/constants";
 import { Field } from "@/components/shared/Field";
 import { ImageUpload } from "./ImageUpload";
 import { uploadAdImage, useSaveAd } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/shared/Toast";
-import type { Ad, AdDetails } from "@/lib/types";
+import type { Ad } from "@/lib/types";
 
-type Errors = Partial<Record<keyof AdFormValues | "form", string>> & { details?: Record<string, string> };
+interface Errors {
+  title?: string;
+  description?: string;
+  price?: string;
+  currency?: string;
+  category?: string;
+  subcategory?: string;
+  location?: string;
+  form?: string;
+  [key: string]: string | undefined;
+}
+
+interface FormValues {
+  title: string;
+  description: string;
+  price: string;
+  currency: (typeof CURRENCIES)[number];
+  category: string;
+  subcategory: string;
+  details: Record<string, string>;
+  location: string;
+}
+
+// Coerce stored jsonb details (Json) into the string map the form uses.
+function toStringDetails(d: unknown): Record<string, string> {
+  if (!d || typeof d !== "object") return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(d as Record<string, unknown>)) {
+    out[k] = v == null ? "" : String(v);
+  }
+  return out;
+}
 
 export function AdForm({ ad }: { ad?: Ad }) {
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const save = useSaveAd();
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<FormValues>({
     title: ad?.title ?? "",
     description: ad?.description ?? "",
     price: ad ? String(ad.price) : "",
     currency: (ad?.currency ?? "NGN") as (typeof CURRENCIES)[number],
     category: ad?.category ?? "",
     subcategory: ad?.subcategory ?? "",
+    details: toStringDetails(ad?.details),
     location: ad?.location ?? "",
-  });
-  const [details, setDetails] = useState<AdDetails>(() => {
-    const d = ad?.details;
-    return d && typeof d === "object" && !Array.isArray(d) ? Object.fromEntries(Object.entries(d).map(([k, v]) => [k, String(v ?? "")])) : {};
   });
   const [images, setImages] = useState<string[]>(ad?.images ?? []);
   const [errors, setErrors] = useState<Errors>({});
 
-  const spec = getCategorySpec(values.category);
+  const set =
+    (k: keyof typeof values) =>
+    (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) =>
+      setValues((v) => ({ ...v, [k]: e.target.value }));
 
-  const set = (k: keyof typeof values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setValues((v) => ({ ...v, [k]: e.target.value }));
-
-  function onCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setValues((v) => ({ ...v, category: e.target.value, subcategory: "" }));
-    setDetails({});
+  function setDetail(field: string, value: string) {
+    setValues((v) => ({ ...v, details: { ...v.details, [field]: value } }));
   }
+
+  // When category changes, reset subcategory and per-subcategory fields.
+  function onCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const category = e.target.value;
+    setValues((v) => ({
+      ...v,
+      category,
+      subcategory: "",
+      details: {},
+    }));
+  }
+
+  function onSubcategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const subcategory = e.target.value;
+    setValues((v) => ({ ...v, subcategory, details: {} }));
+  }
+
+  const subs = subcategoriesFor(values.category);
+  const fields = fieldsFor(values.category, values.subcategory);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = adSchema.safeParse(values);
-    const errs: Errors = {};
     if (!parsed.success) {
+      const errs: Errors = {};
       parsed.error.issues.forEach((i) => {
-        const k = i.path[0] as keyof AdFormValues;
-        if (!errs[k]) errs[k] = i.message;
+        const key = String(i.path.join("."));
+        if (!errs[key]) errs[key] = i.message;
       });
-    }
-    // Category-specific required fields
-    const detailErrs: Record<string, string> = {};
-    for (const f of spec?.fields ?? []) {
-      const v = (details[f.key] ?? "").trim();
-      if (f.required && !v) detailErrs[f.key] = `${f.label} is required`;
-      else if (f.type === "url" && v && !/^https?:\/\/\S+$/i.test(v)) detailErrs[f.key] = "Enter a full link starting with http:// or https://";
-      else if (v.length > 300) detailErrs[f.key] = "Max 300 characters";
-    }
-    if (Object.keys(detailErrs).length) errs.details = detailErrs;
-    if (Object.keys(errs).length || !parsed.success) {
       setErrors(errs);
       return;
     }
     setErrors({});
-    // Only keep fields that belong to the chosen category
-    const cleanDetails: AdDetails = {};
-    for (const f of spec?.fields ?? []) {
-      const v = (details[f.key] ?? "").trim();
-      if (v) cleanDetails[f.key] = v;
-    }
     try {
-      const saved = await save.mutateAsync({ id: ad?.id, values: parsed.data, images, details: cleanDetails });
+      const saved = await save.mutateAsync({ id: ad?.id, values: parsed.data, images });
       toast.success(ad ? "Ad updated" : "Ad posted");
       navigate({ to: "/ad/$adId", params: { adId: saved.id } });
     } catch (err) {
@@ -84,48 +121,40 @@ export function AdForm({ ad }: { ad?: Ad }) {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-6">
       <Field label="Title" htmlFor="title" error={errors.title} counter={`${values.title.length}/120`}>
-        <input id="title" className="input" maxLength={120} value={values.title} onChange={set("title")} placeholder="e.g. Netflix Premium 4K — 3 months, private profile" />
+        <input
+          id="title"
+          className="input"
+          maxLength={120}
+          value={values.title}
+          onChange={set("title")}
+          placeholder="e.g. iPhone 13, 128GB, barely used"
+        />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Category" htmlFor="category" error={errors.category}>
-          <select id="category" className="input" value={values.category} onChange={onCategoryChange}>
-            <option value="">Choose a category</option>
-            {CATEGORY_TAXONOMY.map((c) => (
-              <option key={c.name} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Sub-category" htmlFor="subcategory" error={errors.subcategory}>
-          <select id="subcategory" className="input" value={values.subcategory} onChange={set("subcategory")} disabled={!spec}>
-            <option value="">{spec ? "Choose a sub-category" : "Pick a category first"}</option>
-            {spec?.subcategories.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      {spec && spec.fields.length > 0 && (
-        <fieldset className="panel space-y-4 p-4 sm:p-5">
-          <legend className="px-1 text-sm font-medium text-muted-foreground">{spec.name} details</legend>
-          {spec.fields.map((f) => (
-            <DetailField key={f.key} spec={f} value={details[f.key] ?? ""} error={errors.details?.[f.key]} onChange={(v) => setDetails((d) => ({ ...d, [f.key]: v }))} />
-          ))}
-        </fieldset>
-      )}
-
       <Field label="Description" htmlFor="description" error={errors.description} counter={`${values.description.length}/2000`}>
-        <textarea id="description" className="input min-h-[160px] resize-y" maxLength={2000} value={values.description} onChange={set("description")} placeholder="What's included, conditions, how delivery works…" />
+        <textarea
+          id="description"
+          className="input min-h-[160px] resize-y"
+          maxLength={2000}
+          value={values.description}
+          onChange={set("description")}
+          placeholder="Condition, what's included, delivery options…"
+        />
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
         <Field label="Price" htmlFor="price" error={errors.price}>
-          <input id="price" type="number" inputMode="decimal" min={0} step="0.01" className="input" value={values.price} onChange={set("price")} placeholder="0" />
+          <input
+            id="price"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            className="input"
+            value={values.price}
+            onChange={set("price")}
+            placeholder="0"
+          />
         </Field>
         <Field label="Currency" htmlFor="currency" error={errors.currency}>
           <select id="currency" className="input" value={values.currency} onChange={set("currency")}>
@@ -138,12 +167,53 @@ export function AdForm({ ad }: { ad?: Ad }) {
         </Field>
       </div>
 
+      <Field label="Category" htmlFor="category" error={errors.category}>
+        <select id="category" className="input" value={values.category} onChange={onCategoryChange}>
+          <option value="">Choose a category</option>
+          {AD_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      {subs.length > 0 && (
+        <Field label="Subcategory" htmlFor="subcategory" error={errors.subcategory}>
+          <select id="subcategory" className="input" value={values.subcategory} onChange={onSubcategoryChange}>
+            <option value="">Choose a subcategory</option>
+            {subs.map((s) => (
+              <option key={s.name} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {fields.length > 0 && (
+        <div className="panel space-y-4">
+          <p className="text-sm font-semibold">Details</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {fields.map((f) => (
+              <DetailInput
+                key={f.key}
+                field={f}
+                value={values.details[f.key] ?? ""}
+                error={errors[`details.${f.key}`]}
+                onChange={(val) => setDetail(f.key, val)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
-        <span className="label">Photos or screenshots</span>
+        <span className="label">Photos</span>
         <ImageUpload images={images} onChange={setImages} upload={(f) => uploadAdImage(user!.id, f)} />
       </div>
 
-      <Field label="Location (optional)" htmlFor="location" error={errors.location} hint="City or area, e.g. Ikeja, Lagos — leave blank for fully digital items">
+      <Field label="Location" htmlFor="location" error={errors.location} hint="City or area, e.g. Ikeja, Lagos">
         <input id="location" className="input" value={values.location} onChange={set("location")} />
       </Field>
 
@@ -161,24 +231,47 @@ export function AdForm({ ad }: { ad?: Ad }) {
   );
 }
 
-function DetailField({ spec, value, error, onChange }: { spec: FieldSpec; value: string; error?: string | undefined; onChange: (v: string) => void }) {
-  const id = `detail-${spec.key}`;
-  const label = spec.required ? spec.label : `${spec.label} (optional)`;
+function DetailInput({
+  field,
+  value,
+  error,
+  onChange,
+}: {
+  field: DetailField;
+  value: string;
+  error: string | undefined;
+  onChange: (val: string) => void;
+}) {
+  const id = `detail-${field.key}`;
+  const common = {
+    id,
+    className: "input",
+    value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      onChange(e.target.value),
+  };
   return (
-    <Field label={label} htmlFor={id} error={error} hint={spec.hint}>
-      {spec.type === "select" ? (
-        <select id={id} className="input" value={value} onChange={(e) => onChange(e.target.value)}>
-          <option value="">Select</option>
-          {spec.options?.map((o) => (
+    <Field
+      label={field.label}
+      htmlFor={id}
+      error={error}
+      hint={field.hint}
+    >
+      {field.type === "textarea" ? (
+        <textarea {...common} className="input min-h-[80px] resize-y" placeholder={field.placeholder} />
+      ) : field.type === "select" && field.options ? (
+        <select {...common}>
+          <option value="">Select…</option>
+          {field.options.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
           ))}
         </select>
-      ) : spec.type === "textarea" ? (
-        <textarea id={id} className="input min-h-[90px]" maxLength={300} value={value} onChange={(e) => onChange(e.target.value)} />
+      ) : field.type === "number" ? (
+        <input {...common} type="number" inputMode="numeric" placeholder={field.placeholder} />
       ) : (
-        <input id={id} type={spec.type === "url" ? "url" : "text"} className="input" maxLength={300} value={value} onChange={(e) => onChange(e.target.value)} placeholder={spec.type === "url" ? "https://" : undefined} />
+        <input {...common} type={field.type === "url" ? "url" : "text"} placeholder={field.placeholder} />
       )}
     </Field>
   );

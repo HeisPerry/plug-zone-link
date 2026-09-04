@@ -26,7 +26,7 @@ export function usePlaceDataAirtimeOrder() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { type: "data" | "airtime"; provider: Provider; phone_number: string; amount: number; data_plan?: string; recipient: "self" | "others" }) => {
+    mutationFn: async (input: { type: "data" | "airtime"; provider: Provider; phone_number: string; amount: number; data_plan?: string }) => {
       if (!user) throw new Error("Not signed in");
       const reference = generateReference(input.type === "data" ? "PZD" : "PZA");
 

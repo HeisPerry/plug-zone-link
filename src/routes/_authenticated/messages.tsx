@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversations, useSendMessage, useThread } from "@/hooks/useMessages";
 import { Avatar } from "@/components/shared/Avatar";
-import { OfferPanel } from "@/components/negotiations/OfferPanel";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ListSkeleton, Skeleton } from "@/components/shared/SkeletonLoader";
 import { cn, formatRelative, truncate } from "@/lib/utils";
@@ -117,8 +116,6 @@ function Thread({ conversationId, other, onBack }: { conversationId: string; oth
           <p className="text-sm text-muted-foreground">@{other.username}</p>
         </div>
       </header>
-
-      <OfferPanel conversationId={conversationId} />
 
       <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
         {isLoading ? (

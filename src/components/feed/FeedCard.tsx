@@ -20,7 +20,7 @@ export function FeedCard({ ad }: { ad: AdWithSeller }) {
         </Link>
         <p className="mt-1 font-heading text-lg font-bold text-primary">{formatPrice(ad.price, ad.currency)}</p>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <CategoryBadge>{ad.subcategory ?? ad.category}</CategoryBadge>
+          <CategoryBadge>{ad.category}</CategoryBadge>
           {ad.location && (
             <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin size={14} aria-hidden="true" />
