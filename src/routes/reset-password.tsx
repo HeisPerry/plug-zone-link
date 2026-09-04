@@ -58,11 +58,11 @@ function ResetPasswordPage() {
         <h1 className="text-3xl">Set a new password</h1>
         {!ready && <p className="text-[15px] text-muted-foreground">Open this page from the link in your reset email.</p>}
         <Field label="New password" htmlFor="pw" error={error ?? undefined}>
-          <input id="pw" type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
+          <PasswordInput id="pw" toggleLabel="new password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
           <PasswordStrength password={password} />
         </Field>
         <Field label="Confirm new password" htmlFor="pw2">
-          <input id="pw2" type="password" className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+          <PasswordInput id="pw2" toggleLabel="confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
         </Field>
         <button type="submit" className="btn btn-primary w-full" disabled={saving || !ready}>
           {saving ? "Saving…" : "Update Password"}
