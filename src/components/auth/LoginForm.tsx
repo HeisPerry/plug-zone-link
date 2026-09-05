@@ -16,7 +16,7 @@ const INVALID = "Incorrect username/email or password.";
 
 type Errors = { identifier?: string; password?: string; form?: string };
 
-export function LoginForm() {
+export function LoginForm({ initialResetMode = false }: { initialResetMode?: boolean }) {
   const navigate = useNavigate();
   const toast = useToast();
   const usernameSignIn = useServerFn(signInWithUsername);
@@ -30,7 +30,8 @@ export function LoginForm() {
   const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
-  const [resetMode, setResetMode] = useState(false);
+  const [resetMode, setResetMode] = useState(initialResetMode);
+  const [resetSentTo, setResetSentTo] = useState<string | null>(null);
 
   useEffect(() => {
     if (!lockedUntil) return;
