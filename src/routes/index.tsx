@@ -47,7 +47,7 @@ function LandingPage() {
   const n = (v: number | bigint | undefined) => (v === undefined ? "—" : Number(v).toLocaleString());
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <PublicHeader
         right={
           <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -64,69 +64,69 @@ function LandingPage() {
       />
 
       <section className="hero-surface border-b">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
-        <div className="rise-in">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-28 lg:pt-24">
+        <div className="rise-in min-w-0">
           <Logo to="/" size="lg" />
-          <span className="pill mb-6 mt-6 block w-fit">Peer-to-peer digital marketplace</span>
-          <h1 className="max-w-2xl text-[40px] sm:text-[56px] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
-          <p className="mt-6 max-w-lg text-lg text-muted-foreground sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/signup" className="btn btn-primary btn-lg">
+          <span className="pill mb-5 mt-5 block w-fit sm:mb-6 sm:mt-6">Peer-to-peer digital marketplace</span>
+          <h1 className="max-w-2xl text-balance text-[34px] leading-[1.05] sm:text-[56px] sm:leading-[1.02] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
+          <p className="mt-5 max-w-lg text-pretty text-base text-muted-foreground sm:mt-6 sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
+          <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
+            <Link to="/signup" className="btn btn-primary btn-lg w-full justify-center sm:w-auto">
               Create Account <ArrowRight size={18} />
             </Link>
-            <Link to="/login" className="btn btn-secondary btn-lg">
+            <Link to="/login" className="btn btn-secondary btn-lg w-full justify-center sm:w-auto">
               Sign in
             </Link>
           </div>
         </div>
-        <dl className="panel grid grid-cols-3 divide-x overflow-hidden lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
+        <dl className="panel grid min-w-0 grid-cols-3 divide-x overflow-hidden lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
           {[
             { label: "Members", value: stats?.total_users },
             { label: "Ads posted", value: stats?.total_ads },
             { label: "Orders completed", value: stats?.completed_orders },
           ].map((s) => (
-            <div key={s.label} className="p-5 lg:flex lg:items-baseline lg:justify-between lg:px-7 lg:py-6">
-              <dt className="text-sm text-muted-foreground">{s.label}</dt>
-              <dd className="mt-1 font-heading text-2xl font-bold lg:mt-0 lg:text-3xl">{isLoading ? <Skeleton className="h-8 w-16" /> : n(s.value)}</dd>
+            <div key={s.label} className="min-w-0 p-4 sm:p-5 lg:flex lg:items-baseline lg:justify-between lg:px-7 lg:py-6">
+              <dt className="text-xs text-muted-foreground sm:text-sm">{s.label}</dt>
+              <dd className="mt-1 font-heading text-xl font-bold sm:text-2xl lg:mt-0 lg:text-3xl">{isLoading ? <Skeleton className="h-7 w-14" /> : n(s.value)}</dd>
             </div>
           ))}
         </dl>
       </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <h2 className="text-3xl sm:text-4xl">How it works</h2>
-        <ol className="mt-10 grid gap-4 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <h2 className="text-2xl sm:text-4xl">How it works</h2>
+        <ol className="mt-8 grid gap-4 sm:mt-10 md:grid-cols-3">
           {[
             { icon: Zap, t: "Post your ad", d: "Add photos, pricing and details in about a minute." },
             { icon: MessageSquare, t: "Get orders and chat", d: "Buyers find you, make offers and talk to you in real time." },
             { icon: ShieldCheck, t: "Close the deal safely", d: "Payment is tracked on every order and earnings land in your wallet." },
           ].map((step, i) => (
-            <li key={step.t} className="panel p-7">
+            <li key={step.t} className="panel p-5 sm:p-7">
               <div className="flex items-center justify-between">
-                <span className="icon-tile h-12 w-12 rounded-2xl">
-                  <step.icon size={22} />
+                <span className="icon-tile h-11 w-11 rounded-2xl sm:h-12 sm:w-12">
+                  <step.icon size={20} />
                 </span>
                 <span className="font-heading text-sm font-bold text-muted-foreground">0{i + 1}</span>
               </div>
-              <h3 className="mt-6 text-xl">{step.t}</h3>
-              <p className="mt-2 text-[15px] text-muted-foreground">{step.d}</p>
+              <h3 className="mt-5 text-lg sm:mt-6 sm:text-xl">{step.t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-[15px]">{step.d}</p>
             </li>
           ))}
         </ol>
       </section>
 
       {ads && ads.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-3xl sm:text-4xl">Latest ads</h2>
-            <Link to="/signup" className="text-[15px] font-medium text-primary">
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-2xl sm:text-4xl">Latest ads</h2>
+            <Link to="/signup" className="text-sm font-medium text-primary sm:text-[15px]">
               Sign up to see more
             </Link>
           </div>
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+          <div className="mt-6 flex gap-3 overflow-x-auto pb-2 hide-scrollbar sm:gap-4">
             {ads.map((ad) => (
-              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-64 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5">
+              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-52 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5 sm:w-64">
                 {ad.images[0] ? (
                   <img src={ad.images[0]} alt={ad.title} className="aspect-[4/3] w-full object-cover" loading="lazy" />
                 ) : (
@@ -143,7 +143,7 @@ function LandingPage() {
       )}
 
       <section className="hero-surface border-y">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-12 sm:px-6 md:grid-cols-5 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-6 px-4 py-10 sm:grid-cols-3 sm:px-6 sm:py-12 md:grid-cols-5 lg:px-8">
           {[
             { v: stats?.total_ads, l: "ads posted" },
             { v: stats?.completed_orders, l: "completed orders" },
@@ -151,9 +151,9 @@ function LandingPage() {
             { v: stats?.total_checkins, l: "daily check-ins" },
             { v: stats?.total_users, l: "members" },
           ].map((s) => (
-            <div key={s.l}>
-              <p className="font-heading text-2xl font-extrabold">{isLoading ? "…" : `${n(s.v)}`}</p>
-              <p className="text-sm text-muted-foreground">{s.l}</p>
+            <div key={s.l} className="min-w-0">
+              <p className="font-heading text-xl font-extrabold sm:text-2xl">{isLoading ? "…" : `${n(s.v)}`}</p>
+              <p className="text-xs text-muted-foreground sm:text-sm">{s.l}</p>
             </div>
           ))}
         </div>
