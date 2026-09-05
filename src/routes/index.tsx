@@ -47,7 +47,7 @@ function LandingPage() {
   const n = (v: number | bigint | undefined) => (v === undefined ? "—" : Number(v).toLocaleString());
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <PublicHeader
         right={
           <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -64,30 +64,30 @@ function LandingPage() {
       />
 
       <section className="hero-surface border-b">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
-        <div className="rise-in">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-28 lg:pt-24">
+        <div className="rise-in min-w-0">
           <Logo to="/" size="lg" />
-          <span className="pill mb-6 mt-6 block w-fit">Peer-to-peer digital marketplace</span>
-          <h1 className="max-w-2xl text-[40px] sm:text-[56px] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
-          <p className="mt-6 max-w-lg text-lg text-muted-foreground sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/signup" className="btn btn-primary btn-lg">
+          <span className="pill mb-5 mt-5 block w-fit sm:mb-6 sm:mt-6">Peer-to-peer digital marketplace</span>
+          <h1 className="max-w-2xl text-balance text-[34px] leading-[1.05] sm:text-[56px] sm:leading-[1.02] lg:text-[72px]">Buy and sell directly, no middleman.</h1>
+          <p className="mt-5 max-w-lg text-pretty text-base text-muted-foreground sm:mt-6 sm:text-xl">Post an ad, get orders from real people, and close the deal in chat — with payments held safely until it's done.</p>
+          <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
+            <Link to="/signup" className="btn btn-primary btn-lg w-full justify-center sm:w-auto">
               Create Account <ArrowRight size={18} />
             </Link>
-            <Link to="/login" className="btn btn-secondary btn-lg">
+            <Link to="/login" className="btn btn-secondary btn-lg w-full justify-center sm:w-auto">
               Sign in
             </Link>
           </div>
         </div>
-        <dl className="panel grid grid-cols-3 divide-x overflow-hidden lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
+        <dl className="panel grid min-w-0 grid-cols-3 divide-x overflow-hidden lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
           {[
             { label: "Members", value: stats?.total_users },
             { label: "Ads posted", value: stats?.total_ads },
             { label: "Orders completed", value: stats?.completed_orders },
           ].map((s) => (
-            <div key={s.label} className="p-5 lg:flex lg:items-baseline lg:justify-between lg:px-7 lg:py-6">
-              <dt className="text-sm text-muted-foreground">{s.label}</dt>
-              <dd className="mt-1 font-heading text-2xl font-bold lg:mt-0 lg:text-3xl">{isLoading ? <Skeleton className="h-8 w-16" /> : n(s.value)}</dd>
+            <div key={s.label} className="min-w-0 p-4 sm:p-5 lg:flex lg:items-baseline lg:justify-between lg:px-7 lg:py-6">
+              <dt className="text-xs text-muted-foreground sm:text-sm">{s.label}</dt>
+              <dd className="mt-1 font-heading text-xl font-bold sm:text-2xl lg:mt-0 lg:text-3xl">{isLoading ? <Skeleton className="h-7 w-14" /> : n(s.value)}</dd>
             </div>
           ))}
         </dl>
