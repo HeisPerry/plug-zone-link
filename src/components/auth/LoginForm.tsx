@@ -108,28 +108,67 @@ export function LoginForm({ initialResetMode = false }: { initialResetMode?: boo
 
   async function sendReset(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     const email = values.identifier.trim();
-    if (!isEmailLike(email)) {
+    if (!isEmailLike(email) || !z.string().email().safeParse(email).success) {
       setErrors({ identifier: "Enter the email address on your account" });
       return;
     }
+    setErrors({});
     setSubmitting(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
-    setSubmitting(false);
-    if (error) setErrors({ form: error.message });
-    else {
-      toast.success("Password reset email sent");
-      setErrors({});
-      setResetMode(false);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+      if (error && error.status === 429) {
+        setErrors({ form: "Too many requests. Please wait a few minutes before trying again." });
+        return;
+      }
+      // Whether or not the address is registered, show the same confirmation so accounts can't be probed.
+      setResetSentTo(email);
+    } catch {
+      setErrors({ form: "We couldn't send the email right now. Check your connection and try again." });
+    } finally {
+      setSubmitting(false);
     }
+  }
+
+  function backToSignIn() {
+    setErrors({});
+    setResetSentTo(null);
+    setResetMode(false);
+  }
+
+  if (resetMode && resetSentTo) {
+    return (
+      <div className="space-y-5" role="status">
+        <span className="icon-tile">
+          <MailCheck size={26} aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="text-2xl">Check your email</h2>
+          <p className="mt-2 text-[15px] text-muted-foreground">
+            If an account exists for <span className="font-medium text-foreground">{resetSentTo}</span>, we've sent a link to set a new password. The link
+            expires shortly and can only be used once.
+          </p>
+          <p className="mt-2 text-[13px] text-muted-foreground">Didn't get it? Check your spam folder or try again in a minute.</p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button type="button" className="btn btn-primary" onClick={backToSignIn}>
+            Back to Sign In
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={() => setResetSentTo(null)}>
+            Use a Different Email
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (resetMode) {
     return (
-      <form onSubmit={sendReset} noValidate className="space-y-5">
+      <form onSubmit={sendReset} noValidate className="space-y-5" aria-busy={submitting}>
         <div>
           <h2 className="text-2xl">Reset your password</h2>
-          <p className="mt-1 text-[15px] text-muted-foreground">We'll email you a link to set a new one.</p>
+          <p className="mt-1 text-[15px] text-muted-foreground">Enter your account email and we'll send you a secure link to set a new one.</p>
         </div>
         <Field label="Email" htmlFor="reset-email" error={errors.identifier}>
           <input
@@ -140,13 +179,21 @@ export function LoginForm({ initialResetMode = false }: { initialResetMode?: boo
             onChange={(e) => setValues((v) => ({ ...v, identifier: e.target.value }))}
             autoComplete="email"
             inputMode="email"
+            placeholder="you@example.com"
+            aria-invalid={!!errors.identifier}
+            autoFocus
           />
         </Field>
-        {errors.form && <p className="field-error">{errors.form}</p>}
+        {errors.form && (
+          <p className="field-error" role="alert">
+            {errors.form}
+          </p>
+        )}
         <button type="submit" className="btn btn-primary w-full" disabled={submitting}>
+          {submitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
           {submitting ? "Sending…" : "Send Reset Link"}
         </button>
-        <button type="button" className="min-h-11 text-[15px] font-medium text-primary" onClick={() => setResetMode(false)}>
+        <button type="button" className="min-h-11 text-[15px] font-medium text-primary" onClick={backToSignIn}>
           Back to sign in
         </button>
       </form>
