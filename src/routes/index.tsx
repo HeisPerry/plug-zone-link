@@ -18,6 +18,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "PlugZone — Buy and sell directly, no middleman" },
       { property: "og:description", content: "Post ads, receive orders, chat with buyers, and buy data bundles on PlugZone." },
     ],
+    links: [{ rel: "preload", as: "image", href: "/plugzone-mark.png", fetchPriority: "high" }],
   }),
   component: LandingPage,
 });

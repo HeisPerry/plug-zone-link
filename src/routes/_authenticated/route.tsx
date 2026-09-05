@@ -5,9 +5,10 @@ import { AppShell } from "@/components/layout/PageLayout";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login" });
-    return { user: data.user };
+    // Local session read (no network round trip) — RLS still verifies the token on every query.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.user) throw redirect({ to: "/login" });
+    return { user: data.session.user };
   },
   component: () => (
     <AppShell>
