@@ -9,7 +9,6 @@ import { signInWithUsername } from "@/lib/auth.functions";
 import { getRememberedIdentifier, setRememberedIdentifier, setRememberMe } from "@/lib/session-mode";
 import { Field } from "@/components/shared/Field";
 import { PasswordInput } from "@/components/shared/PasswordInput";
-import { useToast } from "@/components/shared/Toast";
 
 const MAX_ATTEMPTS = 5;
 const LOCK_SECONDS = 30;
@@ -19,7 +18,6 @@ type Errors = { identifier?: string; password?: string; form?: string };
 
 export function LoginForm({ initialResetMode = false }: { initialResetMode?: boolean }) {
   const navigate = useNavigate();
-  const toast = useToast();
   const usernameSignIn = useServerFn(signInWithUsername);
   const [values, setValues] = useState(() => ({
     identifier: getRememberedIdentifier(),
