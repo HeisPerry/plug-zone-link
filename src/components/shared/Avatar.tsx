@@ -15,7 +15,7 @@ export function Avatar({
 }) {
   const style = { width: size, height: size, fontSize: Math.max(11, size * 0.38) };
   if (src) {
-    return <img src={src} alt={name} style={style} className={cn("shrink-0 rounded-full object-cover", className)} />;
+    return <img src={src} alt={name} style={style} loading="lazy" decoding="async" className={cn("shrink-0 rounded-full object-cover", className)} />;
   }
   return (
     <div

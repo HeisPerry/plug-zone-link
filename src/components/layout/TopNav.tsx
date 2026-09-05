@@ -66,6 +66,9 @@ export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboar
         alt=""
         width={440}
         height={408}
+        decoding="async"
+        fetchPriority={size === "lg" ? "high" : "auto"}
+        loading={size === "sm" ? "lazy" : "eager"}
         className={cn("w-auto shrink-0 object-contain", size === "sm" ? "h-8" : size === "lg" ? "h-14 sm:h-20" : "h-8 sm:h-11")}
       />
       <span
