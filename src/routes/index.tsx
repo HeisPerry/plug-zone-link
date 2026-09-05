@@ -94,39 +94,39 @@ function LandingPage() {
       </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <h2 className="text-3xl sm:text-4xl">How it works</h2>
-        <ol className="mt-10 grid gap-4 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <h2 className="text-2xl sm:text-4xl">How it works</h2>
+        <ol className="mt-8 grid gap-4 sm:mt-10 md:grid-cols-3">
           {[
             { icon: Zap, t: "Post your ad", d: "Add photos, pricing and details in about a minute." },
             { icon: MessageSquare, t: "Get orders and chat", d: "Buyers find you, make offers and talk to you in real time." },
             { icon: ShieldCheck, t: "Close the deal safely", d: "Payment is tracked on every order and earnings land in your wallet." },
           ].map((step, i) => (
-            <li key={step.t} className="panel p-7">
+            <li key={step.t} className="panel p-5 sm:p-7">
               <div className="flex items-center justify-between">
-                <span className="icon-tile h-12 w-12 rounded-2xl">
-                  <step.icon size={22} />
+                <span className="icon-tile h-11 w-11 rounded-2xl sm:h-12 sm:w-12">
+                  <step.icon size={20} />
                 </span>
                 <span className="font-heading text-sm font-bold text-muted-foreground">0{i + 1}</span>
               </div>
-              <h3 className="mt-6 text-xl">{step.t}</h3>
-              <p className="mt-2 text-[15px] text-muted-foreground">{step.d}</p>
+              <h3 className="mt-5 text-lg sm:mt-6 sm:text-xl">{step.t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-[15px]">{step.d}</p>
             </li>
           ))}
         </ol>
       </section>
 
       {ads && ads.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-3xl sm:text-4xl">Latest ads</h2>
-            <Link to="/signup" className="text-[15px] font-medium text-primary">
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-2xl sm:text-4xl">Latest ads</h2>
+            <Link to="/signup" className="text-sm font-medium text-primary sm:text-[15px]">
               Sign up to see more
             </Link>
           </div>
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+          <div className="mt-6 flex gap-3 overflow-x-auto pb-2 hide-scrollbar sm:gap-4">
             {ads.map((ad) => (
-              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-64 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5">
+              <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-52 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5 sm:w-64">
                 {ad.images[0] ? (
                   <img src={ad.images[0]} alt={ad.title} className="aspect-[4/3] w-full object-cover" loading="lazy" />
                 ) : (
@@ -143,7 +143,7 @@ function LandingPage() {
       )}
 
       <section className="hero-surface border-y">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-12 sm:px-6 md:grid-cols-5 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-6 px-4 py-10 sm:grid-cols-3 sm:px-6 sm:py-12 md:grid-cols-5 lg:px-8">
           {[
             { v: stats?.total_ads, l: "ads posted" },
             { v: stats?.completed_orders, l: "completed orders" },
@@ -151,9 +151,9 @@ function LandingPage() {
             { v: stats?.total_checkins, l: "daily check-ins" },
             { v: stats?.total_users, l: "members" },
           ].map((s) => (
-            <div key={s.l}>
-              <p className="font-heading text-2xl font-extrabold">{isLoading ? "…" : `${n(s.v)}`}</p>
-              <p className="text-sm text-muted-foreground">{s.l}</p>
+            <div key={s.l} className="min-w-0">
+              <p className="font-heading text-xl font-extrabold sm:text-2xl">{isLoading ? "…" : `${n(s.v)}`}</p>
+              <p className="text-xs text-muted-foreground sm:text-sm">{s.l}</p>
             </div>
           ))}
         </div>
