@@ -3,7 +3,8 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({ reset: search["reset"] === true || search["reset"] === "true" ? true : undefined }),
+  validateSearch: (search: Record<string, unknown>): { reset?: boolean } =>
+    search["reset"] === true || search["reset"] === "true" ? { reset: true } : {},
   head: () => ({
     meta: [
       { title: "Sign in — PlugZone" },
