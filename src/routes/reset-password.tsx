@@ -6,7 +6,7 @@ import { passwordSchema } from "@/lib/validators";
 import { Field } from "@/components/shared/Field";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
-import { Logo } from "@/components/shared/Logo";
+import { Logo } from "@/components/layout/TopNav";
 import { PublicFooter } from "@/components/layout/PageLayout";
 
 export const Route = createFileRoute("/reset-password")({
@@ -108,9 +108,7 @@ function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b px-6 py-4">
-        <Link to="/" aria-label="PlugZone home">
-          <Logo />
-        </Link>
+        <Logo to="/" />
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-12">
