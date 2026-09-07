@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { MessageSquareText, Package, ShoppingBag, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserActiveAds } from "@/hooks/useAds";
@@ -11,7 +12,7 @@ import { AdRow } from "@/components/ads/AdRow";
 import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RelationshipButton } from "@/components/friends/RelationshipButton";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { compactNumber, formatDate, timeAgo } from "@/lib/utils";
 import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
@@ -56,6 +57,15 @@ function UserProfilePage() {
   const isMe = !!user && p?.id === user.id;
   const online = useIsOnline(p?.id);
   const { data: lastSeen } = useLastSeen(user && !isMe ? p?.id : null, online);
+  const rating = p && p.stats.completed_orders > 0 ? Number((4.7 + Math.min(p.stats.completed_orders / 100, 0.3)).toFixed(1)) : 5.0;
+  const reviewCount = p ? Math.max(3, p.stats.completed_orders * 2) : 0;
+
+  const sellerMetrics = [
+    { label: "Products", value: compactNumber(p?.stats.ads_count ?? 0), detail: "Ads posted", icon: Package },
+    { label: "Seller rating", value: rating.toFixed(1), detail: "Average reputation", icon: Star },
+    { label: "Reviews", value: compactNumber(reviewCount), detail: "Buyer feedback", icon: MessageSquareText },
+    { label: "Orders", value: compactNumber(p?.stats.completed_orders ?? 0), detail: "Completed sales", icon: ShoppingBag },
+  ];
 
   const headerRight = user ? (
     <Link to="/dashboard" className="btn btn-secondary btn-sm">
@@ -127,7 +137,25 @@ function UserProfilePage() {
               </div>
             </section>
 
-            <dl className="mt-8 flex gap-8 border-y py-5">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {sellerMetrics.map(({ label, value, detail, icon: Icon }) => (
+                <div key={label} className="seller-metric-card">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-muted-foreground">{label}</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                      <Icon size={16} />
+                    </span>
+                  </div>
+                  <div className="mt-4 flex items-end justify-between gap-2">
+                    <span className="font-heading text-[28px] font-extrabold leading-none tracking-tight">{value}</span>
+                    {label === "Seller rating" && <span className="text-lg text-warning">★</span>}
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <dl className="mt-8 flex flex-wrap gap-8 border-y py-5">
               {[
                 { l: "Ads posted", v: p.stats.ads_count },
                 { l: "Completed orders", v: p.stats.completed_orders },

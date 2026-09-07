@@ -485,6 +485,74 @@
   font-weight: 600;
 }
 
+.seller-metric-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 132px;
+  padding: 1rem 1rem 1.1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.seller-metric-card .font-heading {
+  letter-spacing: -0.05em;
+}
+
+.product-gallery-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 640px);
+  max-height: 560px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: color-mix(in oklab, var(--color-card) 96%, var(--color-muted));
+  box-shadow: var(--shadow-card);
+}
+
+.product-gallery-image {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 560px;
+  object-fit: contain;
+  background: transparent;
+}
+
+.thumbnail-button {
+  display: inline-flex;
+  height: 72px;
+  width: 72px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.thumbnail-button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-border));
+}
+
+.thumbnail-button-active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-primary) 26%, transparent);
+}
+
+@media (max-width: 640px) {
+  .product-gallery-frame {
+    max-height: 440px;
+  }
+  .product-gallery-image {
+    max-height: 440px;
+  }
+}
+
 .stat-card {
   position: relative;
   display: flex;
