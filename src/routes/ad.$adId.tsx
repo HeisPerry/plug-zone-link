@@ -1,3 +1,4 @@
+import { SellerRatingLine } from "@/components/reviews/SellerRatingLine";
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
@@ -134,6 +135,7 @@ function AdDetailPage() {
                     {ad.seller.display_name}
                   </Link>
                   <p className="text-sm text-muted-foreground">@{ad.seller.username}</p>
+                  <SellerRatingLine sellerId={ad.seller_id} />
                 </div>
               </div>
 

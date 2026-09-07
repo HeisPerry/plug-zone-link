@@ -13,6 +13,8 @@ import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RelationshipButton } from "@/components/friends/RelationshipButton";
 import { compactNumber, formatDate, timeAgo } from "@/lib/utils";
+import { Stars } from "@/components/reviews/Stars";
+import { SellerReviews } from "@/components/reviews/SellerReviews";
 import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
@@ -40,7 +42,10 @@ function useProfileByUsername(username: string) {
       if (error) throw error;
       if (!data) return null;
       const { data: stats } = await supabase.rpc("get_profile_stats", { p_user: data.id });
-      return { ...data, stats: stats?.[0] ?? { ads_count: 0, completed_orders: 0, referrals: 0 } };
+      return {
+        ...data,
+        stats: stats?.[0] ?? { ads_count: 0, completed_orders: 0, referrals: 0, avg_rating: 0, review_count: 0, purchases: 0 },
+      };
     },
   });
 }
@@ -57,14 +62,15 @@ function UserProfilePage() {
   const isMe = !!user && p?.id === user.id;
   const online = useIsOnline(p?.id);
   const { data: lastSeen } = useLastSeen(user && !isMe ? p?.id : null, online);
-  const rating = p && p.stats.completed_orders > 0 ? Number((4.7 + Math.min(p.stats.completed_orders / 100, 0.3)).toFixed(1)) : 5.0;
-  const reviewCount = p ? Math.max(3, p.stats.completed_orders * 2) : 0;
+  const rating = Number(p?.stats.avg_rating ?? 0) || 0;
+  const reviewCount = Number(p?.stats.review_count ?? 0);
+  const purchases = Number(p?.stats.purchases ?? 0);
 
   const sellerMetrics = [
-    { label: "Products", value: compactNumber(p?.stats.ads_count ?? 0), detail: "Ads posted", icon: Package },
-    { label: "Seller rating", value: rating.toFixed(1), detail: "Average reputation", icon: Star },
+    { label: "Products", value: compactNumber(p?.stats.ads_count ?? 0), detail: "Active ads", icon: Package },
+    { label: "Seller rating", value: reviewCount ? rating.toFixed(1) : "—", detail: reviewCount ? "Average of buyer ratings" : "No ratings yet", icon: Star },
     { label: "Reviews", value: compactNumber(reviewCount), detail: "Buyer feedback", icon: MessageSquareText },
-    { label: "Orders", value: compactNumber(p?.stats.completed_orders ?? 0), detail: "Completed sales", icon: ShoppingBag },
+    { label: "Orders", value: compactNumber(p?.stats.completed_orders ?? 0), detail: `Completed sales · ${compactNumber(purchases)} purchases`, icon: ShoppingBag },
   ];
 
   const headerRight = user ? (
@@ -105,6 +111,13 @@ function UserProfilePage() {
               <div className="min-w-0 flex-1">
                 <h1 className="text-[28px] sm:text-[34px]">{p.display_name}</h1>
                 <p className="text-[15px] text-muted-foreground">@{p.username}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                  <Stars value={rating} size={15} />
+                  <span className="font-medium">{reviewCount ? rating.toFixed(1) : "New seller"}</span>
+                  <span className="text-muted-foreground">
+                    {reviewCount ? `${reviewCount} review${reviewCount === 1 ? "" : "s"}` : "No reviews yet"} · {Number(p.stats.completed_orders)} sales
+                  </span>
+                </div>
                 {!isMe && user && (
                   <p className="mt-1 text-sm">
                     {online ? <span className="font-medium text-primary">Online</span> : <span className="text-muted-foreground">{lastSeen ? `Last seen ${timeAgo(lastSeen)}` : "Offline"}</span>}
@@ -158,7 +171,8 @@ function UserProfilePage() {
             <dl className="mt-8 flex flex-wrap gap-8 border-y py-5">
               {[
                 { l: "Ads posted", v: p.stats.ads_count },
-                { l: "Completed orders", v: p.stats.completed_orders },
+                { l: "Completed sales", v: p.stats.completed_orders },
+                { l: "Purchases made", v: purchases },
                 { l: "Referrals", v: p.stats.referrals },
               ].map((s) => (
                 <div key={s.l}>
@@ -184,6 +198,8 @@ function UserProfilePage() {
                 )}
               </div>
             </section>
+
+            <SellerReviews sellerId={p.id} sellerName={p.display_name} isMe={isMe} />
           </>
         )}
       </div>

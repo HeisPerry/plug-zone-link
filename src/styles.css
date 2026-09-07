@@ -603,9 +603,15 @@
 .market-card-image {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: 150px;
+  padding: 0.75rem;
+  object-fit: contain;
   background: var(--muted);
+}
+@media (min-width: 640px) {
+  .market-card-image {
+    height: 170px;
+  }
 }
 .market-card-body {
   display: flex;
