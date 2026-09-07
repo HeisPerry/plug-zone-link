@@ -90,3 +90,15 @@ export function useSubmitReview() {
     },
   });
 }
+
+export function useSellerStats(sellerId?: string | null) {
+  return useQuery({
+    queryKey: ["profile-stats", sellerId],
+    enabled: !!sellerId,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_profile_stats", { p_user: sellerId! });
+      if (error) throw error;
+      return data?.[0] ?? null;
+    },
+  });
+}
