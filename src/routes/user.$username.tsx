@@ -198,6 +198,8 @@ function UserProfilePage() {
                 )}
               </div>
             </section>
+
+            <SellerReviews sellerId={p.id} sellerName={p.display_name} isMe={isMe} />
           </>
         )}
       </div>
