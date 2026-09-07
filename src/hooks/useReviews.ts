@@ -87,6 +87,7 @@ export function useSubmitReview() {
       qc.invalidateQueries({ queryKey: ["reviews", v.sellerId] });
       qc.invalidateQueries({ queryKey: ["reviewable-orders"] });
       qc.invalidateQueries({ queryKey: ["profile"] });
+      qc.invalidateQueries({ queryKey: ["profile-stats"] });
     },
   });
 }
