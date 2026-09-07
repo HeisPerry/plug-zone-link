@@ -603,34 +603,34 @@
 .market-card-image {
   display: block;
   width: 100%;
-  height: 150px;
-  padding: 0.75rem;
+  height: 120px;
+  padding: 0.6rem;
   object-fit: contain;
   background: var(--muted);
 }
 @media (min-width: 640px) {
   .market-card-image {
-    height: 170px;
+    height: 140px;
   }
 }
 .market-card-body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 1rem;
+  padding: 0.875rem;
 }
 .market-card-title {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   line-height: 1.35;
   color: var(--foreground);
 }
 .market-card-price {
-  margin-top: 0.7rem;
-  font-size: 1.25rem;
+  margin-top: 0.6rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--primary);

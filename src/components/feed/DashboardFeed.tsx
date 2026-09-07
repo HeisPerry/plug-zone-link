@@ -24,7 +24,7 @@ export function DashboardFeed() {
 
       <div className="mt-6">
         {feed.isLoading ? (
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 6 }).map((_, i) => (
               <FeedCardSkeleton key={i} />
             ))}
@@ -45,7 +45,7 @@ export function DashboardFeed() {
           />
         ) : (
           <>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {ads.map((ad) => (
                 <FeedCard key={ad.id} ad={ad} />
               ))}
