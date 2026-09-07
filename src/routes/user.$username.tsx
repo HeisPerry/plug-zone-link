@@ -60,14 +60,15 @@ function UserProfilePage() {
   const isMe = !!user && p?.id === user.id;
   const online = useIsOnline(p?.id);
   const { data: lastSeen } = useLastSeen(user && !isMe ? p?.id : null, online);
-  const rating = p && p.stats.completed_orders > 0 ? Number((4.7 + Math.min(p.stats.completed_orders / 100, 0.3)).toFixed(1)) : 5.0;
-  const reviewCount = p ? Math.max(3, p.stats.completed_orders * 2) : 0;
+  const rating = Number(p?.stats.avg_rating ?? 0) || 0;
+  const reviewCount = Number(p?.stats.review_count ?? 0);
+  const purchases = Number(p?.stats.purchases ?? 0);
 
   const sellerMetrics = [
-    { label: "Products", value: compactNumber(p?.stats.ads_count ?? 0), detail: "Ads posted", icon: Package },
-    { label: "Seller rating", value: rating.toFixed(1), detail: "Average reputation", icon: Star },
+    { label: "Products", value: compactNumber(p?.stats.ads_count ?? 0), detail: "Active ads", icon: Package },
+    { label: "Seller rating", value: reviewCount ? rating.toFixed(1) : "—", detail: reviewCount ? "Average of buyer ratings" : "No ratings yet", icon: Star },
     { label: "Reviews", value: compactNumber(reviewCount), detail: "Buyer feedback", icon: MessageSquareText },
-    { label: "Orders", value: compactNumber(p?.stats.completed_orders ?? 0), detail: "Completed sales", icon: ShoppingBag },
+    { label: "Orders", value: compactNumber(p?.stats.completed_orders ?? 0), detail: `Completed sales · ${compactNumber(purchases)} purchases`, icon: ShoppingBag },
   ];
 
   const headerRight = user ? (
