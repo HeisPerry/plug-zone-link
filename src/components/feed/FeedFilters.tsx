@@ -7,8 +7,8 @@ export function FeedFilters({ value, onChange, onClear }: { value: Filters; onCh
   const isDirty = value.search !== "" || value.category !== "all" || value.minPrice !== "" || value.maxPrice !== "";
 
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center">
-      <div className="relative flex-1">
+    <div className="filter-shell">
+      <div className="relative min-w-0 flex-1">
         <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <input
           type="search"
@@ -27,7 +27,7 @@ export function FeedFilters({ value, onChange, onClear }: { value: Filters; onCh
           </option>
         ))}
       </select>
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <input
           type="number"
           inputMode="numeric"

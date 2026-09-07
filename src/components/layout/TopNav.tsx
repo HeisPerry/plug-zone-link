@@ -87,8 +87,14 @@ export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboar
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
   return (
-    <button type="button" onClick={toggle} className={cn("icon-btn", className)} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
-      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+    <button
+      type="button"
+      onClick={toggle}
+      className={cn("theme-toggle", className)}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }
@@ -97,20 +103,19 @@ function WalletPill() {
   const { data } = useWallet();
   return (
     <div className="group relative hidden sm:block">
-      <Link
-        to="/wallet"
-        className="flex items-center rounded-full border border-primary/30 bg-primary-soft text-[15px] font-bold text-primary transition-colors hover:border-primary/60"
-      >
-        <span className="flex items-center gap-2 pl-4 pr-3">
-          <Wallet size={18} />
-          {data ? formatPrice(data.balance, data.currency) : "—"}
+      <Link to="/wallet" className="wallet-pill">
+        <span className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Wallet size={16} />
+          </span>
+          <span className="font-semibold">{data ? formatPrice(data.balance, data.currency) : "—"}</span>
         </span>
-        <span className="flex h-10 w-10 items-center justify-center border-l border-primary/25" aria-label="Fund wallet">
-          <Plus size={18} />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm" aria-label="Fund wallet">
+          <Plus size={16} />
         </span>
       </Link>
-      <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100">
-        Fund your wallet
+      <span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-2.5 py-1 text-[11px] font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
+        Fund wallet
       </span>
     </div>
   );
@@ -365,14 +370,13 @@ export function TopNav() {
   const { data: ongoing = 0 } = useOngoingOrdersCount();
 
   return (
-    <header className="glass sticky top-0 z-40 border-b">
+    <header className="header-shell sticky top-0 z-40">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:h-[72px] sm:gap-3 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1 lg:flex-none">
           <Logo />
         </div>
 
-
-        <nav className="ml-8 hidden items-center gap-1 lg:flex" aria-label="Primary">
+        <nav className="nav-cluster hidden items-center gap-1 lg:flex" aria-label="Primary">
           {PRIMARY_LINKS.map(({ to, label }) => (
             <Link key={to} to={to} className="top-link">
               {label}
@@ -381,7 +385,7 @@ export function TopNav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-3">
+        <div className="header-actions ml-auto shrink-0">
           <WalletPill />
           <Link to="/ads/new" className="btn btn-ink hidden md:inline-flex">
             <Plus size={18} />

@@ -34,13 +34,13 @@ export function PageHero({
   compact?: boolean;
 }) {
   return (
-    <section className="hero-surface border-b">
-      <div className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-8 sm:py-10" : "py-12 sm:py-16 lg:py-20")}>
+    <section className="hero-surface">
+      <div className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-8 sm:py-10" : "py-12 sm:py-14 lg:py-16")}>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl rise-in">
             {eyebrow && <span className="pill mb-5">{eyebrow}</span>}
-            <h1 className={cn(compact ? "text-[30px] sm:text-[38px]" : "text-[38px] sm:text-[52px] lg:text-[64px]")}>{title}</h1>
-            {subtitle && <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-muted-foreground sm:text-[19px]">{subtitle}</p>}
+            <h1 className={cn(compact ? "text-[30px] sm:text-[36px]" : "text-[34px] sm:text-[42px] lg:text-[50px]")}>{title}</h1>
+            {subtitle && <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground sm:text-[17px]">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
