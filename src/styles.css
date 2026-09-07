@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 
@@ -65,8 +66,8 @@
 }
 
 @theme inline {
-  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Manrope", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
   --font-sans: var(--font-body);
 
   --color-background: var(--background);
@@ -125,14 +126,24 @@
     color: var(--color-foreground);
     font-size: 16px;
     line-height: 1.7;
+    font-weight: 400;
+    letter-spacing: -0.012em;
     transition: background-color 200ms ease, color 200ms ease;
-    letter-spacing: -0.01em;
   }
-  h1, h2, h3, h4 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1.08;
+  }
+  h1 { font-weight: 800; }
+  h2 { font-weight: 700; }
+  h3, h4, h5, h6 { font-weight: 700; }
+  p, span, li, label, input, select, textarea, button, a, small {
+    font-family: var(--font-body);
+  }
+  strong, b {
+    font-weight: 700;
   }
   a { color: inherit; }
   button, input, select, textarea { font: inherit; }
@@ -445,11 +456,33 @@
   margin: 0;
   font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.75rem);
   line-height: 1.2;
+  letter-spacing: -0.04em;
 }
 .section-header p {
   margin: 0;
   font-size: 0.95rem;
   color: var(--muted-foreground);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.body-soft {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.body-strong {
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 .stat-card {
