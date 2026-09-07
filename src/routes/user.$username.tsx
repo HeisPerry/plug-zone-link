@@ -13,6 +13,8 @@ import { Skeleton, ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { RelationshipButton } from "@/components/friends/RelationshipButton";
 import { compactNumber, formatDate, timeAgo } from "@/lib/utils";
+import { Stars } from "@/components/reviews/Stars";
+import { SellerReviews } from "@/components/reviews/SellerReviews";
 import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
@@ -109,6 +111,13 @@ function UserProfilePage() {
               <div className="min-w-0 flex-1">
                 <h1 className="text-[28px] sm:text-[34px]">{p.display_name}</h1>
                 <p className="text-[15px] text-muted-foreground">@{p.username}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                  <Stars value={rating} size={15} />
+                  <span className="font-medium">{reviewCount ? rating.toFixed(1) : "New seller"}</span>
+                  <span className="text-muted-foreground">
+                    {reviewCount ? `${reviewCount} review${reviewCount === 1 ? "" : "s"}` : "No reviews yet"} · {Number(p.stats.completed_orders)} sales
+                  </span>
+                </div>
                 {!isMe && user && (
                   <p className="mt-1 text-sm">
                     {online ? <span className="font-medium text-primary">Online</span> : <span className="text-muted-foreground">{lastSeen ? `Last seen ${timeAgo(lastSeen)}` : "Offline"}</span>}
@@ -162,7 +171,8 @@ function UserProfilePage() {
             <dl className="mt-8 flex flex-wrap gap-8 border-y py-5">
               {[
                 { l: "Ads posted", v: p.stats.ads_count },
-                { l: "Completed orders", v: p.stats.completed_orders },
+                { l: "Completed sales", v: p.stats.completed_orders },
+                { l: "Purchases made", v: purchases },
                 { l: "Referrals", v: p.stats.referrals },
               ].map((s) => (
                 <div key={s.l}>
