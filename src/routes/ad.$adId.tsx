@@ -134,6 +134,7 @@ function AdDetailPage() {
                     {ad.seller.display_name}
                   </Link>
                   <p className="text-sm text-muted-foreground">@{ad.seller.username}</p>
+                  <SellerRatingLine sellerId={ad.seller_id} />
                 </div>
               </div>
 
