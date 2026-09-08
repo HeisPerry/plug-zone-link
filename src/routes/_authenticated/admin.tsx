@@ -61,6 +61,7 @@ function AdminPage() {
               ["reports", "Reported orders"],
               ["payouts", "Payout requests"],
               ["listings", "Listings"],
+              ["coupons", "Coupons"],
               ["settings", "Escrow & fees"],
             ] as [Tab, string][]
           ).map(([key, label]) => (
@@ -75,6 +76,7 @@ function AdminPage() {
           {tab === "reports" && <Reports />}
           {tab === "payouts" && <Payouts />}
           {tab === "listings" && <Listings />}
+          {tab === "coupons" && <CouponsTab />}
           {tab === "settings" && <SettingsTab />}
         </div>
       </Page>
