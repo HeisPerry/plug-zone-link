@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "overview" | "reports" | "payouts" | "listings" | "settings";
+type Tab = "overview" | "reports" | "payouts" | "listings" | "coupons" | "settings";
 
 function AdminPage() {
   const { data: isAdmin, isLoading: checking } = useIsAdmin();
