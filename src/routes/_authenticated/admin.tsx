@@ -8,7 +8,14 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { useToast } from "@/components/shared/Toast";
 import { useAdminAds, useAdminOverview, useAdminWithdrawals, useIsAdmin, usePlatformSettings, useSetAdStatus, useSetWithdrawalStatus, useUpdateSetting } from "@/hooks/useAdmin";
 import { useMyDisputes } from "@/hooks/useDisputes";
+import { useAllCoupons } from "@/hooks/useCoupons";
+import { CouponManager } from "@/components/coupons/CouponManager";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
+
+function CouponsTab() {
+  const { data, isLoading } = useAllCoupons(true);
+  return <CouponManager mode="admin" coupons={data} isLoading={isLoading} />;
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -24,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "overview" | "reports" | "payouts" | "listings" | "settings";
+type Tab = "overview" | "reports" | "payouts" | "listings" | "coupons" | "settings";
 
 function AdminPage() {
   const { data: isAdmin, isLoading: checking } = useIsAdmin();
@@ -61,6 +68,7 @@ function AdminPage() {
               ["reports", "Reported orders"],
               ["payouts", "Payout requests"],
               ["listings", "Listings"],
+              ["coupons", "Coupons"],
               ["settings", "Escrow & fees"],
             ] as [Tab, string][]
           ).map(([key, label]) => (
@@ -75,6 +83,7 @@ function AdminPage() {
           {tab === "reports" && <Reports />}
           {tab === "payouts" && <Payouts />}
           {tab === "listings" && <Listings />}
+          {tab === "coupons" && <CouponsTab />}
           {tab === "settings" && <SettingsTab />}
         </div>
       </Page>

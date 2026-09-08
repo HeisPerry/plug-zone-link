@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, Banknote, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Banknote, ShieldCheck, Store, Ticket } from "lucide-react";
 import { Page, PageHero } from "@/components/layout/PageLayout";
 import { Field } from "@/components/shared/Field";
 import { useToast } from "@/components/shared/Toast";
@@ -75,6 +75,9 @@ function SellPage() {
           <div className="mt-6 flex flex-wrap gap-2">
             <Link to="/ads/new" className="btn btn-primary">
               Post an ad
+            </Link>
+            <Link to="/coupons" className="btn btn-secondary">
+              <Ticket size={16} aria-hidden="true" /> Manage coupons
             </Link>
             <Link to="/wallet" className="btn btn-secondary">
               Go to wallet

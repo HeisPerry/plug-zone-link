@@ -5,6 +5,7 @@ import { Page, PageHeader } from "@/components/layout/PageLayout";
 import { useAd } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateOrder, usePayForOrder } from "@/hooks/useCheckout";
+import { useValidateCoupon, type CouponQuote } from "@/hooks/useCoupons";
 import { Field } from "@/components/shared/Field";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { useToast } from "@/components/shared/Toast";
@@ -24,19 +25,56 @@ function CheckoutPage() {
   const create = useCreateOrder();
   const pay = usePayForOrder();
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantityState] = useState(1);
   const [buyerName, setName] = useState(profile?.display_name ?? "");
   const [buyerPhone, setPhone] = useState(profile?.phone_number ?? "");
   const [notes, setNotes] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [quote, setQuote] = useState<CouponQuote | null>(null);
+  const validate = useValidateCoupon();
 
   const busy = create.isPending || pay.isPending;
-  const total = ad ? Number(ad.price) * quantity : 0;
+  const subtotal = ad ? Number(ad.price) * quantity : 0;
+  const discount = quote?.discount ?? 0;
+  const total = Math.max(0, subtotal - discount);
+
+  // Changing the quantity changes the subtotal, so a previous quote no longer applies.
+  const setQuantity = (q: number) => {
+    setQuantityState(q);
+    setQuote(null);
+  };
+
+  const applyCoupon = () => {
+    if (!ad || !couponCode.trim()) return;
+    validate.mutate(
+      { code: couponCode, adId: ad.id, quantity },
+      {
+        onSuccess: (q) => {
+          setQuote(q);
+          toast.success(`${q.code} applied — you save ${formatPrice(q.discount, ad.currency)}`);
+        },
+        onError: (e) => {
+          setQuote(null);
+          toast.error(e.message);
+        },
+      },
+    );
+  };
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ad) return;
     try {
-      const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod: "digital", deliveryAddress: "", buyerName, buyerPhone, notes });
+      const orderId = await create.mutateAsync({
+        adId: ad.id,
+        quantity,
+        deliveryMethod: "digital",
+        deliveryAddress: "",
+        buyerName,
+        buyerPhone,
+        notes,
+        couponCode: quote ? quote.code : "",
+      });
       await pay.mutateAsync(orderId);
       toast.success("Payment held in escrow. The seller has been notified.");
       navigate({ to: "/order/$orderId", params: { orderId } });
@@ -99,6 +137,43 @@ function CheckoutPage() {
             <textarea id="notes" className="input min-h-[80px]" maxLength={500} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Account name, username, or anything the seller needs" />
           </Field>
 
+          <Field label="Coupon code (optional)" htmlFor="coupon" hint={quote ? `${quote.code} applied — ${quote.label}.` : "Have a code from the seller or PlugZone? Enter it here."}>
+            <div className="flex gap-2">
+              <input
+                id="coupon"
+                className="input uppercase"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  if (quote) setQuote(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyCoupon();
+                  }
+                }}
+                placeholder="e.g. WELCOME10"
+              />
+              {quote ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary shrink-0"
+                  onClick={() => {
+                    setQuote(null);
+                    setCouponCode("");
+                  }}
+                >
+                  Remove
+                </button>
+              ) : (
+                <button type="button" className="btn btn-secondary shrink-0" disabled={validate.isPending || !couponCode.trim()} onClick={applyCoupon}>
+                  {validate.isPending ? "Checking…" : "Apply"}
+                </button>
+              )}
+            </div>
+          </Field>
+
           <button type="submit" className="btn btn-primary w-full" disabled={busy}>
             {busy ? "Processing…" : `Pay ${formatPrice(total, ad.currency)} into escrow`}
           </button>
@@ -121,6 +196,16 @@ function CheckoutPage() {
               <dt className="text-muted-foreground">Quantity</dt>
               <dd>{quantity}</dd>
             </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd>{formatPrice(subtotal, ad.currency)}</dd>
+            </div>
+            {quote && (
+              <div className="flex justify-between text-success">
+                <dt>Coupon {quote.code}</dt>
+                <dd>− {formatPrice(quote.discount, ad.currency)}</dd>
+              </div>
+            )}
             <div className="flex justify-between border-t pt-3 font-heading text-lg font-bold">
               <dt>Total</dt>
               <dd>{formatPrice(total, ad.currency)}</dd>

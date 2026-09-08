@@ -20,6 +20,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
+import { Route as AuthenticatedCouponsRouteImport } from './routes/_authenticated/coupons'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDataAirtimeRouteImport } from './routes/_authenticated/data-airtime'
 import { Route as AuthenticatedDisputesRouteImport } from './routes/_authenticated/disputes'
@@ -92,6 +93,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const AuthenticatedCheckinRoute = AuthenticatedCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCouponsRoute = AuthenticatedCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/checkin': typeof AuthenticatedCheckinRoute
+  '/coupons': typeof AuthenticatedCouponsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/disputes': typeof AuthenticatedDisputesRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/checkin': typeof AuthenticatedCheckinRoute
+  '/coupons': typeof AuthenticatedCouponsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/disputes': typeof AuthenticatedDisputesRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
+  '/_authenticated/coupons': typeof AuthenticatedCouponsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/data-airtime': typeof AuthenticatedDataAirtimeRoute
   '/_authenticated/disputes': typeof AuthenticatedDisputesRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/checkin'
+    | '/coupons'
     | '/dashboard'
     | '/data-airtime'
     | '/disputes'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/checkin'
+    | '/coupons'
     | '/dashboard'
     | '/data-airtime'
     | '/disputes'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/checkin'
+    | '/_authenticated/coupons'
     | '/_authenticated/dashboard'
     | '/_authenticated/data-airtime'
     | '/_authenticated/disputes'
@@ -479,6 +491,13 @@ declare module '@tanstack/react-router' {
       path: '/checkin'
       fullPath: '/checkin'
       preLoaderRoute: typeof AuthenticatedCheckinRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coupons': {
+      id: '/_authenticated/coupons'
+      path: '/coupons'
+      fullPath: '/coupons'
+      preLoaderRoute: typeof AuthenticatedCouponsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -620,6 +639,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
+  AuthenticatedCouponsRoute: typeof AuthenticatedCouponsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDataAirtimeRoute: typeof AuthenticatedDataAirtimeRoute
   AuthenticatedDisputesRoute: typeof AuthenticatedDisputesRoute
@@ -641,6 +661,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
+  AuthenticatedCouponsRoute: AuthenticatedCouponsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDataAirtimeRoute: AuthenticatedDataAirtimeRoute,
   AuthenticatedDisputesRoute: AuthenticatedDisputesRoute,
