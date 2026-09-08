@@ -4,6 +4,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   CalendarCheck,
+  AlertTriangle,
+  ShieldCheck,
+  Store,
   ChevronDown,
   LifeBuoy,
   LogOut,
@@ -28,6 +31,7 @@ import { useUnreadCount } from "@/hooks/useMessages";
 import { useUnreadNotifications } from "@/hooks/useNotifications";
 import { useOngoingOrdersCount } from "@/hooks/useOrders";
 import { useWallet } from "@/hooks/useWallet";
+import { useIsAdmin } from "@/hooks/useAdmin";
 import { Avatar } from "@/components/shared/Avatar";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -41,6 +45,8 @@ const PRIMARY_LINKS = [
 
 const MENU_LINKS = [
   { to: "/ads", label: "My Ads", icon: Package },
+  { to: "/sell", label: "Selling", icon: Store },
+  { to: "/disputes", label: "Reported Problems", icon: AlertTriangle },
   { to: "/messages", label: "Messages", icon: MessageSquare },
   { to: "/friends", label: "Friends", icon: Users },
   { to: "/checkin", label: "Daily Check-In", icon: CalendarCheck },
@@ -123,6 +129,7 @@ function WalletPill() {
 
 function AccountMenu() {
   const { profile, signOut } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -178,6 +185,12 @@ function AccountMenu() {
             <User size={17} />
             <span>My Profile</span>
           </Link>
+          {isAdmin && (
+            <Link to="/admin" onClick={() => setOpen(false)} className="nav-link min-h-10 text-[14.5px]" role="menuitem">
+              <ShieldCheck size={17} />
+              <span>Admin</span>
+            </Link>
+          )}
           <div className="my-2 border-t" />
           <button
             role="menuitem"
@@ -199,6 +212,8 @@ function AccountMenu() {
 
 const SHEET_LINKS = [
   { to: "/ads", label: "My Ads", sub: "Manage your listings", icon: Package },
+  { to: "/sell", label: "Selling", sub: "Your store & payouts", icon: Store },
+  { to: "/disputes", label: "Reported Problems", sub: "Orders under review", icon: AlertTriangle },
   { to: "/messages", label: "Messages", sub: "Chat with buyers & sellers", icon: MessageSquare },
   { to: "/orders", label: "My Orders", sub: "Track buying & selling", icon: ShoppingBag },
   { to: "/friends", label: "Friends", sub: "Invite friends & earn", icon: Users, accent: true },

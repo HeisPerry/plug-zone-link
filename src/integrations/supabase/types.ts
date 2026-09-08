@@ -1165,6 +1165,20 @@ export type Database = {
     }
     Functions: {
       accept_friend_request: { Args: { p_request: string }; Returns: undefined }
+      admin_overview: {
+        Args: never
+        Returns: {
+          active_ads: number
+          escrow_held: number
+          gross_sales: number
+          open_disputes: number
+          pending_withdrawals: number
+          platform_fees: number
+          total_ads: number
+          total_orders: number
+          total_users: number
+        }[]
+      }
       become_seller: {
         Args: {
           p_about?: string
