@@ -1635,6 +1635,26 @@ export type Database = {
           withdrawn: number
         }[]
       }
+      get_seller_trust: {
+        Args: { p_user: string }
+        Returns: {
+          avg_rating: number
+          completed_orders: number
+          completion_points: number
+          dispute_points: number
+          disputes: number
+          max_completion: number
+          max_disputes: number
+          max_rating: number
+          max_sales: number
+          rating_points: number
+          review_count: number
+          sales_points: number
+          score: number
+          tier: string
+          total_orders: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
