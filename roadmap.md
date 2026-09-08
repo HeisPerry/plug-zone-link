@@ -2,7 +2,7 @@
 
 Order approved by user ("money first"). Check in after each stage.
 
-- [ ] Stage 1 — Advanced escrow: seller cancel, buyer refund request, partial/full refunds, auto-release after N days (admin-configurable), audit trail (order_events + escrow_ledger), admin resolution
+- [x] Stage 1 — Advanced escrow (done: cancel with auto-refund, refund requests, partial/full refunds, hourly auto-release, money trail, admin settle + settings tab)
 - [ ] Stage 2 — Coupons (seller + platform-wide), checkout validation
 - [ ] Stage 3 — Affiliate commissions + referral rewards (separate balances, own payout flows, admin config, self-referral guard)
 - [ ] Stage 4 — Seller trust scores (tier badge + /100 on profile, admin-tunable weights)
