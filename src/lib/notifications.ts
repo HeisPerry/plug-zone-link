@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Wallet,
   Bell,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import type { PushCategory } from "./types";
@@ -42,6 +43,7 @@ export const NOTIFICATION_TYPES: Record<string, { label: string; icon: LucideIco
   payment_status: { label: "Payment update", icon: CreditCard, category: "payments" },
   refund_dispute: { label: "Refund or dispute", icon: RotateCcw, category: "payments" },
   wallet: { label: "Wallet", icon: Wallet, category: "payments" },
+  admin_invite: { label: "Admin invite", icon: ShieldCheck, category: "activity" },
   other: { label: "Marketplace activity", icon: Bell, category: "activity" },
 };
 

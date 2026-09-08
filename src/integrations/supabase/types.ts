@@ -18,16 +18,64 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          is_super: boolean
         }
         Insert: {
           created_at?: string
           email: string
+          is_super?: boolean
         }
         Update: {
           created_at?: string
           email?: string
+          is_super?: boolean
         }
         Relationships: []
+      }
+      admin_invites: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          note: string | null
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          invitee_id: string
+          note?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          invitee_id?: string
+          note?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_invites_invitee_id_fkey"
+            columns: ["invitee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ads: {
         Row: {
@@ -1541,6 +1589,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_weekly_stats: {
+        Args: never
+        Returns: {
+          active_buyers: number
+          active_sellers: number
+          dispute_rate: number
+          disputes_count: number
+          escrow_volume: number
+          gmv: number
+          orders_count: number
+        }[]
+      }
       auto_release_due_escrows: { Args: never; Returns: number }
       award_referral_rewards: { Args: { p_order: string }; Returns: undefined }
       become_seller: {
@@ -1662,7 +1722,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_admin: {
+        Args: { p_note?: string; p_user: string }
+        Returns: string
+      }
+      is_super_admin: { Args: { _user: string }; Returns: boolean }
       is_username_available: { Args: { p_username: string }; Returns: boolean }
+      list_admins: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          is_super: boolean
+          since: string
+          user_id: string
+          username: string
+        }[]
+      }
       log_escrow: {
         Args: {
           p_actor?: string
@@ -1732,6 +1808,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      remove_admin: { Args: { p_user: string }; Returns: undefined }
       request_refund: {
         Args: { p_amount?: number; p_order: string; p_reason: string }
         Returns: undefined
@@ -1754,6 +1831,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      respond_admin_invite: {
+        Args: { p_action: string; p_invite: string }
+        Returns: undefined
+      }
       respond_refund_request: {
         Args: {
           p_action: string
@@ -1772,6 +1853,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      revoke_admin_invite: { Args: { p_invite: string }; Returns: undefined }
       seller_accept_order: { Args: { p_order: string }; Returns: undefined }
       set_order_fulfilment: {
         Args: { p_note?: string; p_order: string; p_stage: string }
