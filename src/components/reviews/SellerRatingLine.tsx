@@ -15,6 +15,7 @@ export function SellerRatingLine({ sellerId }: { sellerId: string }) {
       <span className="text-muted-foreground">
         {reviews ? `${reviews} review${reviews === 1 ? "" : "s"}` : "No reviews yet"} · {sales} sales
       </span>
+      <TrustBadge sellerId={sellerId} />
     </div>
   );
 }
