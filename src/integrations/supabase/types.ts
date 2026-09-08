@@ -1165,6 +1165,20 @@ export type Database = {
     }
     Functions: {
       accept_friend_request: { Args: { p_request: string }; Returns: undefined }
+      become_seller: {
+        Args: {
+          p_about?: string
+          p_business_name: string
+          p_contact_email?: string
+          p_contact_phone?: string
+          p_payout_account_name?: string
+          p_payout_account_number?: string
+          p_payout_bank?: string
+          p_payout_method?: string
+        }
+        Returns: string
+      }
+      confirm_receipt: { Args: { p_order: string }; Returns: undefined }
       daily_check_in: {
         Args: never
         Returns: {
@@ -1239,11 +1253,32 @@ export type Database = {
         }
         Returns: undefined
       }
+      open_dispute: {
+        Args: { p_description: string; p_order: string; p_reason: string }
+        Returns: string
+      }
+      pay_order_test_mode: { Args: { p_order: string }; Returns: string }
+      place_order: {
+        Args: {
+          p_ad: string
+          p_buyer_name?: string
+          p_buyer_phone?: string
+          p_delivery_address?: string
+          p_delivery_method?: string
+          p_notes?: string
+          p_quantity?: number
+        }
+        Returns: string
+      }
       platform_fee_rate: { Args: never; Returns: number }
       record_affiliate_click: { Args: { p_code: string }; Returns: string }
       request_withdrawal: {
         Args: { p_amount: number; p_destination?: string; p_method?: string }
         Returns: string
+      }
+      resolve_dispute: {
+        Args: { p_dispute: string; p_outcome: string; p_resolution?: string }
+        Returns: undefined
       }
       respond_to_offer: {
         Args: {
@@ -1252,6 +1287,14 @@ export type Database = {
           p_negotiation: string
           p_price?: number
         }
+        Returns: undefined
+      }
+      set_order_fulfilment: {
+        Args: { p_note?: string; p_order: string; p_stage: string }
+        Returns: undefined
+      }
+      set_withdrawal_status: {
+        Args: { p_note?: string; p_status: string; p_withdrawal: string }
         Returns: undefined
       }
       touch_last_seen: { Args: never; Returns: undefined }
