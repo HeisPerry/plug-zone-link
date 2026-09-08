@@ -15,6 +15,7 @@ import { RelationshipButton } from "@/components/friends/RelationshipButton";
 import { compactNumber, formatDate, timeAgo } from "@/lib/utils";
 import { Stars } from "@/components/reviews/Stars";
 import { SellerReviews } from "@/components/reviews/SellerReviews";
+import { TrustBadge, TrustPanel } from "@/components/trust/TrustBadge";
 import { useIsOnline, useLastSeen } from "@/hooks/usePresence";
 import { useToast } from "@/components/shared/Toast";
 
@@ -117,6 +118,7 @@ function UserProfilePage() {
                   <span className="text-muted-foreground">
                     {reviewCount ? `${reviewCount} review${reviewCount === 1 ? "" : "s"}` : "No reviews yet"} · {Number(p.stats.completed_orders)} sales
                   </span>
+                  <TrustBadge sellerId={p.id} />
                 </div>
                 {!isMe && user && (
                   <p className="mt-1 text-sm">

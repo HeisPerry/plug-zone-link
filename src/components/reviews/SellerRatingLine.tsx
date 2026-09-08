@@ -1,4 +1,5 @@
 import { Stars } from "./Stars";
+import { TrustBadge } from "@/components/trust/TrustBadge";
 import { useSellerStats } from "@/hooks/useReviews";
 
 export function SellerRatingLine({ sellerId }: { sellerId: string }) {
