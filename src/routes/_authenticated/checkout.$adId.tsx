@@ -35,10 +35,6 @@ function CheckoutPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ad) return;
-    if (!buyerPhone.trim()) {
-      toast.error("Add an email or phone number so the seller can send your item");
-      return;
-    }
     try {
       const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod: "digital", deliveryAddress: "", buyerName, buyerPhone, notes });
       await pay.mutateAsync(orderId);
