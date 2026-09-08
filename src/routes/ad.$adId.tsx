@@ -3,7 +3,6 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
-import { usePlaceOrder } from "@/hooks/useOrders";
 import { useStartConversation } from "@/hooks/useMessages";
 import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
@@ -33,11 +32,7 @@ function AdDetailPage() {
   const toast = useToast();
   const { data: ad, isLoading } = useAd(adId);
   const [active, setActive] = useState(0);
-  const [ordering, setOrdering] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [qty, setQty] = useState(1);
-  const [notes, setNotes] = useState("");
-  const place = usePlaceOrder();
   const start = useStartConversation();
   const update = useUpdateAdStatus();
 
