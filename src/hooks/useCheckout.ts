@@ -116,6 +116,8 @@ function useOrderAction<TVars>(fn: (vars: TVars) => Promise<void>) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["order"] });
       qc.invalidateQueries({ queryKey: ["order-events"] });
+      qc.invalidateQueries({ queryKey: ["escrow-ledger"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dispute"] });
       qc.invalidateQueries({ queryKey: ["seller-earnings"] });
