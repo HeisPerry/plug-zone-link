@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ShieldCheck, Truck, PackageCheck, AlertTriangle } from "lucide-react";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { ShieldCheck, Truck, PackageCheck, AlertTriangle, MessageCircle } from "lucide-react";
+import { useStartConversation } from "@/hooks/useMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, Page, PageHeader } from "@/components/layout/PageLayout";
 import { useAuth } from "@/hooks/useAuth";
