@@ -226,6 +226,138 @@ export type Database = {
           },
         ]
       }
+      dispute_messages: {
+        Row: {
+          author_id: string
+          body: string | null
+          created_at: string
+          dispute_id: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          is_admin: boolean
+        }
+        Insert: {
+          author_id: string
+          body?: string | null
+          created_at?: string
+          dispute_id: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_admin?: boolean
+        }
+        Update: {
+          author_id?: string
+          body?: string | null
+          created_at?: string
+          dispute_id?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_admin?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          description: string
+          id: string
+          opened_by: string
+          order_id: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          description: string
+          id?: string
+          opened_by: string
+          order_id: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          opened_by?: string
+          order_id?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend_requests: {
         Row: {
           created_at: string
@@ -531,44 +663,119 @@ export type Database = {
           },
         ]
       }
+      order_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          escrow_status: string | null
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          escrow_status?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          escrow_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           ad_id: string
           buyer_id: string
+          buyer_name: string | null
+          buyer_phone: string | null
+          confirmed_at: string | null
           created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_method: string | null
+          escrow_status: string
           id: string
           notes: string | null
+          order_number: string | null
           payment_status: string
           quantity: number
           seller_id: string
+          shipped_at: string | null
           status: string
           total_price: number
+          tracking_note: string | null
           updated_at: string
         }
         Insert: {
           ad_id: string
           buyer_id: string
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          confirmed_at?: string | null
           created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_method?: string | null
+          escrow_status?: string
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_status?: string
           quantity?: number
           seller_id: string
+          shipped_at?: string | null
           status?: string
           total_price: number
+          tracking_note?: string | null
           updated_at?: string
         }
         Update: {
           ad_id?: string
           buyer_id?: string
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          confirmed_at?: string | null
           created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_method?: string | null
+          escrow_status?: string
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_status?: string
           quantity?: number
           seller_id?: string
+          shipped_at?: string | null
           status?: string
           total_price?: number
+          tracking_note?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -763,6 +970,54 @@ export type Database = {
           },
         ]
       }
+      seller_profiles: {
+        Row: {
+          about: string | null
+          business_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          payout_account_last4: string | null
+          payout_account_name: string | null
+          payout_bank: string | null
+          payout_method: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          business_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          payout_account_last4?: string | null
+          payout_account_name?: string | null
+          payout_bank?: string | null
+          payout_method?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          business_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          payout_account_last4?: string | null
+          payout_account_name?: string | null
+          payout_bank?: string | null
+          payout_method?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -833,6 +1088,77 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          currency: string
+          destination: string | null
+          id: string
+          method: string
+          processed_at: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          destination?: string | null
+          id?: string
+          method?: string
+          processed_at?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          destination?: string | null
+          id?: string
+          method?: string
+          processed_at?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -851,6 +1177,7 @@ export type Database = {
       display_name_of: { Args: { p_user: string }; Returns: string }
       expire_stale_negotiations: { Args: never; Returns: undefined }
       generate_affiliate_code: { Args: never; Returns: string }
+      generate_order_number: { Args: never; Returns: string }
       get_or_create_conversation: { Args: { p_other: string }; Returns: string }
       get_profile_stats: {
         Args: { p_user: string }
@@ -872,6 +1199,25 @@ export type Database = {
           total_messages: number
           total_users: number
         }[]
+      }
+      get_seller_earnings: {
+        Args: { p_user: string }
+        Returns: {
+          available: number
+          escrow_held: number
+          pending_withdrawals: number
+          platform_fees: number
+          released: number
+          total_sales: number
+          withdrawn: number
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       is_username_available: { Args: { p_username: string }; Returns: boolean }
       make_offer: {
@@ -895,6 +1241,10 @@ export type Database = {
       }
       platform_fee_rate: { Args: never; Returns: number }
       record_affiliate_click: { Args: { p_code: string }; Returns: string }
+      request_withdrawal: {
+        Args: { p_amount: number; p_destination?: string; p_method?: string }
+        Returns: string
+      }
       respond_to_offer: {
         Args: {
           p_action: string
@@ -907,7 +1257,7 @@ export type Database = {
       touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "buyer" | "seller" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1034,6 +1384,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["buyer", "seller", "admin"],
+    },
   },
 } as const
