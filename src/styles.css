@@ -603,14 +603,14 @@
 .market-card-image {
   display: block;
   width: 100%;
-  height: 120px;
-  padding: 0.6rem;
+  height: 84px;
+  padding: 0.4rem;
   object-fit: contain;
   background: var(--muted);
 }
 @media (min-width: 640px) {
   .market-card-image {
-    height: 140px;
+    height: 96px;
   }
 }
 .market-card-body {

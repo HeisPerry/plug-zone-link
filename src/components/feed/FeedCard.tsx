@@ -8,10 +8,8 @@ export function FeedCard({ ad }: { ad: AdWithSeller }) {
   return (
     <li className="market-card">
       <Link to="/ad/$adId" params={{ adId: ad.id }} className="block">
-        {ad.images[0] ? (
+        {ad.images[0] && (
           <img src={ad.images[0]} alt={ad.title} className="market-card-image" loading="lazy" />
-        ) : (
-          <div className="market-card-image flex items-center justify-center bg-muted text-sm text-muted-foreground">No photo</div>
         )}
       </Link>
       <div className="market-card-body">
