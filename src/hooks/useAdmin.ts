@@ -89,8 +89,8 @@ export function useSetWithdrawalStatus() {
 export function useResolveDispute() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, outcome, resolution }: { id: string; outcome: string; resolution?: string }) => {
-      const { error } = await supabase.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "" });
+    mutationFn: async ({ id, outcome, resolution, amount }: { id: string; outcome: string; resolution?: string; amount?: number }) => {
+      const { error } = await supabase.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "", ...(amount ? { p_amount: amount } : {}) });
       if (error) throw error;
     },
     onSuccess: () => {
