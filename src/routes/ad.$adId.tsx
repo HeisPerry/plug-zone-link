@@ -8,7 +8,6 @@ import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { Modal } from "@/components/shared/Modal";
-import { Field } from "@/components/shared/Field";
 import { useToast } from "@/components/shared/Toast";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
