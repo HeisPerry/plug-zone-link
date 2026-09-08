@@ -131,3 +131,29 @@ export function useSetAdStatus() {
     },
   });
 }
+
+export type PlatformSetting = Database["public"]["Tables"]["platform_settings"]["Row"];
+
+export function usePlatformSettings(enabled = true) {
+  return useQuery({
+    queryKey: ["platform-settings"],
+    enabled,
+    queryFn: async (): Promise<PlatformSetting[]> => {
+      const { data, error } = await supabase.from("platform_settings").select("*").order("key");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateSetting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: number | string | boolean }) => {
+      const { error } = await supabase.rpc("update_setting", { p_key: key, p_value: value });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["platform-settings"] }),
+  });
+}
