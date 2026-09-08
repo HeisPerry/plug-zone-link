@@ -27,10 +27,10 @@ export function useCreateOrder() {
         p_ad: input.adId,
         p_quantity: input.quantity,
         p_delivery_method: input.deliveryMethod,
-        p_delivery_address: input.deliveryAddress || undefined,
-        p_buyer_name: input.buyerName || undefined,
-        p_buyer_phone: input.buyerPhone || undefined,
-        p_notes: input.notes || undefined,
+        p_delivery_address: input.deliveryAddress,
+        p_buyer_name: input.buyerName,
+        p_buyer_phone: input.buyerPhone,
+        p_notes: input.notes,
       });
       if (error) throw error;
       return data as string;
