@@ -126,7 +126,7 @@ function useOrderAction<TVars>(fn: (vars: TVars) => Promise<void>) {
 
 export function useSetFulfilment() {
   return useOrderAction(async ({ orderId, stage, note }: { orderId: string; stage: "shipped" | "delivered"; note?: string }) => {
-    const { error } = await supabase.rpc("set_order_fulfilment", { p_order: orderId, p_stage: stage, p_note: note || undefined });
+    const { error } = await supabase.rpc("set_order_fulfilment", { p_order: orderId, p_stage: stage, p_note: note ?? "" });
     if (error) throw error;
   });
 }
