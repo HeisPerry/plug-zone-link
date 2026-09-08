@@ -157,3 +157,152 @@ export function useUpdateSetting() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["platform-settings"] }),
   });
 }
+
+export interface WeeklyStats {
+  gmv: number;
+  active_buyers: number;
+  active_sellers: number;
+  orders_count: number;
+  escrow_volume: number;
+  disputes_count: number;
+  dispute_rate: number;
+}
+
+export function useAdminWeekly(enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin-weekly"],
+    enabled,
+    queryFn: async (): Promise<WeeklyStats | null> => {
+      const { data, error } = await supabase.rpc("admin_weekly_stats");
+      if (error) throw error;
+      const row = (data ?? [])[0];
+      if (!row) return null;
+      return {
+        gmv: Number(row.gmv),
+        active_buyers: Number(row.active_buyers),
+        active_sellers: Number(row.active_sellers),
+        orders_count: Number(row.orders_count),
+        escrow_volume: Number(row.escrow_volume),
+        disputes_count: Number(row.disputes_count),
+        dispute_rate: Number(row.dispute_rate),
+      };
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useIsSuperAdmin() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["is-super-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("is_super_admin", { _user: user!.id });
+      if (error) throw error;
+      return !!data;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
+export interface AdminPerson {
+  user_id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  is_super: boolean;
+  since: string;
+}
+
+export function useAdminTeam(enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin-team"],
+    enabled,
+    queryFn: async (): Promise<AdminPerson[]> => {
+      const { data, error } = await supabase.rpc("list_admins");
+      if (error) throw error;
+      return (data ?? []) as AdminPerson[];
+    },
+    staleTime: 30_000,
+  });
+}
+
+export type AdminInvite = Database["public"]["Tables"]["admin_invites"]["Row"];
+
+export function useAdminInvites(enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin-invites"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("admin_invites").select("*").order("created_at", { ascending: false }).limit(50);
+      if (error) throw error;
+      const invites = (data ?? []) as AdminInvite[];
+      const ids = [...new Set(invites.map((i) => i.invitee_id))];
+      const { data: profiles } = ids.length ? await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", ids) : { data: [] };
+      const pMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+      return invites.map((i) => ({ ...i, invitee: pMap.get(i.invitee_id) ?? null }));
+    },
+    staleTime: 20_000,
+  });
+}
+
+export function useAdminTeamActions() {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin-team"] });
+    qc.invalidateQueries({ queryKey: ["admin-invites"] });
+    qc.invalidateQueries({ queryKey: ["my-admin-invites"] });
+  };
+  const invite = useMutation({
+    mutationFn: async ({ userId, note }: { userId: string; note?: string }) => {
+      const { error } = await supabase.rpc("invite_admin", { p_user: userId, p_note: note ?? "" });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+  const revoke = useMutation({
+    mutationFn: async (inviteId: string) => {
+      const { error } = await supabase.rpc("revoke_admin_invite", { p_invite: inviteId });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+  const remove = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase.rpc("remove_admin", { p_user: userId });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+  return { invite, revoke, remove };
+}
+
+/** Pending admin invites addressed to the signed-in user. */
+export function useMyAdminInvites() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["my-admin-invites", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("admin_invites").select("*").eq("invitee_id", user!.id).eq("status", "pending").order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as AdminInvite[];
+    },
+  });
+}
+
+export function useRespondAdminInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, action }: { id: string; action: "accept" | "decline" }) => {
+      const { error } = await supabase.rpc("respond_admin_invite", { p_invite: id, p_action: action });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-admin-invites"] });
+      qc.invalidateQueries({ queryKey: ["is-admin"] });
+      qc.invalidateQueries({ queryKey: ["admin-team"] });
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
