@@ -33,7 +33,8 @@ function WalletPage() {
   const { data, isLoading, isError, refetch } = useWallet();
   const { data: seller } = useSellerProfile();
   const { data: earnings } = useSellerEarnings();
-  const { data: withdrawals } = useWithdrawals();
+  const { data: allWithdrawals } = useWithdrawals();
+  const withdrawals = (allWithdrawals ?? []).filter((w) => w.kind === "sales");
   const requestWithdrawal = useRequestWithdrawal();
   const currency = data?.currency ?? "NGN";
 
@@ -49,7 +50,7 @@ function WalletPage() {
     if (!value || value <= 0) return toast.error("Enter how much you want to withdraw");
     if (value > available) return toast.error("That is more than your available balance");
     requestWithdrawal.mutate(
-      { amount: value, method, destination },
+      { amount: value, method, destination, kind: "sales" },
       {
         onSuccess: () => {
           toast.success("Payout requested. We'll review it shortly.");

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   CalendarCheck,
+  Gift,
   AlertTriangle,
   ShieldCheck,
   Store,
@@ -49,6 +50,7 @@ const MENU_LINKS = [
   { to: "/disputes", label: "Reported Problems", icon: AlertTriangle },
   { to: "/messages", label: "Messages", icon: MessageSquare },
   { to: "/friends", label: "Friends", icon: Users },
+  { to: "/affiliate", label: "Referrals & Earnings", icon: Gift },
   { to: "/checkin", label: "Daily Check-In", icon: CalendarCheck },
   { to: "/data-airtime", label: "Data & Airtime", icon: Smartphone },
   { to: "/support", label: "Support Center", icon: LifeBuoy },

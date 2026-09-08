@@ -1221,6 +1221,70 @@ export type Database = {
           },
         ]
       }
+      reward_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          entry_type: string
+          id: string
+          kind: string
+          note: string | null
+          order_id: string | null
+          source_user_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          entry_type: string
+          id?: string
+          kind: string
+          note?: string | null
+          order_id?: string | null
+          source_user_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          entry_type?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          order_id?: string | null
+          source_user_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_entries_source_user_id_fkey"
+            columns: ["source_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_contacts: {
         Row: {
           created_at: string
@@ -1403,6 +1467,7 @@ export type Database = {
           currency: string
           destination: string | null
           id: string
+          kind: string
           method: string
           processed_at: string | null
           seller_id: string
@@ -1416,6 +1481,7 @@ export type Database = {
           currency?: string
           destination?: string | null
           id?: string
+          kind?: string
           method?: string
           processed_at?: string | null
           seller_id: string
@@ -1429,6 +1495,7 @@ export type Database = {
           currency?: string
           destination?: string | null
           id?: string
+          kind?: string
           method?: string
           processed_at?: string | null
           seller_id?: string
@@ -1475,6 +1542,7 @@ export type Database = {
         Returns: undefined
       }
       auto_release_due_escrows: { Args: never; Returns: number }
+      award_referral_rewards: { Args: { p_order: string }; Returns: undefined }
       become_seller: {
         Args: {
           p_about?: string
@@ -1542,6 +1610,17 @@ export type Database = {
           total_checkins: number
           total_messages: number
           total_users: number
+        }[]
+      }
+      get_reward_balances: {
+        Args: { p_user: string }
+        Returns: {
+          available: number
+          earned: number
+          kind: string
+          pending: number
+          pending_withdrawals: number
+          withdrawn: number
         }[]
       }
       get_seller_earnings: {
@@ -1638,7 +1717,12 @@ export type Database = {
         Returns: undefined
       }
       request_withdrawal: {
-        Args: { p_amount: number; p_destination?: string; p_method?: string }
+        Args: {
+          p_amount: number
+          p_destination?: string
+          p_kind?: string
+          p_method?: string
+        }
         Returns: string
       }
       resolve_dispute: {

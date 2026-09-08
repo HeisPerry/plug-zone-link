@@ -122,11 +122,12 @@ export function useWithdrawals() {
 export function useRequestWithdrawal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ amount, method, destination }: { amount: number; method: string; destination: string }) => {
+    mutationFn: async ({ amount, method, destination, kind }: { amount: number; method: string; destination: string; kind?: "sales" | "affiliate" | "referral" }) => {
       const { data, error } = await supabase.rpc("request_withdrawal", {
         p_amount: amount,
         p_method: method,
         p_destination: destination,
+        p_kind: kind ?? "sales",
       });
       if (error) throw error;
       return data as string;
@@ -134,6 +135,7 @@ export function useRequestWithdrawal() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["withdrawals"] });
       qc.invalidateQueries({ queryKey: ["seller-earnings"] });
+      qc.invalidateQueries({ queryKey: ["reward-balances"] });
       qc.invalidateQueries({ queryKey: ["wallet"] });
     },
   });
