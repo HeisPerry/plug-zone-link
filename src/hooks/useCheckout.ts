@@ -155,14 +155,14 @@ export function useAcceptOrder() {
 }
 
 export function useCancelOrder() {
-  return useOrderAction(async ({ orderId, reason }: { orderId: string; reason?: string }) => {
+  return useOrderAction(async ({ orderId, reason }: { orderId: string; reason?: string | undefined }) => {
     const { error } = await supabase.rpc("cancel_order", { p_order: orderId, p_reason: reason ?? "" });
     if (error) throw error;
   });
 }
 
 export function useRequestRefund() {
-  return useOrderAction(async ({ orderId, reason, amount }: { orderId: string; reason: string; amount?: number }) => {
+  return useOrderAction(async ({ orderId, reason, amount }: { orderId: string; reason: string; amount?: number | undefined }) => {
     const { error } = await supabase.rpc("request_refund", { p_order: orderId, p_reason: reason, ...(amount ? { p_amount: amount } : {}) });
     if (error) throw error;
   });
@@ -176,14 +176,14 @@ export function useWithdrawRefundRequest() {
 }
 
 export function useRespondRefund() {
-  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "approve" | "decline"; amount?: number; note?: string }) => {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "approve" | "decline"; amount?: number | undefined; note?: string | undefined }) => {
     const { error } = await supabase.rpc("respond_refund_request", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
     if (error) throw error;
   });
 }
 
 export function useAdminSettleOrder() {
-  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "release" | "refund"; amount?: number; note?: string }) => {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "release" | "refund"; amount?: number | undefined; note?: string | undefined }) => {
     const { error } = await supabase.rpc("admin_settle_order", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
     if (error) throw error;
   });
