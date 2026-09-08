@@ -124,7 +124,7 @@ export function AdForm({ ad }: { ad?: Ad }) {
           maxLength={120}
           value={values.title}
           onChange={set("title")}
-          placeholder="e.g. iPhone 13, 128GB, barely used"
+          placeholder="e.g. Sharp USA proxy"
         />
       </Field>
 
