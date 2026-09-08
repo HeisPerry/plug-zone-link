@@ -114,21 +114,166 @@ function AdminPage() {
 
 function Overview() {
   const { data, isLoading } = useAdminOverview(true);
-  if (isLoading) return <ListSkeleton rows={3} />;
-  if (!data) return <EmptyState title="No data yet" body="Totals appear once there is activity on the marketplace." />;
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <Stat icon={Users} label="Members" value={String(data.total_users)} />
-      <Stat icon={ListChecks} label="Listings live" value={`${data.active_ads} of ${data.total_ads}`} />
-      <Stat icon={ListChecks} label="Orders placed" value={String(data.total_orders)} />
-      <Stat icon={ShieldCheck} label="Held in escrow" value={formatPrice(data.escrow_held, "NGN")} />
-      <Stat icon={Banknote} label="Money processed" value={formatPrice(data.gross_sales, "NGN")} />
-      <Stat icon={Banknote} label="Platform fees" value={formatPrice(data.platform_fees, "NGN")} />
-      <Stat icon={AlertTriangle} label="Open reports" value={String(data.open_disputes)} />
-      <Stat icon={Banknote} label="Payouts waiting" value={String(data.pending_withdrawals)} />
+    <div className="space-y-8">
+      <WeeklyTotals />
+      <section>
+        <h2 className="font-heading text-lg font-bold">All time</h2>
+        <div className="mt-3">
+          {isLoading ? (
+            <ListSkeleton rows={3} />
+          ) : !data ? (
+            <EmptyState title="No data yet" body="Totals appear once there is activity on the marketplace." />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Stat icon={Users} label="Members" value={String(data.total_users)} />
+              <Stat icon={ListChecks} label="Listings live" value={`${data.active_ads} of ${data.total_ads}`} />
+              <Stat icon={ListChecks} label="Orders placed" value={String(data.total_orders)} />
+              <Stat icon={ShieldCheck} label="Held in escrow" value={formatPrice(data.escrow_held, "NGN")} />
+              <Stat icon={Banknote} label="Money processed" value={formatPrice(data.gross_sales, "NGN")} />
+              <Stat icon={Banknote} label="Platform fees" value={formatPrice(data.platform_fees, "NGN")} />
+              <Stat icon={AlertTriangle} label="Open reports" value={String(data.open_disputes)} />
+              <Stat icon={Banknote} label="Payouts waiting" value={String(data.pending_withdrawals)} />
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
+
+function WeeklyTotals() {
+  const { data, isLoading } = useAdminWeekly(true);
+  return (
+    <section>
+      <h2 className="font-heading text-lg font-bold">This week</h2>
+      <p className="text-sm text-muted-foreground">The last 7 days on PlugZone.</p>
+      <div className="mt-3">
+        {isLoading ? (
+          <ListSkeleton rows={2} />
+        ) : !data ? (
+          <EmptyState title="Nothing this week" body="Weekly totals appear once there is activity." />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Stat icon={TrendingUp} label="Total sales value" value={formatPrice(data.gmv, "NGN")} />
+            <Stat icon={ShoppingBag} label="Orders" value={String(data.orders_count)} />
+            <Stat icon={ShieldCheck} label="Money placed on hold" value={formatPrice(data.escrow_volume, "NGN")} />
+            <Stat icon={UserCheck} label="Buyers who ordered" value={String(data.active_buyers)} />
+            <Stat icon={Store} label="Sellers who sold" value={String(data.active_sellers)} />
+            <Stat icon={AlertTriangle} label="Orders reported" value={`${data.dispute_rate}% (${data.disputes_count})`} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AdminsTab() {
+  const toast = useToast();
+  const { data: isSuper } = useIsSuperAdmin();
+  const { data: team, isLoading } = useAdminTeam(true);
+  const { data: invites } = useAdminInvites(true);
+  const { invite, revoke, remove } = useAdminTeamActions();
+  const [term, setTerm] = useState("");
+  const debounced = useDebounce(term, 300);
+  const { data: people } = useSearchPeople(isSuper ? debounced : "");
+  const pending = (invites ?? []).filter((i) => i.status === "pending");
+
+  return (
+    <div className="space-y-8">
+      <section>
+        <h2 className="font-heading text-lg font-bold">Admin team</h2>
+        {isLoading ? (
+          <ListSkeleton rows={3} />
+        ) : (
+          <ul className="panel mt-3 divide-y overflow-hidden">
+            {(team ?? []).map((a) => (
+              <li key={a.user_id} className="flex items-center gap-3 px-5 py-4">
+                <Avatar name={a.display_name} username={a.username} src={a.avatar_url} size={36} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold">
+                    {a.display_name} {a.is_super && <span className="pill pill-muted ml-1 align-middle text-xs"><Crown size={12} /> Owner</span>}
+                  </p>
+                  <p className="truncate text-sm text-muted-foreground">@{a.username} · since {formatDate(a.since)}</p>
+                </div>
+                {isSuper && !a.is_super && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    disabled={remove.isPending}
+                    onClick={() => remove.mutate(a.user_id, { onSuccess: () => toast.success("Admin access removed"), onError: (e) => toast.error(e.message) })}
+                  >
+                    Remove
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {isSuper ? (
+        <section>
+          <h2 className="font-heading text-lg font-bold">Invite someone</h2>
+          <p className="text-sm text-muted-foreground">Search by username. They get a notification and choose to accept or decline.</p>
+          <input className="input mt-3" placeholder="Search username" aria-label="Search username" value={term} onChange={(e) => setTerm(e.target.value)} />
+          {!!people?.length && (
+            <ul className="panel mt-3 divide-y overflow-hidden">
+              {people.map((p) => (
+                <li key={p.id} className="flex items-center gap-3 px-5 py-3">
+                  <Avatar name={p.display_name} username={p.username} src={p.avatar_url} size={32} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{p.display_name}</p>
+                    <p className="truncate text-sm text-muted-foreground">@{p.username}</p>
+                  </div>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    disabled={invite.isPending}
+                    onClick={() =>
+                      invite.mutate(
+                        { userId: p.id },
+                        { onSuccess: () => { toast.success("Invite sent"); setTerm(""); }, onError: (e) => toast.error(e.message) },
+                      )
+                    }
+                  >
+                    <UserPlus size={14} /> Invite
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : (
+        <p className="text-sm text-muted-foreground">Only the owner account can invite or remove admins.</p>
+      )}
+
+      <section>
+        <h2 className="font-heading text-lg font-bold">Invites</h2>
+        {!invites?.length ? (
+          <EmptyState title="No invites yet" body="Admin invites you send show up here." />
+        ) : (
+          <ul className="panel mt-3 divide-y overflow-hidden">
+            {invites.map((i) => (
+              <li key={i.id} className="flex items-center gap-3 px-5 py-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold">{i.invitee ? `${i.invitee.display_name} (@${i.invitee.username})` : "Member"}</p>
+                  <p className="truncate text-sm text-muted-foreground">Sent {formatDate(i.created_at)}</p>
+                </div>
+                <StatusBadge status={i.status} />
+                {isSuper && i.status === "pending" && (
+                  <button className="btn btn-ghost btn-sm" disabled={revoke.isPending} onClick={() => revoke.mutate(i.id, { onSuccess: () => toast.success("Invite cancelled"), onError: (e) => toast.error(e.message) })}>
+                    Cancel
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {!!pending.length && <p className="mt-2 text-xs text-muted-foreground">{pending.length} waiting for a reply.</p>}
+      </section>
+    </div>
+  );
+}
+
 
 function Reports() {
   const { data, isLoading } = useMyDisputes();
