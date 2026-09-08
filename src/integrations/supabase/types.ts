@@ -373,6 +373,67 @@ export type Database = {
           },
         ]
       }
+      escrow_ledger: {
+        Row: {
+          actor_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          entry_type: string
+          id: string
+          metadata: Json
+          note: string | null
+          order_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          entry_type: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+          order_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          entry_type?: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+          order_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_ledger_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_ledger_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend_requests: {
         Row: {
           created_at: string
@@ -726,9 +787,13 @@ export type Database = {
       orders: {
         Row: {
           ad_id: string
+          auto_release_at: string | null
           buyer_id: string
           buyer_name: string | null
           buyer_phone: string | null
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           confirmed_at: string | null
           created_at: string
           delivered_at: string | null
@@ -740,6 +805,10 @@ export type Database = {
           order_number: string | null
           payment_status: string
           quantity: number
+          refund_reason: string | null
+          refund_requested_amount: number | null
+          refund_requested_at: string | null
+          refunded_amount: number
           seller_id: string
           shipped_at: string | null
           status: string
@@ -749,9 +818,13 @@ export type Database = {
         }
         Insert: {
           ad_id: string
+          auto_release_at?: string | null
           buyer_id: string
           buyer_name?: string | null
           buyer_phone?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           confirmed_at?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -763,6 +836,10 @@ export type Database = {
           order_number?: string | null
           payment_status?: string
           quantity?: number
+          refund_reason?: string | null
+          refund_requested_amount?: number | null
+          refund_requested_at?: string | null
+          refunded_amount?: number
           seller_id: string
           shipped_at?: string | null
           status?: string
@@ -772,9 +849,13 @@ export type Database = {
         }
         Update: {
           ad_id?: string
+          auto_release_at?: string | null
           buyer_id?: string
           buyer_name?: string | null
           buyer_phone?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           confirmed_at?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -786,6 +867,10 @@ export type Database = {
           order_number?: string | null
           payment_status?: string
           quantity?: number
+          refund_reason?: string | null
+          refund_requested_amount?: number | null
+          refund_requested_at?: string | null
+          refunded_amount?: number
           seller_id?: string
           shipped_at?: string | null
           status?: string
@@ -816,6 +901,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1194,6 +1303,16 @@ export type Database = {
           total_users: number
         }[]
       }
+      admin_settle_order: {
+        Args: {
+          p_action: string
+          p_amount?: number
+          p_note?: string
+          p_order: string
+        }
+        Returns: undefined
+      }
+      auto_release_due_escrows: { Args: never; Returns: number }
       become_seller: {
         Args: {
           p_about?: string
@@ -1206,6 +1325,10 @@ export type Database = {
           p_payout_method?: string
         }
         Returns: string
+      }
+      cancel_order: {
+        Args: { p_order: string; p_reason?: string }
+        Returns: undefined
       }
       confirm_receipt: { Args: { p_order: string }; Returns: undefined }
       daily_check_in: {
@@ -1263,6 +1386,17 @@ export type Database = {
         Returns: boolean
       }
       is_username_available: { Args: { p_username: string }; Returns: boolean }
+      log_escrow: {
+        Args: {
+          p_actor?: string
+          p_amount: number
+          p_meta?: Json
+          p_note?: string
+          p_order: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       make_offer: {
         Args: { p_ad: string; p_message?: string; p_price: number }
         Returns: string
@@ -1301,12 +1435,49 @@ export type Database = {
       }
       platform_fee_rate: { Args: never; Returns: number }
       record_affiliate_click: { Args: { p_code: string }; Returns: string }
+      refund_escrow: {
+        Args: {
+          p_actor: string
+          p_amount: number
+          p_final_status?: string
+          p_note?: string
+          p_order: string
+        }
+        Returns: undefined
+      }
+      release_escrow: {
+        Args: {
+          p_actor: string
+          p_note?: string
+          p_order: string
+          p_type?: string
+        }
+        Returns: undefined
+      }
+      request_refund: {
+        Args: { p_amount?: number; p_order: string; p_reason: string }
+        Returns: undefined
+      }
       request_withdrawal: {
         Args: { p_amount: number; p_destination?: string; p_method?: string }
         Returns: string
       }
       resolve_dispute: {
-        Args: { p_dispute: string; p_outcome: string; p_resolution?: string }
+        Args: {
+          p_amount?: number
+          p_dispute: string
+          p_outcome: string
+          p_resolution?: string
+        }
+        Returns: undefined
+      }
+      respond_refund_request: {
+        Args: {
+          p_action: string
+          p_amount?: number
+          p_note?: string
+          p_order: string
+        }
         Returns: undefined
       }
       respond_to_offer: {
@@ -1318,6 +1489,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      seller_accept_order: { Args: { p_order: string }; Returns: undefined }
       set_order_fulfilment: {
         Args: { p_note?: string; p_order: string; p_stage: string }
         Returns: undefined
@@ -1326,7 +1498,16 @@ export type Database = {
         Args: { p_note?: string; p_status: string; p_withdrawal: string }
         Returns: undefined
       }
+      setting_num: {
+        Args: { p_default: number; p_key: string }
+        Returns: number
+      }
       touch_last_seen: { Args: never; Returns: undefined }
+      update_setting: {
+        Args: { p_key: string; p_value: Json }
+        Returns: undefined
+      }
+      withdraw_refund_request: { Args: { p_order: string }; Returns: undefined }
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"
