@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, Banknote, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Banknote, ShieldCheck, Store, Ticket } from "lucide-react";
 import { Page, PageHero } from "@/components/layout/PageLayout";
 import { Field } from "@/components/shared/Field";
 import { useToast } from "@/components/shared/Toast";
