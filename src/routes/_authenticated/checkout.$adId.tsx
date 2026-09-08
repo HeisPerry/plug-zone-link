@@ -137,6 +137,43 @@ function CheckoutPage() {
             <textarea id="notes" className="input min-h-[80px]" maxLength={500} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Account name, username, or anything the seller needs" />
           </Field>
 
+          <Field label="Coupon code (optional)" htmlFor="coupon" hint={quote ? `${quote.code} applied — ${quote.label}.` : "Have a code from the seller or PlugZone? Enter it here."}>
+            <div className="flex gap-2">
+              <input
+                id="coupon"
+                className="input uppercase"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  if (quote) setQuote(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyCoupon();
+                  }
+                }}
+                placeholder="e.g. WELCOME10"
+              />
+              {quote ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary shrink-0"
+                  onClick={() => {
+                    setQuote(null);
+                    setCouponCode("");
+                  }}
+                >
+                  Remove
+                </button>
+              ) : (
+                <button type="button" className="btn btn-secondary shrink-0" disabled={validate.isPending || !couponCode.trim()} onClick={applyCoupon}>
+                  {validate.isPending ? "Checking…" : "Apply"}
+                </button>
+              )}
+            </div>
+          </Field>
+
           <button type="submit" className="btn btn-primary w-full" disabled={busy}>
             {busy ? "Processing…" : `Pay ${formatPrice(total, ad.currency)} into escrow`}
           </button>
@@ -159,6 +196,16 @@ function CheckoutPage() {
               <dt className="text-muted-foreground">Quantity</dt>
               <dd>{quantity}</dd>
             </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd>{formatPrice(subtotal, ad.currency)}</dd>
+            </div>
+            {quote && (
+              <div className="flex justify-between text-success">
+                <dt>Coupon {quote.code}</dt>
+                <dd>− {formatPrice(quote.discount, ad.currency)}</dd>
+              </div>
+            )}
             <div className="flex justify-between border-t pt-3 font-heading text-lg font-bold">
               <dt>Total</dt>
               <dd>{formatPrice(total, ad.currency)}</dd>
