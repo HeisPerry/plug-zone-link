@@ -32,6 +32,7 @@ import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
 import { Route as UserUsernameRouteImport } from './routes/user.$username'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads/new'
+import { Route as AuthenticatedCheckoutAdIdRouteImport } from './routes/_authenticated/checkout.$adId'
 import { Route as AuthenticatedAdsAdIdEditRouteImport } from './routes/_authenticated/ads/$adId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -150,6 +151,12 @@ const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
   path: '/ads/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCheckoutAdIdRoute =
+  AuthenticatedCheckoutAdIdRouteImport.update({
+    id: '/checkout/$adId',
+    path: '/checkout/$adId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdsAdIdEditRoute =
   AuthenticatedAdsAdIdEditRouteImport.update({
     id: '/ads/$adId/edit',
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
+  '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
+  '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -231,6 +240,7 @@ export interface FileRoutesById {
   '/ad/$adId': typeof AdAdIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
+  '/_authenticated/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/ad/$adId'
     | '/user/$username'
     | '/ads/new'
+    | '/checkout/$adId'
     | '/ads/'
     | '/ads/$adId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/ad/$adId'
     | '/user/$username'
     | '/ads/new'
+    | '/checkout/$adId'
     | '/ads'
     | '/ads/$adId/edit'
   id:
@@ -309,6 +321,7 @@ export interface FileRouteTypes {
     | '/ad/$adId'
     | '/user/$username'
     | '/_authenticated/ads/new'
+    | '/_authenticated/checkout/$adId'
     | '/_authenticated/ads/'
     | '/_authenticated/ads/$adId/edit'
   fileRoutesById: FileRoutesById
@@ -490,6 +503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/checkout/$adId': {
+      id: '/_authenticated/checkout/$adId'
+      path: '/checkout/$adId'
+      fullPath: '/checkout/$adId'
+      preLoaderRoute: typeof AuthenticatedCheckoutAdIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ads/$adId/edit': {
       id: '/_authenticated/ads/$adId/edit'
       path: '/ads/$adId/edit'
@@ -512,6 +532,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
+  AuthenticatedCheckoutAdIdRoute: typeof AuthenticatedCheckoutAdIdRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedAdsAdIdEditRoute: typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -528,6 +549,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
+  AuthenticatedCheckoutAdIdRoute: AuthenticatedCheckoutAdIdRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedAdsAdIdEditRoute: AuthenticatedAdsAdIdEditRoute,
 }
