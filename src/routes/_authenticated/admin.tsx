@@ -8,7 +8,14 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { useToast } from "@/components/shared/Toast";
 import { useAdminAds, useAdminOverview, useAdminWithdrawals, useIsAdmin, usePlatformSettings, useSetAdStatus, useSetWithdrawalStatus, useUpdateSetting } from "@/hooks/useAdmin";
 import { useMyDisputes } from "@/hooks/useDisputes";
+import { useAllCoupons } from "@/hooks/useCoupons";
+import { CouponManager } from "@/components/coupons/CouponManager";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
+
+function CouponsTab() {
+  const { data, isLoading } = useAllCoupons(true);
+  return <CouponManager mode="admin" coupons={data} isLoading={isLoading} />;
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
