@@ -80,16 +80,17 @@ function OrdersPage() {
 function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDetails; side: "buying" | "selling"; expanded: boolean; onToggle: () => void }) {
   const { user } = useAuth();
   const toast = useToast();
-  const update = useUpdateOrderStatus();
+  const accept = useAcceptOrder();
+  const cancel = useCancelOrder();
   const other = side === "buying" ? o.seller : o.buyer;
-
-  const setStatus = (status: Order["status"], msg: string) => update.mutate({ id: o.id, status }, { onSuccess: () => toast.success(msg), onError: (e) => toast.error(e.message) });
+  const busy = accept.isPending || cancel.isPending;
 
   const isBuyer = o.buyer_id === user?.id;
-  const actions: { label: string; status: Order["status"]; msg: string; kind: "primary" | "secondary" }[] = [];
-  if (!isBuyer && o.status === "pending") actions.push({ label: "Accept Order", status: "accepted", msg: "Order accepted", kind: "primary" });
-  if (!isBuyer && o.status === "accepted") actions.push({ label: "Mark Completed", status: "completed", msg: "Order completed", kind: "primary" });
-  if (o.status === "pending" || o.status === "accepted") actions.push({ label: "Cancel Order", status: "cancelled", msg: "Order cancelled", kind: "secondary" });
+  const actions: { label: string; run: () => void; kind: "primary" | "secondary" }[] = [];
+  if (!isBuyer && o.status === "pending")
+    actions.push({ label: "Accept Order", kind: "primary", run: () => accept.mutate(o.id, { onSuccess: () => toast.success("Order accepted"), onError: (e) => toast.error(e.message) }) });
+  if ((o.status === "pending" || o.status === "accepted") && o.escrow_status !== "disputed")
+    actions.push({ label: "Cancel Order", kind: "secondary", run: () => cancel.mutate({ orderId: o.id }, { onSuccess: () => toast.success("Order cancelled"), onError: (e) => toast.error(e.message) }) });
 
   return (
     <li>
