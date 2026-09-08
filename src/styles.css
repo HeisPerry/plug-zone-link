@@ -373,6 +373,11 @@
   color: var(--color-primary);
   border: 1px solid color-mix(in oklab, var(--color-primary) 25%, transparent);
 }
+@utility pill-muted {
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  border-color: var(--color-border);
+}
 @utility skeleton {
   background-color: var(--skeleton);
   border-radius: var(--radius-sm);
