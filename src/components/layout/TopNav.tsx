@@ -219,6 +219,7 @@ const SHEET_LINKS = [
   { to: "/messages", label: "Messages", sub: "Chat with buyers & sellers", icon: MessageSquare },
   { to: "/orders", label: "My Orders", sub: "Track buying & selling", icon: ShoppingBag },
   { to: "/friends", label: "Friends", sub: "Invite friends & earn", icon: Users, accent: true },
+  { to: "/affiliate", label: "Referrals & Earnings", sub: "Your link, commissions & payouts", icon: Gift, accent: true },
   { to: "/checkin", label: "Daily Check-In", sub: "Claim your daily reward", icon: CalendarCheck },
   { to: "/data-airtime", label: "Data & Airtime", sub: "Top up any network", icon: Smartphone },
   { to: "/settings", label: "Settings", sub: "Account preferences", icon: Settings },
