@@ -63,7 +63,7 @@ function AdminPage() {
               ["listings", "Listings"],
             ] as [Tab, string][]
           ).map(([key, label]) => (
-            <button key={key} className={cn("pill", tab === key && "pill-active")} onClick={() => setTab(key)}>
+            <button key={key} className={cn("pill", tab !== key && "pill-muted")} onClick={() => setTab(key)}>
               {label}
             </button>
           ))}
