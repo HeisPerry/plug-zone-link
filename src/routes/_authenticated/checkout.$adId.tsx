@@ -25,8 +25,6 @@ function CheckoutPage() {
   const pay = usePayForOrder();
 
   const [quantity, setQuantity] = useState(1);
-  const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
-  const [deliveryAddress, setAddress] = useState("");
   const [buyerName, setName] = useState(profile?.display_name ?? "");
   const [buyerPhone, setPhone] = useState(profile?.phone_number ?? "");
   const [notes, setNotes] = useState("");
@@ -37,12 +35,12 @@ function CheckoutPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ad) return;
-    if (deliveryMethod === "delivery" && !deliveryAddress.trim()) {
-      toast.error("Add a delivery address so the seller knows where to send it");
+    if (!buyerPhone.trim()) {
+      toast.error("Add an email or phone number so the seller can send your item");
       return;
     }
     try {
-      const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod, deliveryAddress, buyerName, buyerPhone, notes });
+      const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod: "digital", deliveryAddress: "", buyerName, buyerPhone, notes });
       await pay.mutateAsync(orderId);
       toast.success("Payment held in escrow. The seller has been notified.");
       navigate({ to: "/order/$orderId", params: { orderId } });
@@ -84,7 +82,7 @@ function CheckoutPage() {
 
   return (
     <Page className="pt-8">
-      <PageHeader title="Checkout" subtitle="Your money is held safely until you confirm the item arrived." />
+      <PageHeader title="Checkout" subtitle="Everything is delivered online. Your money is held safely until you confirm you received it." />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <form className="panel space-y-5 p-5" onSubmit={submit}>
@@ -92,30 +90,17 @@ function CheckoutPage() {
             <input id="qty" type="number" min={1} max={99} className="input" value={quantity} onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))} />
           </Field>
 
-          <Field label="How do you want it?" htmlFor="method">
-            <select id="method" className="input" value={deliveryMethod} onChange={(e) => setDeliveryMethod(e.target.value as "delivery" | "pickup")}>
-              <option value="delivery">Deliver to my address</option>
-              <option value="pickup">I will pick it up</option>
-            </select>
-          </Field>
-
-          {deliveryMethod === "delivery" && (
-            <Field label="Delivery address" htmlFor="address">
-              <textarea id="address" className="input min-h-[80px]" maxLength={400} value={deliveryAddress} onChange={(e) => setAddress(e.target.value)} placeholder="Street, city, landmark" />
-            </Field>
-          )}
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Your name" htmlFor="name">
               <input id="name" className="input" value={buyerName} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
             </Field>
-            <Field label="Phone number" htmlFor="phone">
-              <input id="phone" className="input" value={buyerPhone} onChange={(e) => setPhone(e.target.value)} placeholder="For delivery updates" />
+            <Field label="Email or phone for delivery" htmlFor="phone">
+              <input id="phone" className="input" value={buyerPhone} onChange={(e) => setPhone(e.target.value)} placeholder="Where the seller sends your item" />
             </Field>
           </div>
 
           <Field label="Note to seller (optional)" htmlFor="notes">
-            <textarea id="notes" className="input min-h-[80px]" maxLength={500} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Colour, size, preferred time…" />
+            <textarea id="notes" className="input min-h-[80px]" maxLength={500} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Account name, username, or anything the seller needs" />
           </Field>
 
           <button type="submit" className="btn btn-primary w-full" disabled={busy}>
@@ -147,7 +132,7 @@ function CheckoutPage() {
           </dl>
           <p className="mt-4 flex items-start gap-2 text-[13px] text-muted-foreground">
             <ShieldCheck size={16} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-            The seller is only paid after you confirm you received the item.
+            This is a digital item delivered online. The seller is only paid after you confirm you received it.
           </p>
         </aside>
       </div>

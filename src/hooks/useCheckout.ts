@@ -11,7 +11,7 @@ export type Dispute = Database["public"]["Tables"]["disputes"]["Row"];
 export type CheckoutInput = {
   adId: string;
   quantity: number;
-  deliveryMethod: "delivery" | "pickup";
+  deliveryMethod: string;
   deliveryAddress: string;
   buyerName: string;
   buyerPhone: string;

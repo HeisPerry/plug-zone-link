@@ -123,7 +123,7 @@ function OrderDetailPage() {
                 )}
                 {!isBuyer && escrow === "held" && order.status !== "shipped" && order.status !== "delivered" && (
                   <button className="btn btn-primary" onClick={() => setShipOpen(true)}>
-                    <Truck size={16} aria-hidden="true" /> Mark as sent
+                    <Truck size={16} aria-hidden="true" /> Send item to buyer
                   </button>
                 )}
                 {!isBuyer && order.status === "shipped" && (
@@ -178,19 +178,18 @@ function OrderDetailPage() {
 
           <aside className="panel h-fit space-y-3 p-5 text-[15px]">
             <h2 className="text-lg">Delivery details</h2>
-            <p className="text-muted-foreground">{order.delivery_method === "pickup" ? "Buyer is picking it up" : "Delivery to buyer"}</p>
+            <p className="text-muted-foreground">Digital item — delivered online</p>
             {order.buyer_name && <p>{order.buyer_name}</p>}
             {order.buyer_phone && <p>{order.buyer_phone}</p>}
-            {order.delivery_address && <p className="whitespace-pre-line text-muted-foreground">{order.delivery_address}</p>}
-            {order.tracking_note && <p className="border-t pt-3 text-muted-foreground">Seller note: {order.tracking_note}</p>}
+            {order.tracking_note && <p className="border-t pt-3 text-muted-foreground">Delivery note: {order.tracking_note}</p>}
             {order.notes && <p className="border-t pt-3 text-muted-foreground">Buyer note: {order.notes}</p>}
           </aside>
         </div>
       </Page>
 
-      <Modal open={shipOpen} onClose={() => setShipOpen(false)} title="Mark this order as sent">
-        <Field label="Tracking or handover note (optional)" htmlFor="tracking">
-          <textarea id="tracking" className="input min-h-[80px]" maxLength={300} value={trackingNote} onChange={(e) => setTrackingNote(e.target.value)} placeholder="Courier name, tracking number, pickup time…" />
+      <Modal open={shipOpen} onClose={() => setShipOpen(false)} title="Send this digital item">
+        <Field label="Delivery note or link (optional)" htmlFor="tracking">
+          <textarea id="tracking" className="input min-h-[80px]" maxLength={300} value={trackingNote} onChange={(e) => setTrackingNote(e.target.value)} placeholder="Download link, access code, or where you sent it" />
         </Field>
         <button
           className="btn btn-primary mt-4 w-full"
