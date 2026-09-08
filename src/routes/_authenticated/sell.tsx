@@ -76,6 +76,9 @@ function SellPage() {
             <Link to="/ads/new" className="btn btn-primary">
               Post an ad
             </Link>
+            <Link to="/coupons" className="btn btn-secondary">
+              <Ticket size={16} aria-hidden="true" /> Manage coupons
+            </Link>
             <Link to="/wallet" className="btn btn-secondary">
               Go to wallet
             </Link>
