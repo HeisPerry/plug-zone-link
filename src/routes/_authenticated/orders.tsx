@@ -105,6 +105,9 @@ function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDet
       </button>
       {expanded && (
         <div className="mb-5 rounded-md bg-muted p-4 sm:p-5">
+          <Link to="/order/$orderId" params={{ orderId: o.id }} className="btn btn-primary btn-sm mb-4">
+            Open order &amp; escrow
+          </Link>
           <dl className="grid gap-x-8 gap-y-2 text-[15px] sm:grid-cols-2">
             <div>
               <dt className="text-sm text-muted-foreground">Ad</dt>

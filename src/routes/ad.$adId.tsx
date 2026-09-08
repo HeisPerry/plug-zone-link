@@ -3,13 +3,11 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAd, useUpdateAdStatus } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
-import { usePlaceOrder } from "@/hooks/useOrders";
 import { useStartConversation } from "@/hooks/useMessages";
 import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { CategoryBadge, StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { Modal } from "@/components/shared/Modal";
-import { Field } from "@/components/shared/Field";
 import { useToast } from "@/components/shared/Toast";
 import { Avatar } from "@/components/shared/Avatar";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
@@ -33,11 +31,7 @@ function AdDetailPage() {
   const toast = useToast();
   const { data: ad, isLoading } = useAd(adId);
   const [active, setActive] = useState(0);
-  const [ordering, setOrdering] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [qty, setQty] = useState(1);
-  const [notes, setNotes] = useState("");
-  const place = usePlaceOrder();
   const start = useStartConversation();
   const update = useUpdateAdStatus();
 
@@ -166,8 +160,8 @@ function AdDetailPage() {
                   </>
                 ) : (
                   <>
-                    <button className="btn btn-primary" disabled={ad.status !== "active"} onClick={() => requireAuth(() => setOrdering(true))}>
-                      Place Order
+                    <button className="btn btn-primary" disabled={ad.status !== "active"} onClick={() => requireAuth(() => navigate({ to: "/checkout/$adId", params: { adId: ad.id } }))}>
+                      Buy Now
                     </button>
                     <button
                       className="btn btn-secondary"
@@ -194,42 +188,6 @@ function AdDetailPage() {
         )}
       </div>
 
-      <Modal open={ordering} onClose={() => setOrdering(false)} title="Place order">
-        {ad && (
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              place.mutate(
-                { adId: ad.id, sellerId: ad.seller_id, quantity: qty, unitPrice: Number(ad.price), notes },
-                {
-                  onSuccess: () => {
-                    toast.success("Order placed");
-                    setOrdering(false);
-                    navigate({ to: "/orders" });
-                  },
-                  onError: (err) => toast.error(err.message),
-                },
-              );
-            }}
-          >
-            <p className="text-[15px] text-muted-foreground">{ad.title}</p>
-            <Field label="Quantity" htmlFor="qty">
-              <input id="qty" type="number" min={1} max={99} className="input" value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))} />
-            </Field>
-            <Field label="Note to seller (optional)" htmlFor="notes">
-              <textarea id="notes" className="input min-h-[90px]" maxLength={500} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Delivery address, preferred time…" />
-            </Field>
-            <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-[15px] text-muted-foreground">Total</span>
-              <span className="font-heading text-xl font-bold">{formatPrice(Number(ad.price) * qty, ad.currency)}</span>
-            </div>
-            <button type="submit" className="btn btn-primary w-full" disabled={place.isPending}>
-              {place.isPending ? "Placing order…" : "Confirm Order"}
-            </button>
-          </form>
-        )}
-      </Modal>
 
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete this ad?">
         <p className="text-[15px] text-muted-foreground">This removes the ad from the marketplace permanently.</p>

@@ -29,9 +29,11 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
+import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as UserUsernameRouteImport } from './routes/user.$username'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads/new'
+import { Route as AuthenticatedCheckoutAdIdRouteImport } from './routes/_authenticated/checkout.$adId'
 import { Route as AuthenticatedAdsAdIdEditRouteImport } from './routes/_authenticated/ads/$adId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -135,6 +137,11 @@ const AdAdIdRoute = AdAdIdRouteImport.update({
   path: '/ad/$adId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
+  id: '/order/$orderId',
+  path: '/order/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UserUsernameRoute = UserUsernameRouteImport.update({
   id: '/user/$username',
   path: '/user/$username',
@@ -150,6 +157,12 @@ const AuthenticatedAdsNewRoute = AuthenticatedAdsNewRouteImport.update({
   path: '/ads/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCheckoutAdIdRoute =
+  AuthenticatedCheckoutAdIdRouteImport.update({
+    id: '/checkout/$adId',
+    path: '/checkout/$adId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdsAdIdEditRoute =
   AuthenticatedAdsAdIdEditRouteImport.update({
     id: '/ads/$adId/edit',
@@ -177,8 +190,10 @@ export interface FileRoutesByFullPath {
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
+  '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -202,8 +217,10 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
+  '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -229,8 +246,10 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
+  '/_authenticated/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -256,8 +275,10 @@ export interface FileRouteTypes {
     | '/support'
     | '/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/ads/new'
+    | '/checkout/$adId'
     | '/ads/'
     | '/ads/$adId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -281,8 +302,10 @@ export interface FileRouteTypes {
     | '/support'
     | '/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/ads/new'
+    | '/checkout/$adId'
     | '/ads'
     | '/ads/$adId/edit'
   id:
@@ -307,8 +330,10 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/_authenticated/ads/new'
+    | '/_authenticated/checkout/$adId'
     | '/_authenticated/ads/'
     | '/_authenticated/ads/$adId/edit'
   fileRoutesById: FileRoutesById
@@ -324,6 +349,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   AdAdIdRoute: typeof AdAdIdRoute
+  OrderOrderIdRoute: typeof OrderOrderIdRoute
   UserUsernameRoute: typeof UserUsernameRoute
 }
 
@@ -469,6 +495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdAdIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order/$orderId': {
+      id: '/order/$orderId'
+      path: '/order/$orderId'
+      fullPath: '/order/$orderId'
+      preLoaderRoute: typeof OrderOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/user/$username': {
       id: '/user/$username'
       path: '/user/$username'
@@ -488,6 +521,13 @@ declare module '@tanstack/react-router' {
       path: '/ads/new'
       fullPath: '/ads/new'
       preLoaderRoute: typeof AuthenticatedAdsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkout/$adId': {
+      id: '/_authenticated/checkout/$adId'
+      path: '/checkout/$adId'
+      fullPath: '/checkout/$adId'
+      preLoaderRoute: typeof AuthenticatedCheckoutAdIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ads/$adId/edit': {
@@ -512,6 +552,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
+  AuthenticatedCheckoutAdIdRoute: typeof AuthenticatedCheckoutAdIdRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedAdsAdIdEditRoute: typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -528,6 +569,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
+  AuthenticatedCheckoutAdIdRoute: AuthenticatedCheckoutAdIdRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedAdsAdIdEditRoute: AuthenticatedAdsAdIdEditRoute,
 }
@@ -546,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   AdAdIdRoute: AdAdIdRoute,
+  OrderOrderIdRoute: OrderOrderIdRoute,
   UserUsernameRoute: UserUsernameRoute,
 }
 export const routeTree = rootRouteImport
