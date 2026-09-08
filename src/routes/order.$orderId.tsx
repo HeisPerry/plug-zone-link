@@ -36,6 +36,8 @@ function OrderDetailPage() {
   const { orderId } = Route.useParams();
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
+  const startChat = useStartConversation();
   const { data: order, isLoading } = useOrder(orderId);
   const { data: events } = useOrderEvents(orderId);
   const { data: dispute } = useOrderDispute(orderId);
@@ -144,6 +146,18 @@ function OrderDetailPage() {
                     Confirm I received it
                   </button>
                 )}
+                <button
+                  className="btn btn-secondary"
+                  disabled={startChat.isPending}
+                  onClick={() =>
+                    startChat.mutate(other.id, {
+                      onSuccess: (conversationId) => navigate({ to: "/messages", search: { c: conversationId } }),
+                      onError: (e) => toast.error(e.message),
+                    })
+                  }
+                >
+                  <MessageCircle size={16} aria-hidden="true" /> {isBuyer ? "Message seller" : "Deliver in chat"}
+                </button>
                 {!dispute && (escrow === "held" || order.status === "delivered") && (
                   <button className="btn btn-ghost" onClick={() => setDisputeOpen(true)}>
                     <AlertTriangle size={16} aria-hidden="true" /> Report a problem
