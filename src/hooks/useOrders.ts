@@ -111,7 +111,7 @@ export function useUpdateOrderStatus() {
   });
 }
 
-const ONGOING_STATUSES = ["pending", "accepted", "paid", "shipped", "in_progress", "disputed"];
+const ONGOING_STATUSES = ["pending", "accepted", "shipped", "delivered", "disputed"];
 
 export function useOngoingOrdersCount() {
   const { user } = useAuth();

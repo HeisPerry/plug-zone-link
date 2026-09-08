@@ -116,6 +116,8 @@ function useOrderAction<TVars>(fn: (vars: TVars) => Promise<void>) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["order"] });
       qc.invalidateQueries({ queryKey: ["order-events"] });
+      qc.invalidateQueries({ queryKey: ["escrow-ledger"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["dispute"] });
       qc.invalidateQueries({ queryKey: ["seller-earnings"] });
@@ -142,5 +144,61 @@ export function useOpenDispute() {
   return useOrderAction(async ({ orderId, reason, description }: { orderId: string; reason: string; description: string }) => {
     const { error } = await supabase.rpc("open_dispute", { p_order: orderId, p_reason: reason, p_description: description });
     if (error) throw error;
+  });
+}
+
+export function useAcceptOrder() {
+  return useOrderAction(async (orderId: string) => {
+    const { error } = await supabase.rpc("seller_accept_order", { p_order: orderId });
+    if (error) throw error;
+  });
+}
+
+export function useCancelOrder() {
+  return useOrderAction(async ({ orderId, reason }: { orderId: string; reason?: string | undefined }) => {
+    const { error } = await supabase.rpc("cancel_order", { p_order: orderId, p_reason: reason ?? "" });
+    if (error) throw error;
+  });
+}
+
+export function useRequestRefund() {
+  return useOrderAction(async ({ orderId, reason, amount }: { orderId: string; reason: string; amount?: number | undefined }) => {
+    const { error } = await supabase.rpc("request_refund", { p_order: orderId, p_reason: reason, ...(amount ? { p_amount: amount } : {}) });
+    if (error) throw error;
+  });
+}
+
+export function useWithdrawRefundRequest() {
+  return useOrderAction(async (orderId: string) => {
+    const { error } = await supabase.rpc("withdraw_refund_request", { p_order: orderId });
+    if (error) throw error;
+  });
+}
+
+export function useRespondRefund() {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "approve" | "decline"; amount?: number | undefined; note?: string | undefined }) => {
+    const { error } = await supabase.rpc("respond_refund_request", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    if (error) throw error;
+  });
+}
+
+export function useAdminSettleOrder() {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "release" | "refund"; amount?: number | undefined; note?: string | undefined }) => {
+    const { error } = await supabase.rpc("admin_settle_order", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    if (error) throw error;
+  });
+}
+
+export type LedgerEntry = Database["public"]["Tables"]["escrow_ledger"]["Row"];
+
+export function useEscrowLedger(orderId: string | undefined) {
+  return useQuery({
+    queryKey: ["escrow-ledger", orderId],
+    enabled: !!orderId,
+    queryFn: async (): Promise<LedgerEntry[]> => {
+      const { data, error } = await supabase.from("escrow_ledger").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 }

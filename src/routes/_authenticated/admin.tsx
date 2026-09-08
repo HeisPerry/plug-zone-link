@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Banknote, ListChecks, ShieldCheck, Users } from "lucide-react";
+import { AlertTriangle, Banknote, ListChecks, ShieldCheck, Users, Settings2 } from "lucide-react";
 import { Page, PageHero } from "@/components/layout/PageLayout";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ListSkeleton, Skeleton } from "@/components/shared/SkeletonLoader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { useToast } from "@/components/shared/Toast";
-import { useAdminAds, useAdminOverview, useAdminWithdrawals, useIsAdmin, useSetAdStatus, useSetWithdrawalStatus } from "@/hooks/useAdmin";
+import { useAdminAds, useAdminOverview, useAdminWithdrawals, useIsAdmin, usePlatformSettings, useSetAdStatus, useSetWithdrawalStatus, useUpdateSetting } from "@/hooks/useAdmin";
 import { useMyDisputes } from "@/hooks/useDisputes";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "overview" | "reports" | "payouts" | "listings";
+type Tab = "overview" | "reports" | "payouts" | "listings" | "settings";
 
 function AdminPage() {
   const { data: isAdmin, isLoading: checking } = useIsAdmin();
@@ -61,6 +61,7 @@ function AdminPage() {
               ["reports", "Reported orders"],
               ["payouts", "Payout requests"],
               ["listings", "Listings"],
+              ["settings", "Escrow & fees"],
             ] as [Tab, string][]
           ).map(([key, label]) => (
             <button key={key} className={cn("pill", tab !== key && "pill-muted")} onClick={() => setTab(key)}>
@@ -74,6 +75,7 @@ function AdminPage() {
           {tab === "reports" && <Reports />}
           {tab === "payouts" && <Payouts />}
           {tab === "listings" && <Listings />}
+          {tab === "settings" && <SettingsTab />}
         </div>
       </Page>
     </>
@@ -201,6 +203,56 @@ function Listings() {
         </li>
       ))}
     </ul>
+  );
+}
+
+const SETTING_META: Record<string, { label: string; hint: string; step: string; format: (v: number) => string }> = {
+  auto_release_days: { label: "Automatic release (days)", hint: "How long after delivery held money goes to the seller if the buyer stays silent.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
+  platform_fee_rate: { label: "Platform fee", hint: "Share of each completed sale kept by PlugZone. 0.05 means 5%.", step: "0.005", format: (v) => `${Math.round(v * 1000) / 10}%` },
+  refund_window_days: { label: "Refund window (days)", hint: "How long after delivery a buyer may ask for a refund.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
+};
+
+function SettingsTab() {
+  const toast = useToast();
+  const { data, isLoading } = usePlatformSettings(true);
+  const update = useUpdateSetting();
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  if (isLoading) return <ListSkeleton rows={3} />;
+  if (!data?.length) return <EmptyState title="No settings" body="Platform settings appear here." />;
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      {data.map((s) => {
+        const meta = SETTING_META[s.key] ?? { label: s.key.replace(/_/g, " "), hint: s.description ?? "", step: "1", format: (v: number) => String(v) };
+        const current = Number(s.value);
+        const draft = drafts[s.key] ?? String(current);
+        const changed = Number(draft) !== current;
+        return (
+          <div key={s.key} className="panel p-5">
+            <div className="flex items-start gap-3">
+              <span className="icon-tile h-10 w-10 rounded-xl">
+                <Settings2 size={16} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">{meta.label}</p>
+                <p className="text-sm text-muted-foreground">{meta.hint}</p>
+                <p className="mt-1 text-sm">Currently {meta.format(current)}</p>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <input type="number" min={0} step={meta.step} className="input flex-1" aria-label={meta.label} value={draft} onChange={(e) => setDrafts({ ...drafts, [s.key]: e.target.value })} />
+              <button
+                className="btn btn-primary"
+                disabled={!changed || update.isPending || Number.isNaN(Number(draft))}
+                onClick={() => update.mutate({ key: s.key, value: Number(draft) }, { onSuccess: () => toast.success("Saved"), onError: (e) => toast.error(e.message) })}
+              >
+                Save
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Last changed {formatDate(s.updated_at)}</p>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

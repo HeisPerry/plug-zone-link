@@ -2,14 +2,15 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { Page } from "@/components/layout/PageLayout";
-import { useAllOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
+import { useAllOrders } from "@/hooks/useOrders";
+import { useAcceptOrder, useCancelOrder } from "@/hooks/useCheckout";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { ErrorState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
-import type { Order, OrderWithDetails } from "@/lib/types";
+import type { OrderWithDetails } from "@/lib/types";
 import emptyOrders from "@/assets/empty-orders.png";
 
 export const Route = createFileRoute("/_authenticated/orders")({
@@ -20,14 +21,14 @@ export const Route = createFileRoute("/_authenticated/orders")({
 type Tab = "all" | "pending" | "completed" | "cancelled";
 const TABS: { key: Tab; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "pending", label: "Pending" },
+  { key: "pending", label: "In progress" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
 
-function matchesTab(o: Order, tab: Tab) {
+function matchesTab(o: OrderWithDetails, tab: Tab) {
   if (tab === "all") return true;
-  if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "disputed";
+  if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "shipped" || o.status === "delivered" || o.status === "disputed";
   if (tab === "cancelled") return o.status === "cancelled" || o.status === "refunded";
   return o.status === tab;
 }
@@ -80,16 +81,17 @@ function OrdersPage() {
 function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDetails; side: "buying" | "selling"; expanded: boolean; onToggle: () => void }) {
   const { user } = useAuth();
   const toast = useToast();
-  const update = useUpdateOrderStatus();
+  const accept = useAcceptOrder();
+  const cancel = useCancelOrder();
   const other = side === "buying" ? o.seller : o.buyer;
-
-  const setStatus = (status: Order["status"], msg: string) => update.mutate({ id: o.id, status }, { onSuccess: () => toast.success(msg), onError: (e) => toast.error(e.message) });
+  const busy = accept.isPending || cancel.isPending;
 
   const isBuyer = o.buyer_id === user?.id;
-  const actions: { label: string; status: Order["status"]; msg: string; kind: "primary" | "secondary" }[] = [];
-  if (!isBuyer && o.status === "pending") actions.push({ label: "Accept Order", status: "accepted", msg: "Order accepted", kind: "primary" });
-  if (!isBuyer && o.status === "accepted") actions.push({ label: "Mark Completed", status: "completed", msg: "Order completed", kind: "primary" });
-  if (o.status === "pending" || o.status === "accepted") actions.push({ label: "Cancel Order", status: "cancelled", msg: "Order cancelled", kind: "secondary" });
+  const actions: { label: string; run: () => void; kind: "primary" | "secondary" }[] = [];
+  if (!isBuyer && o.status === "pending")
+    actions.push({ label: "Accept Order", kind: "primary", run: () => accept.mutate(o.id, { onSuccess: () => toast.success("Order accepted"), onError: (e) => toast.error(e.message) }) });
+  if ((o.status === "pending" || o.status === "accepted") && o.escrow_status !== "disputed")
+    actions.push({ label: "Cancel Order", kind: "secondary", run: () => cancel.mutate({ orderId: o.id }, { onSuccess: () => toast.success("Order cancelled"), onError: (e) => toast.error(e.message) }) });
 
   return (
     <li>
@@ -148,14 +150,14 @@ function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDet
           </dl>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {actions.map((a) => (
-              <button key={a.status} className={cn("btn btn-sm", a.kind === "primary" ? "btn-primary" : "btn-secondary")} disabled={update.isPending} onClick={() => setStatus(a.status, a.msg)}>
+              <button key={a.label} className={cn("btn btn-sm", a.kind === "primary" ? "btn-primary" : "btn-secondary")} disabled={busy} onClick={a.run}>
                 {a.label}
               </button>
             ))}
-            {o.status !== "completed" && o.status !== "cancelled" && o.status !== "disputed" && (
-              <button className="ml-auto text-sm text-destructive" onClick={() => setStatus("disputed", "Issue reported")}>
+            {o.status !== "completed" && o.status !== "cancelled" && o.status !== "disputed" && o.status !== "refunded" && (
+              <Link to="/order/$orderId" params={{ orderId: o.id }} className="ml-auto text-sm text-destructive">
                 Report Issue
-              </button>
+              </Link>
             )}
           </div>
         </div>

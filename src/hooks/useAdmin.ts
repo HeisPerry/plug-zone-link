@@ -89,8 +89,8 @@ export function useSetWithdrawalStatus() {
 export function useResolveDispute() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, outcome, resolution }: { id: string; outcome: string; resolution?: string }) => {
-      const { error } = await supabase.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "" });
+    mutationFn: async ({ id, outcome, resolution, amount }: { id: string; outcome: string; resolution?: string; amount?: number }) => {
+      const { error } = await supabase.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "", ...(amount ? { p_amount: amount } : {}) });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -129,5 +129,31 @@ export function useSetAdStatus() {
       qc.invalidateQueries({ queryKey: ["ads"] });
       qc.invalidateQueries({ queryKey: ["admin-overview"] });
     },
+  });
+}
+
+export type PlatformSetting = Database["public"]["Tables"]["platform_settings"]["Row"];
+
+export function usePlatformSettings(enabled = true) {
+  return useQuery({
+    queryKey: ["platform-settings"],
+    enabled,
+    queryFn: async (): Promise<PlatformSetting[]> => {
+      const { data, error } = await supabase.from("platform_settings").select("*").order("key");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateSetting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: number | string | boolean }) => {
+      const { error } = await supabase.rpc("update_setting", { p_key: key, p_value: value });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["platform-settings"] }),
   });
 }
