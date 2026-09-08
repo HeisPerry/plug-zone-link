@@ -166,7 +166,7 @@ function OrderDetailPage() {
                   <li key={e.id} className="flex gap-3 text-[15px]">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                     <span>
-                      <span className="capitalize">{(e.note ?? e.event_type).replace(/_/g, " ")}</span>
+                      <span className="capitalize">{(e.note ?? e.status).replace(/_/g, " ")}</span>
                       <span className="ml-2 text-[13px] text-muted-foreground">{formatDate(e.created_at)}</span>
                     </span>
                   </li>
@@ -221,7 +221,8 @@ function OrderDetailPage() {
             <option value="other">Something else</option>
           </select>
         </Field>
-        <Field label="Tell us more" htmlFor="desc" className="mt-4">
+        <div className="mt-4" />
+        <Field label="Tell us more" htmlFor="desc">
           <textarea id="desc" className="input min-h-[110px]" maxLength={1000} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Explain what happened so we can help." />
         </Field>
         <button

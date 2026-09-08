@@ -29,6 +29,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AdAdIdRouteImport } from './routes/ad.$adId'
+import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as UserUsernameRouteImport } from './routes/user.$username'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads/new'
@@ -136,6 +137,11 @@ const AdAdIdRoute = AdAdIdRouteImport.update({
   path: '/ad/$adId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
+  id: '/order/$orderId',
+  path: '/order/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UserUsernameRoute = UserUsernameRouteImport.update({
   id: '/user/$username',
   path: '/user/$username',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/ad/$adId': typeof AdAdIdRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
   '/user/$username': typeof UserUsernameRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/ads/new'
     | '/checkout/$adId'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/ads/new'
     | '/checkout/$adId'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/wallet'
     | '/ad/$adId'
+    | '/order/$orderId'
     | '/user/$username'
     | '/_authenticated/ads/new'
     | '/_authenticated/checkout/$adId'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   AdAdIdRoute: typeof AdAdIdRoute
+  OrderOrderIdRoute: typeof OrderOrderIdRoute
   UserUsernameRoute: typeof UserUsernameRoute
 }
 
@@ -482,6 +495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdAdIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order/$orderId': {
+      id: '/order/$orderId'
+      path: '/order/$orderId'
+      fullPath: '/order/$orderId'
+      preLoaderRoute: typeof OrderOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/user/$username': {
       id: '/user/$username'
       path: '/user/$username'
@@ -568,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   AdAdIdRoute: AdAdIdRoute,
+  OrderOrderIdRoute: OrderOrderIdRoute,
   UserUsernameRoute: UserUsernameRoute,
 }
 export const routeTree = rootRouteImport
