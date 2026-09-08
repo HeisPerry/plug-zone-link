@@ -44,7 +44,7 @@ export function initials(name: string) {
 }
 
 const AVATAR_COLORS = [
-  "#0d9488", "#0f766e", "#1d4ed8", "#b45309", "#be123c", "#4d7c0f", "#6d28d9", "#0e7490",
+  "#16a34a", "#111827", "#64748b",
 ];
 
 export function avatarColor(seed: string) {
