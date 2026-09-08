@@ -158,6 +158,9 @@ function OrderDetailPage() {
                     <p className="font-medium">{order.ad.title}</p>
                     <p className="text-[15px] text-muted-foreground">
                       {order.quantity} × · {formatPrice(order.total_price, cur)}
+                      {Number(order.discount_amount) > 0 && (
+                        <span className="ml-2 text-success">(coupon saved {formatPrice(order.discount_amount, cur)})</span>
+                      )}
                     </p>
                   </div>
                 </div>

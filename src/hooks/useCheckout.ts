@@ -16,6 +16,7 @@ export type CheckoutInput = {
   buyerName: string;
   buyerPhone: string;
   notes: string;
+  couponCode?: string;
 };
 
 /** Creates the order (unpaid). Returns the new order id. */
@@ -31,6 +32,7 @@ export function useCreateOrder() {
         p_buyer_name: input.buyerName,
         p_buyer_phone: input.buyerPhone,
         p_notes: input.notes,
+        p_coupon_code: input.couponCode ?? "",
       });
       if (error) throw error;
       return data as string;

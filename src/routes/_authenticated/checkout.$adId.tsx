@@ -5,6 +5,7 @@ import { Page, PageHeader } from "@/components/layout/PageLayout";
 import { useAd } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateOrder, usePayForOrder } from "@/hooks/useCheckout";
+import { useValidateCoupon, type CouponQuote } from "@/hooks/useCoupons";
 import { Field } from "@/components/shared/Field";
 import { Skeleton } from "@/components/shared/SkeletonLoader";
 import { useToast } from "@/components/shared/Toast";
@@ -24,19 +25,56 @@ function CheckoutPage() {
   const create = useCreateOrder();
   const pay = usePayForOrder();
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantityState] = useState(1);
   const [buyerName, setName] = useState(profile?.display_name ?? "");
   const [buyerPhone, setPhone] = useState(profile?.phone_number ?? "");
   const [notes, setNotes] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [quote, setQuote] = useState<CouponQuote | null>(null);
+  const validate = useValidateCoupon();
 
   const busy = create.isPending || pay.isPending;
-  const total = ad ? Number(ad.price) * quantity : 0;
+  const subtotal = ad ? Number(ad.price) * quantity : 0;
+  const discount = quote?.discount ?? 0;
+  const total = Math.max(0, subtotal - discount);
+
+  // Changing the quantity changes the subtotal, so a previous quote no longer applies.
+  const setQuantity = (q: number) => {
+    setQuantityState(q);
+    setQuote(null);
+  };
+
+  const applyCoupon = () => {
+    if (!ad || !couponCode.trim()) return;
+    validate.mutate(
+      { code: couponCode, adId: ad.id, quantity },
+      {
+        onSuccess: (q) => {
+          setQuote(q);
+          toast.success(`${q.code} applied — you save ${formatPrice(q.discount, ad.currency)}`);
+        },
+        onError: (e) => {
+          setQuote(null);
+          toast.error(e.message);
+        },
+      },
+    );
+  };
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ad) return;
     try {
-      const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod: "digital", deliveryAddress: "", buyerName, buyerPhone, notes });
+      const orderId = await create.mutateAsync({
+        adId: ad.id,
+        quantity,
+        deliveryMethod: "digital",
+        deliveryAddress: "",
+        buyerName,
+        buyerPhone,
+        notes,
+        couponCode: quote ? quote.code : "",
+      });
       await pay.mutateAsync(orderId);
       toast.success("Payment held in escrow. The seller has been notified.");
       navigate({ to: "/order/$orderId", params: { orderId } });
