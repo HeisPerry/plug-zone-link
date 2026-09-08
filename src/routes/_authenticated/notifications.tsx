@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCheck } from "lucide-react";
+import { CheckCheck, ShieldCheck } from "lucide-react";
 import { Page, PageHero } from "@/components/layout/PageLayout";
 import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications, useUnreadNotifications } from "@/hooks/useNotifications";
 import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState, ErrorState } from "@/components/shared/EmptyState";
 import { notificationMeta } from "@/lib/notifications";
+import { useMyAdminInvites, useRespondAdminInvite } from "@/hooks/useAdmin";
+import { useToast } from "@/components/shared/Toast";
 import { cn, timeAgo } from "@/lib/utils";
 import type { Notification } from "@/lib/types";
 
@@ -32,6 +34,7 @@ function NotificationsPage() {
         }
       />
     <Page>
+      <AdminInviteCards />
       <div>
         {isLoading ? (
           <ListSkeleton rows={6} />
@@ -57,6 +60,44 @@ function NotificationsPage() {
       </div>
     </Page>
     </>
+  );
+}
+
+function AdminInviteCards() {
+  const toast = useToast();
+  const { data } = useMyAdminInvites();
+  const respond = useRespondAdminInvite();
+  if (!data?.length) return null;
+  return (
+    <div className="mb-5 space-y-3">
+      {data.map((invite) => (
+        <div key={invite.id} className="panel flex flex-wrap items-center gap-3 p-5">
+          <span className="icon-tile h-10 w-10 rounded-xl">
+            <ShieldCheck size={16} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">You have been invited to be an admin</p>
+            <p className="text-sm text-muted-foreground">{invite.note ?? "Accept to get access to the PlugZone admin tools."}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              className="btn btn-primary btn-sm"
+              disabled={respond.isPending}
+              onClick={() => respond.mutate({ id: invite.id, action: "accept" }, { onSuccess: () => toast.success("You are now an admin"), onError: (e) => toast.error(e.message) })}
+            >
+              Accept
+            </button>
+            <button
+              className="btn btn-ghost btn-sm"
+              disabled={respond.isPending}
+              onClick={() => respond.mutate({ id: invite.id, action: "decline" }, { onSuccess: () => toast.success("Invite declined"), onError: (e) => toast.error(e.message) })}
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
