@@ -146,7 +146,9 @@ function Payouts() {
       {data.map((w) => (
         <li key={w.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold">{formatPrice(w.amount, w.currency)} · {w.method.replace(/_/g, " ")}</p>
+            <p className="truncate font-semibold">
+              {formatPrice(w.amount, w.currency)} · {w.method.replace(/_/g, " ")} · {w.kind === "affiliate" ? "commissions" : w.kind === "referral" ? "referral rewards" : "sales"}
+            </p>
             <p className="truncate text-sm text-muted-foreground">
               {formatDate(w.created_at)}
               {w.destination ? ` · ${w.destination}` : ""}
@@ -218,6 +220,9 @@ function Listings() {
 const SETTING_META: Record<string, { label: string; hint: string; step: string; format: (v: number) => string }> = {
   
   platform_fee_rate: { label: "Platform fee", hint: "Share of each completed sale kept by PlugZone. 0.05 means 5%.", step: "0.005", format: (v) => `${Math.round(v * 1000) / 10}%` },
+  affiliate_commission_rate: { label: "Affiliate commission", hint: "Share of each completed order paid to whoever referred the buyer. 0.02 means 2%.", step: "0.005", format: (v) => `${Math.round(v * 1000) / 10}%` },
+  referral_signup_reward: { label: "Reward for a signup", hint: "Paid to the referrer when a friend joins with their link. 0 turns it off.", step: "50", format: (v) => `₦${v.toLocaleString()}` },
+  referral_first_order_reward: { label: "Reward for a first order", hint: "Paid to the referrer when a friend they brought completes their first order.", step: "50", format: (v) => `₦${v.toLocaleString()}` },
   refund_window_days: { label: "Refund window (days)", hint: "How long after delivery a buyer may ask for a refund.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
 };
 
