@@ -123,7 +123,7 @@ function OrderDetailPage() {
                 )}
                 {!isBuyer && escrow === "held" && order.status !== "shipped" && order.status !== "delivered" && (
                   <button className="btn btn-primary" onClick={() => setShipOpen(true)}>
-                    <Truck size={16} aria-hidden="true" /> Mark as delivered
+                    <Truck size={16} aria-hidden="true" /> Send item to buyer
                   </button>
                 )}
                 {!isBuyer && order.status === "shipped" && (
