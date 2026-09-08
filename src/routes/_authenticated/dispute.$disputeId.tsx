@@ -136,8 +136,33 @@ function DisputePage() {
                 Release the money to the seller
               </button>
               <button className="btn btn-danger w-full" disabled={resolve.isPending} onClick={() => decide("refund_buyer", "Buyer refunded")}>
-                Refund the buyer
+                Refund the buyer in full
               </button>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={Number(dispute.total_price)}
+                  step="0.01"
+                  className="input flex-1"
+                  placeholder="Partial amount"
+                  aria-label="Partial refund amount"
+                  value={partial}
+                  onChange={(e) => setPartial(e.target.value)}
+                />
+                <button
+                  className="btn btn-secondary"
+                  disabled={resolve.isPending || !(Number(partial) > 0)}
+                  onClick={() =>
+                    resolve.mutate(
+                      { id: dispute.id, outcome: "partial_refund", resolution, amount: Number(partial) },
+                      { onSuccess: () => toast.success("Split settled — buyer partly refunded, rest to seller"), onError: (e) => toast.error(e.message) },
+                    )
+                  }
+                >
+                  Split
+                </button>
+              </div>
               <button className="btn btn-secondary w-full" disabled={resolve.isPending} onClick={() => decide("under_review", "Marked as under review")}>
                 Keep reviewing
               </button>
