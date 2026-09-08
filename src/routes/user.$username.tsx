@@ -201,6 +201,8 @@ function UserProfilePage() {
               </div>
             </section>
 
+            <TrustPanel sellerId={p.id} isMe={isMe} name={p.display_name} />
+
             <SellerReviews sellerId={p.id} sellerName={p.display_name} isMe={isMe} />
           </>
         )}
