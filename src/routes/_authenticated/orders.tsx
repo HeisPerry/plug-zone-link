@@ -26,7 +26,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "cancelled", label: "Cancelled" },
 ];
 
-function matchesTab(o: Order, tab: Tab) {
+function matchesTab(o: OrderWithDetails, tab: Tab) {
   if (tab === "all") return true;
   if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "shipped" || o.status === "delivered" || o.status === "disputed";
   if (tab === "cancelled") return o.status === "cancelled" || o.status === "refunded";
