@@ -21,6 +21,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDataAirtimeRouteImport } from './routes/_authenticated/data-airtime'
+import { Route as AuthenticatedDisputesRouteImport } from './routes/_authenticated/disputes'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
@@ -35,6 +36,7 @@ import { Route as UserUsernameRouteImport } from './routes/user.$username'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads/index'
 import { Route as AuthenticatedAdsNewRouteImport } from './routes/_authenticated/ads/new'
 import { Route as AuthenticatedCheckoutAdIdRouteImport } from './routes/_authenticated/checkout.$adId'
+import { Route as AuthenticatedDisputeDisputeIdRouteImport } from './routes/_authenticated/dispute.$disputeId'
 import { Route as AuthenticatedAdsAdIdEditRouteImport } from './routes/_authenticated/ads/$adId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -97,6 +99,11 @@ const AuthenticatedDataAirtimeRoute =
     path: '/data-airtime',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDisputesRoute = AuthenticatedDisputesRouteImport.update({
+  id: '/disputes',
+  path: '/disputes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFriendsRoute = AuthenticatedFriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
@@ -169,6 +176,12 @@ const AuthenticatedCheckoutAdIdRoute =
     path: '/checkout/$adId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDisputeDisputeIdRoute =
+  AuthenticatedDisputeDisputeIdRouteImport.update({
+    id: '/dispute/$disputeId',
+    path: '/dispute/$disputeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdsAdIdEditRoute =
   AuthenticatedAdsAdIdEditRouteImport.update({
     id: '/ads/$adId/edit',
@@ -188,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/checkin': typeof AuthenticatedCheckinRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
+  '/disputes': typeof AuthenticatedDisputesRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
@@ -201,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
+  '/dispute/$disputeId': typeof AuthenticatedDisputeDisputeIdRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -216,6 +231,7 @@ export interface FileRoutesByTo {
   '/checkin': typeof AuthenticatedCheckinRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-airtime': typeof AuthenticatedDataAirtimeRoute
+  '/disputes': typeof AuthenticatedDisputesRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
@@ -229,6 +245,7 @@ export interface FileRoutesByTo {
   '/user/$username': typeof UserUsernameRoute
   '/ads/new': typeof AuthenticatedAdsNewRoute
   '/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
+  '/dispute/$disputeId': typeof AuthenticatedDisputeDisputeIdRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -246,6 +263,7 @@ export interface FileRoutesById {
   '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/data-airtime': typeof AuthenticatedDataAirtimeRoute
+  '/_authenticated/disputes': typeof AuthenticatedDisputesRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
@@ -259,6 +277,7 @@ export interface FileRoutesById {
   '/user/$username': typeof UserUsernameRoute
   '/_authenticated/ads/new': typeof AuthenticatedAdsNewRoute
   '/_authenticated/checkout/$adId': typeof AuthenticatedCheckoutAdIdRoute
+  '/_authenticated/dispute/$disputeId': typeof AuthenticatedDisputeDisputeIdRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/ads/$adId/edit': typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -276,6 +295,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/data-airtime'
+    | '/disputes'
     | '/friends'
     | '/messages'
     | '/notifications'
@@ -289,6 +309,7 @@ export interface FileRouteTypes {
     | '/user/$username'
     | '/ads/new'
     | '/checkout/$adId'
+    | '/dispute/$disputeId'
     | '/ads/'
     | '/ads/$adId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -304,6 +325,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/data-airtime'
+    | '/disputes'
     | '/friends'
     | '/messages'
     | '/notifications'
@@ -317,6 +339,7 @@ export interface FileRouteTypes {
     | '/user/$username'
     | '/ads/new'
     | '/checkout/$adId'
+    | '/dispute/$disputeId'
     | '/ads'
     | '/ads/$adId/edit'
   id:
@@ -333,6 +356,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkin'
     | '/_authenticated/dashboard'
     | '/_authenticated/data-airtime'
+    | '/_authenticated/disputes'
     | '/_authenticated/friends'
     | '/_authenticated/messages'
     | '/_authenticated/notifications'
@@ -346,6 +370,7 @@ export interface FileRouteTypes {
     | '/user/$username'
     | '/_authenticated/ads/new'
     | '/_authenticated/checkout/$adId'
+    | '/_authenticated/dispute/$disputeId'
     | '/_authenticated/ads/'
     | '/_authenticated/ads/$adId/edit'
   fileRoutesById: FileRoutesById
@@ -451,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDataAirtimeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/disputes': {
+      id: '/_authenticated/disputes'
+      path: '/disputes'
+      fullPath: '/disputes'
+      preLoaderRoute: typeof AuthenticatedDisputesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/friends': {
       id: '/_authenticated/friends'
       path: '/friends'
@@ -549,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutAdIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dispute/$disputeId': {
+      id: '/_authenticated/dispute/$disputeId'
+      path: '/dispute/$disputeId'
+      fullPath: '/dispute/$disputeId'
+      preLoaderRoute: typeof AuthenticatedDisputeDisputeIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ads/$adId/edit': {
       id: '/_authenticated/ads/$adId/edit'
       path: '/ads/$adId/edit'
@@ -563,6 +602,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDataAirtimeRoute: typeof AuthenticatedDataAirtimeRoute
+  AuthenticatedDisputesRoute: typeof AuthenticatedDisputesRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
@@ -573,6 +613,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedAdsNewRoute: typeof AuthenticatedAdsNewRoute
   AuthenticatedCheckoutAdIdRoute: typeof AuthenticatedCheckoutAdIdRoute
+  AuthenticatedDisputeDisputeIdRoute: typeof AuthenticatedDisputeDisputeIdRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedAdsAdIdEditRoute: typeof AuthenticatedAdsAdIdEditRoute
 }
@@ -581,6 +622,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDataAirtimeRoute: AuthenticatedDataAirtimeRoute,
+  AuthenticatedDisputesRoute: AuthenticatedDisputesRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
@@ -591,6 +633,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedAdsNewRoute: AuthenticatedAdsNewRoute,
   AuthenticatedCheckoutAdIdRoute: AuthenticatedCheckoutAdIdRoute,
+  AuthenticatedDisputeDisputeIdRoute: AuthenticatedDisputeDisputeIdRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedAdsAdIdEditRoute: AuthenticatedAdsAdIdEditRoute,
 }
