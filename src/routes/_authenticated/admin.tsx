@@ -207,7 +207,7 @@ function Listings() {
 }
 
 const SETTING_META: Record<string, { label: string; hint: string; step: string; format: (v: number) => string }> = {
-  auto_release_days: { label: "Automatic release (days)", hint: "How long after delivery held money goes to the seller if the buyer stays silent.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
+  
   platform_fee_rate: { label: "Platform fee", hint: "Share of each completed sale kept by PlugZone. 0.05 means 5%.", step: "0.005", format: (v) => `${Math.round(v * 1000) / 10}%` },
   refund_window_days: { label: "Refund window (days)", hint: "How long after delivery a buyer may ask for a refund.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
 };
