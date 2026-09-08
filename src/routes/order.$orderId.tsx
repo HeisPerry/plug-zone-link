@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ShieldCheck, Truck, PackageCheck, AlertTriangle } from "lucide-react";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { ShieldCheck, Truck, PackageCheck, AlertTriangle, MessageCircle } from "lucide-react";
+import { useStartConversation } from "@/hooks/useMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, Page, PageHeader } from "@/components/layout/PageLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +36,8 @@ function OrderDetailPage() {
   const { orderId } = Route.useParams();
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
+  const startChat = useStartConversation();
   const { data: order, isLoading } = useOrder(orderId);
   const { data: events } = useOrderEvents(orderId);
   const { data: dispute } = useOrderDispute(orderId);
@@ -143,6 +146,18 @@ function OrderDetailPage() {
                     Confirm I received it
                   </button>
                 )}
+                <button
+                  className="btn btn-secondary"
+                  disabled={startChat.isPending}
+                  onClick={() =>
+                    startChat.mutate(other.id, {
+                      onSuccess: (conversationId) => navigate({ to: "/messages", search: { c: conversationId } }),
+                      onError: (e) => toast.error(e.message),
+                    })
+                  }
+                >
+                  <MessageCircle size={16} aria-hidden="true" /> {isBuyer ? "Message seller" : "Deliver in chat"}
+                </button>
                 {!dispute && (escrow === "held" || order.status === "delivered") && (
                   <button className="btn btn-ghost" onClick={() => setDisputeOpen(true)}>
                     <AlertTriangle size={16} aria-hidden="true" /> Report a problem
@@ -178,7 +193,7 @@ function OrderDetailPage() {
 
           <aside className="panel h-fit space-y-3 p-5 text-[15px]">
             <h2 className="text-lg">Delivery details</h2>
-            <p className="text-muted-foreground">Digital item — delivered online</p>
+            <p className="text-muted-foreground">Digital item — sent online or in PlugZone chat</p>
             {order.buyer_name && <p>{order.buyer_name}</p>}
             {order.buyer_phone && <p>{order.buyer_phone}</p>}
             {order.tracking_note && <p className="border-t pt-3 text-muted-foreground">Delivery note: {order.tracking_note}</p>}

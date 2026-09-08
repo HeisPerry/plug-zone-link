@@ -35,10 +35,6 @@ function CheckoutPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ad) return;
-    if (!buyerPhone.trim()) {
-      toast.error("Add an email or phone number so the seller can send your item");
-      return;
-    }
     try {
       const orderId = await create.mutateAsync({ adId: ad.id, quantity, deliveryMethod: "digital", deliveryAddress: "", buyerName, buyerPhone, notes });
       await pay.mutateAsync(orderId);
@@ -94,7 +90,7 @@ function CheckoutPage() {
             <Field label="Your name" htmlFor="name">
               <input id="name" className="input" value={buyerName} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
             </Field>
-            <Field label="Email or phone for delivery" htmlFor="phone">
+            <Field label="Email or phone (optional)" htmlFor="phone" hint="Leave blank and the seller will send it to you in chat.">
               <input id="phone" className="input" value={buyerPhone} onChange={(e) => setPhone(e.target.value)} placeholder="Where the seller sends your item" />
             </Field>
           </div>
@@ -132,7 +128,7 @@ function CheckoutPage() {
           </dl>
           <p className="mt-4 flex items-start gap-2 text-[13px] text-muted-foreground">
             <ShieldCheck size={16} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-            This is a digital item delivered online. The seller is only paid after you confirm you received it.
+            This is a digital item delivered online — by email, phone, or straight to your PlugZone chat. The seller is only paid after you confirm you received it.
           </p>
         </aside>
       </div>
