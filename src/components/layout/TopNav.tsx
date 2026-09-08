@@ -81,11 +81,11 @@ export function Logo({ to = "/dashboard", size = "md" }: { to?: "/" | "/dashboar
       />
       <span
         className={cn(
-          "truncate font-heading font-extrabold tracking-tight",
+          "truncate font-heading font-extrabold tracking-tight text-foreground",
           size === "sm" ? "text-lg" : size === "lg" ? "text-3xl sm:text-4xl" : "text-[17px] sm:text-2xl",
         )}
       >
-        PlugZone
+        Plug<span className="text-primary">Zone</span>
       </span>
     </Link>
   );
