@@ -1,16 +1,34 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Banknote, ListChecks, ShieldCheck, Users, Settings2 } from "lucide-react";
+import { AlertTriangle, Banknote, ListChecks, ShieldCheck, Users, Settings2, TrendingUp, ShoppingBag, UserCheck, Store, Crown, UserPlus } from "lucide-react";
 import { Page, PageHero } from "@/components/layout/PageLayout";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ListSkeleton, Skeleton } from "@/components/shared/SkeletonLoader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { Avatar } from "@/components/shared/Avatar";
 import { useToast } from "@/components/shared/Toast";
-import { useAdminAds, useAdminOverview, useAdminWithdrawals, useIsAdmin, usePlatformSettings, useSetAdStatus, useSetWithdrawalStatus, useUpdateSetting } from "@/hooks/useAdmin";
+import {
+  useAdminAds,
+  useAdminInvites,
+  useAdminOverview,
+  useAdminTeam,
+  useAdminTeamActions,
+  useAdminWeekly,
+  useAdminWithdrawals,
+  useIsAdmin,
+  useIsSuperAdmin,
+  usePlatformSettings,
+  useSetAdStatus,
+  useSetWithdrawalStatus,
+  useUpdateSetting,
+} from "@/hooks/useAdmin";
+import { useSearchPeople } from "@/hooks/useFriends";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useMyDisputes } from "@/hooks/useDisputes";
 import { useAllCoupons } from "@/hooks/useCoupons";
 import { CouponManager } from "@/components/coupons/CouponManager";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
+
 
 function CouponsTab() {
   const { data, isLoading } = useAllCoupons(true);
