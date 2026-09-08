@@ -224,6 +224,14 @@ const SETTING_META: Record<string, { label: string; hint: string; step: string; 
   referral_signup_reward: { label: "Reward for a signup", hint: "Paid to the referrer when a friend joins with their link. 0 turns it off.", step: "50", format: (v) => `₦${v.toLocaleString()}` },
   referral_first_order_reward: { label: "Reward for a first order", hint: "Paid to the referrer when a friend they brought completes their first order.", step: "50", format: (v) => `₦${v.toLocaleString()}` },
   refund_window_days: { label: "Refund window (days)", hint: "How long after delivery a buyer may ask for a refund.", step: "1", format: (v) => `${v} day${v === 1 ? "" : "s"}` },
+  trust_weight_sales: { label: "Trust: completed sales", hint: "Points a seller can earn from how many sales they finished.", step: "5", format: (v) => `${v} points` },
+  trust_weight_rating: { label: "Trust: buyer ratings", hint: "Points a seller can earn from their average review rating.", step: "5", format: (v) => `${v} points` },
+  trust_weight_completion: { label: "Trust: orders seen through", hint: "Points for finishing orders instead of cancelling them.", step: "5", format: (v) => `${v} points` },
+  trust_weight_disputes: { label: "Trust: clean record", hint: "Points kept when buyers report no problems.", step: "5", format: (v) => `${v} points` },
+  trust_sales_target: { label: "Trust: sales for full marks", hint: "Completed sales needed to earn all the sales points.", step: "5", format: (v) => `${v} sales` },
+  trust_tier_rising: { label: "Trust: Rising badge at", hint: "Score a seller needs to be called Rising.", step: "5", format: (v) => `${v}/100` },
+  trust_tier_trusted: { label: "Trust: Trusted badge at", hint: "Score a seller needs to be called Trusted.", step: "5", format: (v) => `${v}/100` },
+  trust_tier_top: { label: "Trust: Top Seller badge at", hint: "Score a seller needs to be called Top Seller.", step: "5", format: (v) => `${v}/100` },
 };
 
 function SettingsTab() {

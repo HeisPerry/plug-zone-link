@@ -1,4 +1,5 @@
 import { Stars } from "./Stars";
+import { TrustBadge } from "@/components/trust/TrustBadge";
 import { useSellerStats } from "@/hooks/useReviews";
 
 export function SellerRatingLine({ sellerId }: { sellerId: string }) {
@@ -14,6 +15,7 @@ export function SellerRatingLine({ sellerId }: { sellerId: string }) {
       <span className="text-muted-foreground">
         {reviews ? `${reviews} review${reviews === 1 ? "" : "s"}` : "No reviews yet"} · {sales} sales
       </span>
+      <TrustBadge sellerId={sellerId} />
     </div>
   );
 }
