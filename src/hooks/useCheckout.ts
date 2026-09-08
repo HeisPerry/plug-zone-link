@@ -144,3 +144,59 @@ export function useOpenDispute() {
     if (error) throw error;
   });
 }
+
+export function useAcceptOrder() {
+  return useOrderAction(async (orderId: string) => {
+    const { error } = await supabase.rpc("seller_accept_order", { p_order: orderId });
+    if (error) throw error;
+  });
+}
+
+export function useCancelOrder() {
+  return useOrderAction(async ({ orderId, reason }: { orderId: string; reason?: string }) => {
+    const { error } = await supabase.rpc("cancel_order", { p_order: orderId, p_reason: reason ?? "" });
+    if (error) throw error;
+  });
+}
+
+export function useRequestRefund() {
+  return useOrderAction(async ({ orderId, reason, amount }: { orderId: string; reason: string; amount?: number }) => {
+    const { error } = await supabase.rpc("request_refund", { p_order: orderId, p_reason: reason, ...(amount ? { p_amount: amount } : {}) });
+    if (error) throw error;
+  });
+}
+
+export function useWithdrawRefundRequest() {
+  return useOrderAction(async (orderId: string) => {
+    const { error } = await supabase.rpc("withdraw_refund_request", { p_order: orderId });
+    if (error) throw error;
+  });
+}
+
+export function useRespondRefund() {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "approve" | "decline"; amount?: number; note?: string }) => {
+    const { error } = await supabase.rpc("respond_refund_request", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    if (error) throw error;
+  });
+}
+
+export function useAdminSettleOrder() {
+  return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "release" | "refund"; amount?: number; note?: string }) => {
+    const { error } = await supabase.rpc("admin_settle_order", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    if (error) throw error;
+  });
+}
+
+export type LedgerEntry = Database["public"]["Tables"]["escrow_ledger"]["Row"];
+
+export function useEscrowLedger(orderId: string | undefined) {
+  return useQuery({
+    queryKey: ["escrow-ledger", orderId],
+    enabled: !!orderId,
+    queryFn: async (): Promise<LedgerEntry[]> => {
+      const { data, error } = await supabase.from("escrow_ledger").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
