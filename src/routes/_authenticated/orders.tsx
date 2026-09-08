@@ -2,14 +2,15 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { Page } from "@/components/layout/PageLayout";
-import { useAllOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
+import { useAllOrders } from "@/hooks/useOrders";
+import { useAcceptOrder, useCancelOrder } from "@/hooks/useCheckout";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ListSkeleton } from "@/components/shared/SkeletonLoader";
 import { ErrorState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
-import type { Order, OrderWithDetails } from "@/lib/types";
+import type { OrderWithDetails } from "@/lib/types";
 import emptyOrders from "@/assets/empty-orders.png";
 
 export const Route = createFileRoute("/_authenticated/orders")({
@@ -20,14 +21,14 @@ export const Route = createFileRoute("/_authenticated/orders")({
 type Tab = "all" | "pending" | "completed" | "cancelled";
 const TABS: { key: Tab; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "pending", label: "Pending" },
+  { key: "pending", label: "In progress" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
 
 function matchesTab(o: Order, tab: Tab) {
   if (tab === "all") return true;
-  if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "disputed";
+  if (tab === "pending") return o.status === "pending" || o.status === "accepted" || o.status === "shipped" || o.status === "delivered" || o.status === "disputed";
   if (tab === "cancelled") return o.status === "cancelled" || o.status === "refunded";
   return o.status === tab;
 }
@@ -149,14 +150,14 @@ function OrderItem({ order: o, side, expanded, onToggle }: { order: OrderWithDet
           </dl>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {actions.map((a) => (
-              <button key={a.status} className={cn("btn btn-sm", a.kind === "primary" ? "btn-primary" : "btn-secondary")} disabled={update.isPending} onClick={() => setStatus(a.status, a.msg)}>
+              <button key={a.label} className={cn("btn btn-sm", a.kind === "primary" ? "btn-primary" : "btn-secondary")} disabled={busy} onClick={a.run}>
                 {a.label}
               </button>
             ))}
-            {o.status !== "completed" && o.status !== "cancelled" && o.status !== "disputed" && (
-              <button className="ml-auto text-sm text-destructive" onClick={() => setStatus("disputed", "Issue reported")}>
+            {o.status !== "completed" && o.status !== "cancelled" && o.status !== "disputed" && o.status !== "refunded" && (
+              <Link to="/order/$orderId" params={{ orderId: o.id }} className="ml-auto text-sm text-destructive">
                 Report Issue
-              </button>
+              </Link>
             )}
           </div>
         </div>

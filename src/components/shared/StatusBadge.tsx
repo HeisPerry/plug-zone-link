@@ -12,13 +12,19 @@ const COLORS: Record<string, string> = {
   failed: "text-destructive",
   disputed: "text-destructive",
   rejected: "text-destructive",
+  refunded: "text-destructive",
+  partially_refunded: "text-warning",
+  shipped: "text-primary",
+  delivered: "text-primary",
+  held: "text-primary",
+  released: "text-success",
 };
 
 export function StatusBadge({ status, className }: { status: string; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-[13px] font-medium capitalize", COLORS[status] ?? "text-muted-foreground", className)}>
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      {status}
+      {status.replace(/_/g, " ")}
     </span>
   );
 }
