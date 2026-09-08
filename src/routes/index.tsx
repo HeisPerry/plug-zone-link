@@ -128,10 +128,8 @@ function LandingPage() {
           <div className="mt-6 flex gap-3 overflow-x-auto pb-2 hide-scrollbar sm:gap-4">
             {ads.map((ad) => (
               <Link key={ad.id} to="/ad/$adId" params={{ adId: ad.id }} className="panel w-52 shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5 sm:w-64">
-                {ad.images[0] ? (
-                  <img src={ad.images[0]} alt={ad.title} className="aspect-[4/3] w-full object-cover" loading="lazy" />
-                ) : (
-                  <div className="flex aspect-[4/3] items-center justify-center border-b bg-muted text-sm text-muted-foreground">No photo</div>
+                {ad.images[0] && (
+                  <img src={ad.images[0]} alt={ad.title} className="h-24 w-full object-cover" loading="lazy" />
                 )}
                 <div className="p-4">
                   <p className="truncate font-medium">{ad.title}</p>
