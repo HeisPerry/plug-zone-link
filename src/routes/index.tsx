@@ -146,8 +146,6 @@ function LandingPage() {
           {[
             { v: stats?.total_ads, l: "ads posted" },
             { v: stats?.completed_orders, l: "completed orders" },
-            { v: stats?.total_messages, l: "messages sent" },
-            { v: stats?.total_checkins, l: "daily check-ins" },
             { v: stats?.total_users, l: "members" },
           ].map((s) => (
             <div key={s.l} className="min-w-0">
