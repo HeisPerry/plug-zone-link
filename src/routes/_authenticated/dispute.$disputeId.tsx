@@ -28,6 +28,7 @@ function DisputePage() {
 
   const [body, setBody] = useState("");
   const [resolution, setResolution] = useState("");
+  const [partial, setPartial] = useState("");
 
   if (isLoading) {
     return (
