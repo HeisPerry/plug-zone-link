@@ -170,11 +170,12 @@ function OrderDetailPage() {
                 {Number(order.refunded_amount) > 0 && <span className="text-muted-foreground">· {formatPrice(order.refunded_amount, cur)} refunded</span>}
               </p>
 
-              {order.auto_release_at && escrow === "held" && !refundOpenOnOrder && (
+              {escrow === "held" && !refundOpenOnOrder && (
                 <p className="mt-3 flex items-center gap-2 text-[14px] text-muted-foreground">
                   <Clock size={15} aria-hidden="true" />
-                  {isBuyer ? "If you don't confirm or report a problem, the seller is paid automatically on " : "Paid to you automatically on "}
-                  {formatDate(order.auto_release_at)}
+                  {isBuyer
+                    ? "The money stays on hold until you confirm you received the item. It is never released automatically."
+                    : "The money stays on hold until the buyer confirms receipt. If the buyer goes quiet, report a problem and the PlugZone team will step in."}
                 </p>
               )}
 
