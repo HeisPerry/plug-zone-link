@@ -193,7 +193,7 @@ function OrderDetailPage() {
 
           <aside className="panel h-fit space-y-3 p-5 text-[15px]">
             <h2 className="text-lg">Delivery details</h2>
-            <p className="text-muted-foreground">Digital item — delivered online</p>
+            <p className="text-muted-foreground">Digital item — sent online or in PlugZone chat</p>
             {order.buyer_name && <p>{order.buyer_name}</p>}
             {order.buyer_phone && <p>{order.buyer_phone}</p>}
             {order.tracking_note && <p className="border-t pt-3 text-muted-foreground">Delivery note: {order.tracking_note}</p>}
