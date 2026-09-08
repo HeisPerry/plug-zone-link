@@ -129,6 +129,7 @@ function WalletPill() {
 
 function AccountMenu() {
   const { profile, signOut } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
