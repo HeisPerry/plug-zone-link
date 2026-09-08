@@ -166,8 +166,8 @@ function AdDetailPage() {
                   </>
                 ) : (
                   <>
-                    <button className="btn btn-primary" disabled={ad.status !== "active"} onClick={() => requireAuth(() => setOrdering(true))}>
-                      Place Order
+                    <button className="btn btn-primary" disabled={ad.status !== "active"} onClick={() => requireAuth(() => navigate({ to: "/checkout/$adId", params: { adId: ad.id } }))}>
+                      Buy Now
                     </button>
                     <button
                       className="btn btn-secondary"
