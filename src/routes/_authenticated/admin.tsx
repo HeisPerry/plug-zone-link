@@ -49,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "overview" | "reports" | "payouts" | "listings" | "coupons" | "settings";
+type Tab = "overview" | "reports" | "payouts" | "listings" | "coupons" | "admins" | "settings";
 
 function AdminPage() {
   const { data: isAdmin, isLoading: checking } = useIsAdmin();
@@ -87,6 +87,7 @@ function AdminPage() {
               ["payouts", "Payout requests"],
               ["listings", "Listings"],
               ["coupons", "Coupons"],
+              ["admins", "Admins"],
               ["settings", "Escrow & fees"],
             ] as [Tab, string][]
           ).map(([key, label]) => (
@@ -102,7 +103,9 @@ function AdminPage() {
           {tab === "payouts" && <Payouts />}
           {tab === "listings" && <Listings />}
           {tab === "coupons" && <CouponsTab />}
+          {tab === "admins" && <AdminsTab />}
           {tab === "settings" && <SettingsTab />}
+
         </div>
       </Page>
     </>
