@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       if (!mounted) return;
       setSession(current);
-      await loadProfile(current?.user.id);
+      void loadProfile(current?.user.id);
       setLoading(false);
     });
     return () => {
