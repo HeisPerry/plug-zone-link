@@ -129,8 +129,27 @@ function WalletPill() {
   );
 }
 
+/**
+ * While the account details are still loading we show the name the person
+ * signed up with, so the menu and their name never disappear.
+ */
+function useDisplayProfile() {
+  const { profile: loaded, user } = useAuth();
+  if (loaded) return loaded;
+  if (!user) return null;
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const emailName = user.email?.split("@")[0] ?? "Account";
+  const username = String(meta["username"] ?? "").trim() || emailName;
+  return {
+    username,
+    display_name: String(meta["display_name"] ?? "").trim() || username,
+    avatar_url: (meta["avatar_url"] as string | null) ?? null,
+  };
+}
+
 function AccountMenu() {
-  const { profile: loadedProfile, user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const displayProfile = useDisplayProfile();
   const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -151,15 +170,9 @@ function AccountMenu() {
     };
   }, [open]);
 
-  if (!user) return null;
-  // While the profile is still loading, fall back to the signed-in email so the
-  // account button never vanishes.
-  const fallbackName = user.email?.split("@")[0] ?? "Account";
-  const profile = loadedProfile ?? {
-    username: fallbackName,
-    display_name: fallbackName,
-    avatar_url: null as string | null,
-  };
+  if (!user || !displayProfile) return null;
+  const profile = displayProfile;
+
 
 
   return (
@@ -279,7 +292,8 @@ function SheetRow({
 }
 
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { profile, user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const profile = useDisplayProfile();
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const { data: unread = 0 } = useUnreadCount();
