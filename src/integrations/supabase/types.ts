@@ -1565,6 +1565,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      __dump_ddl: { Args: never; Returns: string }
       accept_friend_request: { Args: { p_request: string }; Returns: undefined }
       admin_overview: {
         Args: never
