@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { DEFAULT_NOTIFICATION_PREFS, type Notification, type NotificationPrefs } from "@/lib/types";
 import { notificationMeta } from "@/lib/notifications";
+
+const NOTIFICATIONS_POLL_MS = 20_000;
 
 export function usePrefs(): NotificationPrefs {
   const { profile } = useAuth();
@@ -18,41 +20,43 @@ export function canShowPush(prefs: NotificationPrefs, type: string) {
   return prefs.push?.[category] !== false;
 }
 
-/** Mount once (AppShell). Keeps notification queries fresh and fires browser push when allowed. */
+/**
+ * Mount once (AppShell). Polls the notification list and fires a browser push for
+ * rows that appear between two polls.
+ */
 export function useNotificationRealtime() {
   const { user } = useAuth();
   const prefs = usePrefs();
-  const queryClient = useQueryClient();
+  const { data: notifications } = useNotifications();
+  const seenRef = useRef<Set<string> | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    const channel = supabase
-      .channel(`notifications-${user.id}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
-        const n = payload.new as Notification;
-        queryClient.setQueryData<Notification[]>(["notifications", user.id], (old = []) => (old.some((x) => x.id === n.id) ? old : [n, ...old]));
-        queryClient.setQueryData<number>(["notifications-unread", user.id], (old = 0) => old + 1);
-        if (canShowPush(prefs, n.type)) {
-          try {
-            const browserNotif = new Notification(n.title, { body: n.body ?? "", tag: n.id, icon: "/favicon.ico" });
-            browserNotif.onclick = () => {
-              window.focus();
-              if (n.link) window.location.assign(n.link);
-            };
-          } catch {
-            /* ignore: some browsers block constructor outside a service worker */
-          }
-        }
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-        queryClient.invalidateQueries({ queryKey: ["notifications-unread", user.id] });
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, queryClient, prefs]);
+    if (!user) {
+      seenRef.current = null;
+      return;
+    }
+    if (!notifications) return;
+    // First poll after sign-in only records what already exists — no catch-up popups.
+    if (!seenRef.current) {
+      seenRef.current = new Set(notifications.map((n) => n.id));
+      return;
+    }
+    const seen = seenRef.current;
+    for (const n of [...notifications].reverse()) {
+      if (seen.has(n.id)) continue;
+      seen.add(n.id);
+      if (!canShowPush(prefs, n.type)) continue;
+      try {
+        const browserNotif = new Notification(n.title, { body: n.body ?? "", tag: n.id, icon: "/favicon.ico" });
+        browserNotif.onclick = () => {
+          window.focus();
+          if (n.link) window.location.assign(n.link);
+        };
+      } catch {
+        /* ignore: some browsers block constructor outside a service worker */
+      }
+    }
+  }, [notifications, prefs, user]);
 }
 
 export function useUnreadNotifications() {
@@ -60,6 +64,7 @@ export function useUnreadNotifications() {
   return useQuery({
     queryKey: ["notifications-unread", user?.id],
     enabled: !!user,
+    refetchInterval: NOTIFICATIONS_POLL_MS,
     queryFn: async () => {
       const { count, error } = await supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user!.id).is("read_at", null);
       if (error) throw error;
@@ -73,6 +78,7 @@ export function useNotifications() {
   return useQuery({
     queryKey: ["notifications", user?.id],
     enabled: !!user,
+    refetchInterval: NOTIFICATIONS_POLL_MS,
     queryFn: async () => {
       const { data, error } = await supabase.from("notifications").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
