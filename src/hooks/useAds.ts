@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
-import { ADS_PER_PAGE, STORAGE_BUCKET } from "@/lib/constants";
+import { ADS_PER_PAGE } from "@/lib/constants";
+import { uploadToStorage, type UploadFolder } from "@/lib/uploads";
 import type { Ad, AdWithSeller } from "@/lib/types";
 import type { AdFormValues } from "@/lib/validators";
 
