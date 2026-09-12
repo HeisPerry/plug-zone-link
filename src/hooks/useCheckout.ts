@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { OrderWithDetails, ProfileLite } from "@/lib/types";
 import type { Database } from "@/integrations/supabase/types";
@@ -24,7 +24,7 @@ export function useCreateOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: CheckoutInput) => {
-      const { data, error } = await supabase.rpc("place_order", {
+      const { data, error } = await db.rpc("place_order", {
         p_ad: input.adId,
         p_quantity: input.quantity,
         p_delivery_method: input.deliveryMethod,
@@ -49,7 +49,7 @@ export function usePayForOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const { error } = await supabase.rpc("pay_order_test_mode", { p_order: orderId });
+      const { error } = await db.rpc("pay_order_test_mode", { p_order: orderId });
       if (error) throw error;
     },
     onSuccess: (_d, orderId) => {
@@ -67,13 +67,13 @@ export function useOrder(orderId: string | undefined) {
     queryKey: ["order", orderId],
     enabled: !!orderId && !!user,
     queryFn: async (): Promise<OrderWithDetails | null> => {
-      const { data, error } = await supabase.from("orders").select("*").eq("id", orderId!).maybeSingle();
+      const { data, error } = await db.from("orders").select("*").eq("id", orderId!).maybeSingle();
       if (error) throw error;
       if (!data) return null;
       const o = data as OrderRow;
       const [{ data: ad }, { data: profiles }] = await Promise.all([
-        supabase.from("ads").select("id, title, images, currency").eq("id", o.ad_id).maybeSingle(),
-        supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", [o.buyer_id, o.seller_id]),
+        db.from("ads").select("id, title, images, currency").eq("id", o.ad_id).maybeSingle(),
+        db.from("profiles").select("id, username, display_name, avatar_url").in("id", [o.buyer_id, o.seller_id]),
       ]);
       const map = new Map((profiles ?? []).map((p) => [p.id, p as ProfileLite]));
       const fallback = (id: string): ProfileLite => ({ id, username: "unknown", display_name: "Unknown user", avatar_url: null });
@@ -92,7 +92,7 @@ export function useOrderEvents(orderId: string | undefined) {
     queryKey: ["order-events", orderId],
     enabled: !!orderId,
     queryFn: async (): Promise<OrderEvent[]> => {
-      const { data, error } = await supabase.from("order_events").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
+      const { data, error } = await db.from("order_events").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
       if (error) throw error;
       return data ?? [];
     },
@@ -104,7 +104,7 @@ export function useOrderDispute(orderId: string | undefined) {
     queryKey: ["dispute", orderId],
     enabled: !!orderId,
     queryFn: async (): Promise<Dispute | null> => {
-      const { data, error } = await supabase.from("disputes").select("*").eq("order_id", orderId!).maybeSingle();
+      const { data, error } = await db.from("disputes").select("*").eq("order_id", orderId!).maybeSingle();
       if (error) throw error;
       return data ?? null;
     },
@@ -130,63 +130,63 @@ function useOrderAction<TVars>(fn: (vars: TVars) => Promise<void>) {
 
 export function useSetFulfilment() {
   return useOrderAction(async ({ orderId, stage, note }: { orderId: string; stage: "shipped" | "delivered"; note?: string }) => {
-    const { error } = await supabase.rpc("set_order_fulfilment", { p_order: orderId, p_stage: stage, p_note: note ?? "" });
+    const { error } = await db.rpc("set_order_fulfilment", { p_order: orderId, p_stage: stage, p_note: note ?? "" });
     if (error) throw error;
   });
 }
 
 export function useConfirmReceipt() {
   return useOrderAction(async (orderId: string) => {
-    const { error } = await supabase.rpc("confirm_receipt", { p_order: orderId });
+    const { error } = await db.rpc("confirm_receipt", { p_order: orderId });
     if (error) throw error;
   });
 }
 
 export function useOpenDispute() {
   return useOrderAction(async ({ orderId, reason, description }: { orderId: string; reason: string; description: string }) => {
-    const { error } = await supabase.rpc("open_dispute", { p_order: orderId, p_reason: reason, p_description: description });
+    const { error } = await db.rpc("open_dispute", { p_order: orderId, p_reason: reason, p_description: description });
     if (error) throw error;
   });
 }
 
 export function useAcceptOrder() {
   return useOrderAction(async (orderId: string) => {
-    const { error } = await supabase.rpc("seller_accept_order", { p_order: orderId });
+    const { error } = await db.rpc("seller_accept_order", { p_order: orderId });
     if (error) throw error;
   });
 }
 
 export function useCancelOrder() {
   return useOrderAction(async ({ orderId, reason }: { orderId: string; reason?: string | undefined }) => {
-    const { error } = await supabase.rpc("cancel_order", { p_order: orderId, p_reason: reason ?? "" });
+    const { error } = await db.rpc("cancel_order", { p_order: orderId, p_reason: reason ?? "" });
     if (error) throw error;
   });
 }
 
 export function useRequestRefund() {
   return useOrderAction(async ({ orderId, reason, amount }: { orderId: string; reason: string; amount?: number | undefined }) => {
-    const { error } = await supabase.rpc("request_refund", { p_order: orderId, p_reason: reason, ...(amount ? { p_amount: amount } : {}) });
+    const { error } = await db.rpc("request_refund", { p_order: orderId, p_reason: reason, ...(amount ? { p_amount: amount } : {}) });
     if (error) throw error;
   });
 }
 
 export function useWithdrawRefundRequest() {
   return useOrderAction(async (orderId: string) => {
-    const { error } = await supabase.rpc("withdraw_refund_request", { p_order: orderId });
+    const { error } = await db.rpc("withdraw_refund_request", { p_order: orderId });
     if (error) throw error;
   });
 }
 
 export function useRespondRefund() {
   return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "approve" | "decline"; amount?: number | undefined; note?: string | undefined }) => {
-    const { error } = await supabase.rpc("respond_refund_request", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    const { error } = await db.rpc("respond_refund_request", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
     if (error) throw error;
   });
 }
 
 export function useAdminSettleOrder() {
   return useOrderAction(async ({ orderId, action, amount, note }: { orderId: string; action: "release" | "refund"; amount?: number | undefined; note?: string | undefined }) => {
-    const { error } = await supabase.rpc("admin_settle_order", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
+    const { error } = await db.rpc("admin_settle_order", { p_order: orderId, p_action: action, ...(amount ? { p_amount: amount } : {}), p_note: note ?? "" });
     if (error) throw error;
   });
 }
@@ -198,7 +198,7 @@ export function useEscrowLedger(orderId: string | undefined) {
     queryKey: ["escrow-ledger", orderId],
     enabled: !!orderId,
     queryFn: async (): Promise<LedgerEntry[]> => {
-      const { data, error } = await supabase.from("escrow_ledger").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
+      const { data, error } = await db.from("escrow_ledger").select("*").eq("order_id", orderId!).order("created_at", { ascending: true });
       if (error) throw error;
       return data ?? [];
     },

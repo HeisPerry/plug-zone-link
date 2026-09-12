@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { rememberReferral } from "@/hooks/useAffiliate";
 
 export const Route = createFileRoute("/join")({
@@ -27,7 +27,7 @@ function JoinPage() {
     (async () => {
       if (ref) {
         const code = ref.toUpperCase();
-        const { data } = await supabase.rpc("record_affiliate_click", { p_code: code });
+        const { data } = await db.rpc("record_affiliate_click", { p_code: code });
         if (!cancelled) rememberReferral(code, data ?? null);
       }
       if (!cancelled) navigate({ to: "/signup", search: { ref: ref?.toUpperCase() }, replace: true });

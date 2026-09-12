@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 
 /** A user counts as online when their heartbeat landed within this window. */
@@ -18,7 +18,7 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
     const touch = () => {
-      if (document.visibilityState === "visible") void supabase.rpc("touch_last_seen");
+      if (document.visibilityState === "visible") void db.rpc("touch_last_seen");
     };
     touch();
     const interval = setInterval(touch, HEARTBEAT_MS);
@@ -28,7 +28,7 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", touch);
       window.removeEventListener("pagehide", touch);
-      void supabase.rpc("touch_last_seen");
+      void db.rpc("touch_last_seen");
     };
   }, [user]);
 
@@ -45,7 +45,7 @@ function usePresenceRow(userId: string | null | undefined) {
     staleTime: PRESENCE_POLL_MS,
     refetchInterval: PRESENCE_POLL_MS,
     queryFn: async (): Promise<PresenceRow | null> => {
-      const { data, error } = await supabase.from("profiles").select("last_seen_at, show_last_seen").eq("id", userId!).maybeSingle();
+      const { data, error } = await db.from("profiles").select("last_seen_at, show_last_seen").eq("id", userId!).maybeSingle();
       if (error) throw error;
       return data ?? null;
     },

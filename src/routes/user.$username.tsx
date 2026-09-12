@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MessageSquareText, Package, ShoppingBag, Star } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserActiveAds } from "@/hooks/useAds";
 import { useFriendGraph } from "@/hooks/useFriends";
@@ -42,7 +42,7 @@ function useProfileByUsername(username: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const { data: stats } = await supabase.rpc("get_profile_stats", { p_user: data.id });
+      const { data: stats } = await db.rpc("get_profile_stats", { p_user: data.id });
       return {
         ...data,
         stats: stats?.[0] ?? { ads_count: 0, completed_orders: 0, referrals: 0, avg_rating: 0, review_count: 0, purchases: 0 },

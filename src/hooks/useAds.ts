@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import { ADS_PER_PAGE } from "@/lib/constants";
 import { uploadToStorage, type UploadFolder } from "@/lib/uploads";
@@ -32,7 +32,7 @@ export function useAd(adId: string) {
   return useQuery({
     queryKey: ["ad", adId],
     queryFn: async (): Promise<AdWithSeller | null> => {
-      const { data, error } = await supabase.from("ads").select("*").eq("id", adId).maybeSingle();
+      const { data, error } = await db.from("ads").select("*").eq("id", adId).maybeSingle();
       if (error) throw error;
       if (!data) return null;
       const { data: seller } = await supabase
@@ -107,11 +107,11 @@ export function useSaveAd() {
         images,
       };
       if (id) {
-        const { data, error } = await supabase.from("ads").update(payload).eq("id", id).select("*").single();
+        const { data, error } = await db.from("ads").update(payload).eq("id", id).select("*").single();
         if (error) throw error;
         return data;
       }
-      const { data, error } = await supabase.from("ads").insert({ ...payload, seller_id: user.id }).select("*").single();
+      const { data, error } = await db.from("ads").insert({ ...payload, seller_id: user.id }).select("*").single();
       if (error) throw error;
       return data;
     },
@@ -127,7 +127,7 @@ export function useUpdateAdStatus() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: Ad["status"] }) => {
-      const { error } = await supabase.from("ads").update({ status }).eq("id", id);
+      const { error } = await db.from("ads").update({ status }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {

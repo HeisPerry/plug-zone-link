@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -24,7 +24,7 @@ export function useIsAdmin() {
     queryKey: ["is-admin", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      const { data, error } = await db.rpc("has_role", { _user_id: user!.id, _role: "admin" });
       if (error) throw error;
       return !!data;
     },
@@ -37,7 +37,7 @@ export function useAdminOverview(enabled: boolean) {
     queryKey: ["admin-overview"],
     enabled,
     queryFn: async (): Promise<AdminOverview | null> => {
-      const { data, error } = await supabase.rpc("admin_overview");
+      const { data, error } = await db.rpc("admin_overview");
       if (error) throw error;
       const row = (data ?? [])[0];
       if (!row) return null;
@@ -62,7 +62,7 @@ export function useAdminWithdrawals(enabled: boolean) {
     queryKey: ["admin-withdrawals"],
     enabled,
     queryFn: async (): Promise<Withdrawal[]> => {
-      const { data, error } = await supabase.from("withdrawals").select("*").order("created_at", { ascending: false }).limit(100);
+      const { data, error } = await db.from("withdrawals").select("*").order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
       return data ?? [];
     },
@@ -74,7 +74,7 @@ export function useSetWithdrawalStatus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status, note }: { id: string; status: string; note?: string }) => {
-      const { error } = await supabase.rpc("set_withdrawal_status", { p_withdrawal: id, p_status: status, p_note: note ?? "" });
+      const { error } = await db.rpc("set_withdrawal_status", { p_withdrawal: id, p_status: status, p_note: note ?? "" });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -90,7 +90,7 @@ export function useResolveDispute() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, outcome, resolution, amount }: { id: string; outcome: string; resolution?: string; amount?: number }) => {
-      const { error } = await supabase.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "", ...(amount ? { p_amount: amount } : {}) });
+      const { error } = await db.rpc("resolve_dispute", { p_dispute: id, p_outcome: outcome, p_resolution: resolution ?? "", ...(amount ? { p_amount: amount } : {}) });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -109,7 +109,7 @@ export function useAdminAds(enabled: boolean) {
     queryKey: ["admin-ads"],
     enabled,
     queryFn: async (): Promise<AdRow[]> => {
-      const { data, error } = await supabase.from("ads").select("*").order("created_at", { ascending: false }).limit(60);
+      const { data, error } = await db.from("ads").select("*").order("created_at", { ascending: false }).limit(60);
       if (error) throw error;
       return data ?? [];
     },
@@ -121,7 +121,7 @@ export function useSetAdStatus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: "active" | "deleted" }) => {
-      const { error } = await supabase.from("ads").update({ status }).eq("id", id);
+      const { error } = await db.from("ads").update({ status }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -139,7 +139,7 @@ export function usePlatformSettings(enabled = true) {
     queryKey: ["platform-settings"],
     enabled,
     queryFn: async (): Promise<PlatformSetting[]> => {
-      const { data, error } = await supabase.from("platform_settings").select("*").order("key");
+      const { data, error } = await db.from("platform_settings").select("*").order("key");
       if (error) throw error;
       return data ?? [];
     },
@@ -151,7 +151,7 @@ export function useUpdateSetting() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ key, value }: { key: string; value: number | string | boolean }) => {
-      const { error } = await supabase.rpc("update_setting", { p_key: key, p_value: value });
+      const { error } = await db.rpc("update_setting", { p_key: key, p_value: value });
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["platform-settings"] }),
@@ -173,7 +173,7 @@ export function useAdminWeekly(enabled: boolean) {
     queryKey: ["admin-weekly"],
     enabled,
     queryFn: async (): Promise<WeeklyStats | null> => {
-      const { data, error } = await supabase.rpc("admin_weekly_stats");
+      const { data, error } = await db.rpc("admin_weekly_stats");
       if (error) throw error;
       const row = (data ?? [])[0];
       if (!row) return null;
@@ -197,7 +197,7 @@ export function useIsSuperAdmin() {
     queryKey: ["is-super-admin", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("is_super_admin", { _user: user!.id });
+      const { data, error } = await db.rpc("is_super_admin", { _user: user!.id });
       if (error) throw error;
       return !!data;
     },
@@ -219,7 +219,7 @@ export function useAdminTeam(enabled: boolean) {
     queryKey: ["admin-team"],
     enabled,
     queryFn: async (): Promise<AdminPerson[]> => {
-      const { data, error } = await supabase.rpc("list_admins");
+      const { data, error } = await db.rpc("list_admins");
       if (error) throw error;
       return (data ?? []) as AdminPerson[];
     },
@@ -234,11 +234,11 @@ export function useAdminInvites(enabled: boolean) {
     queryKey: ["admin-invites"],
     enabled,
     queryFn: async () => {
-      const { data, error } = await supabase.from("admin_invites").select("*").order("created_at", { ascending: false }).limit(50);
+      const { data, error } = await db.from("admin_invites").select("*").order("created_at", { ascending: false }).limit(50);
       if (error) throw error;
       const invites = (data ?? []) as AdminInvite[];
       const ids = [...new Set(invites.map((i) => i.invitee_id))];
-      const { data: profiles } = ids.length ? await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", ids) : { data: [] };
+      const { data: profiles } = ids.length ? await db.from("profiles").select("id, username, display_name, avatar_url").in("id", ids) : { data: [] };
       const pMap = new Map((profiles ?? []).map((p) => [p.id, p]));
       return invites.map((i) => ({ ...i, invitee: pMap.get(i.invitee_id) ?? null }));
     },
@@ -255,21 +255,21 @@ export function useAdminTeamActions() {
   };
   const invite = useMutation({
     mutationFn: async ({ userId, note }: { userId: string; note?: string }) => {
-      const { error } = await supabase.rpc("invite_admin", { p_user: userId, p_note: note ?? "" });
+      const { error } = await db.rpc("invite_admin", { p_user: userId, p_note: note ?? "" });
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const revoke = useMutation({
     mutationFn: async (inviteId: string) => {
-      const { error } = await supabase.rpc("revoke_admin_invite", { p_invite: inviteId });
+      const { error } = await db.rpc("revoke_admin_invite", { p_invite: inviteId });
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const remove = useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase.rpc("remove_admin", { p_user: userId });
+      const { error } = await db.rpc("remove_admin", { p_user: userId });
       if (error) throw error;
     },
     onSuccess: invalidate,
@@ -284,7 +284,7 @@ export function useMyAdminInvites() {
     queryKey: ["my-admin-invites", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("admin_invites").select("*").eq("invitee_id", user!.id).eq("status", "pending").order("created_at", { ascending: false });
+      const { data, error } = await db.from("admin_invites").select("*").eq("invitee_id", user!.id).eq("status", "pending").order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as AdminInvite[];
     },
@@ -295,7 +295,7 @@ export function useRespondAdminInvite() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, action }: { id: string; action: "accept" | "decline" }) => {
-      const { error } = await supabase.rpc("respond_admin_invite", { p_invite: id, p_action: action });
+      const { error } = await db.rpc("respond_admin_invite", { p_invite: id, p_action: action });
       if (error) throw error;
     },
     onSuccess: () => {

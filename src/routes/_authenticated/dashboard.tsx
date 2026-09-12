@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentOrders } from "@/hooks/useOrders";
 import { useConversations, useUnreadCount } from "@/hooks/useMessages";
@@ -29,8 +29,8 @@ function useDashboardCounts() {
     enabled: !!user,
     queryFn: async () => {
       const [ads, pending] = await Promise.all([
-        supabase.from("ads").select("id", { count: "exact", head: true }).eq("seller_id", user!.id).eq("status", "active"),
-        supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", user!.id).eq("status", "pending"),
+        db.from("ads").select("id", { count: "exact", head: true }).eq("seller_id", user!.id).eq("status", "active"),
+        db.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", user!.id).eq("status", "pending"),
       ]);
       return { activeAds: ads.count ?? 0, pendingOrders: pending.count ?? 0 };
     },

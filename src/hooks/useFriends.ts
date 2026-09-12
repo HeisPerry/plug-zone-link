@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { FriendRequest, ProfileLite } from "@/lib/types";
 
@@ -24,8 +24,8 @@ export function useFriendGraph() {
     queryFn: async (): Promise<FriendGraph> => {
       const me = user!.id;
       const [{ data: friendships, error: e1 }, { data: requests, error: e2 }] = await Promise.all([
-        supabase.from("friendships").select("*").or(`user_one.eq.${me},user_two.eq.${me}`),
-        supabase.from("friend_requests").select("*").eq("status", "pending").or(`sender_id.eq.${me},receiver_id.eq.${me}`),
+        db.from("friendships").select("*").or(`user_one.eq.${me},user_two.eq.${me}`),
+        db.from("friend_requests").select("*").eq("status", "pending").or(`sender_id.eq.${me},receiver_id.eq.${me}`),
       ]);
       if (e1) throw e1;
       if (e2) throw e2;
@@ -33,7 +33,7 @@ export function useFriendGraph() {
       friendships?.forEach((f) => ids.add(f.user_one === me ? f.user_two : f.user_one));
       requests?.forEach((r) => ids.add(r.sender_id === me ? r.receiver_id : r.sender_id));
       const { data: profiles } = ids.size
-        ? await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", [...ids])
+        ? await db.from("profiles").select("id, username, display_name, avatar_url").in("id", [...ids])
         : { data: [] as ProfileLite[] };
       const pMap = new Map((profiles ?? []).map((p) => [p.id, p as ProfileLite]));
       const get = (id: string): ProfileLite => pMap.get(id) ?? { id, username: "unknown", display_name: "Unknown user", avatar_url: null };
@@ -82,35 +82,35 @@ export function useFriendActions() {
 
   const send = useMutation({
     mutationFn: async (receiverId: string) => {
-      const { error } = await supabase.from("friend_requests").insert({ sender_id: user!.id, receiver_id: receiverId });
+      const { error } = await db.from("friend_requests").insert({ sender_id: user!.id, receiver_id: receiverId });
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      const { error } = await supabase.rpc("accept_friend_request", { p_request: requestId });
+      const { error } = await db.rpc("accept_friend_request", { p_request: requestId });
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const decline = useMutation({
     mutationFn: async (requestId: string) => {
-      const { error } = await supabase.from("friend_requests").update({ status: "rejected" }).eq("id", requestId);
+      const { error } = await db.from("friend_requests").update({ status: "rejected" }).eq("id", requestId);
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const cancel = useMutation({
     mutationFn: async (requestId: string) => {
-      const { error } = await supabase.from("friend_requests").delete().eq("id", requestId);
+      const { error } = await db.from("friend_requests").delete().eq("id", requestId);
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
   const remove = useMutation({
     mutationFn: async (friendshipId: string) => {
-      const { error } = await supabase.from("friendships").delete().eq("id", friendshipId);
+      const { error } = await db.from("friendships").delete().eq("id", friendshipId);
       if (error) throw error;
     },
     onSuccess: invalidate,

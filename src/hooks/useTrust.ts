@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 
 export interface SellerTrust {
   score: number;
@@ -25,7 +25,7 @@ export function useSellerTrust(sellerId?: string | null) {
     enabled: !!sellerId,
     staleTime: 60_000,
     queryFn: async (): Promise<SellerTrust | null> => {
-      const { data, error } = await supabase.rpc("get_seller_trust", { p_user: sellerId! });
+      const { data, error } = await db.rpc("get_seller_trust", { p_user: sellerId! });
       if (error) throw error;
       const row = (data ?? [])[0];
       if (!row) return null;

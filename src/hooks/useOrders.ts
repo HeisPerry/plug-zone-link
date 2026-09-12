@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Order, OrderWithDetails, ProfileLite } from "@/lib/types";
 
@@ -8,8 +8,8 @@ async function hydrateOrders(orders: Order[]): Promise<OrderWithDetails[]> {
   const adIds = [...new Set(orders.map((o) => o.ad_id))];
   const userIds = [...new Set(orders.flatMap((o) => [o.buyer_id, o.seller_id]))];
   const [{ data: ads }, { data: profiles }] = await Promise.all([
-    supabase.from("ads").select("id, title, images, currency").in("id", adIds),
-    supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds),
+    db.from("ads").select("id, title, images, currency").in("id", adIds),
+    db.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds),
   ]);
   const adMap = new Map((ads ?? []).map((a) => [a.id, a]));
   const pMap = new Map((profiles ?? []).map((p) => [p.id, p as ProfileLite]));
@@ -101,7 +101,7 @@ export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: Order["status"] }) => {
-      const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+      const { error } = await db.from("orders").update({ status }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import { uploadToStorage } from "@/lib/uploads";
 import type { ConversationWithOther, Message, ProfileLite } from "@/lib/types";
@@ -18,7 +18,7 @@ export function useUnreadCount() {
     refetchInterval: UNREAD_POLL_MS,
     queryFn: async () => {
       // Anything addressed to me that arrived while I was away is now "delivered".
-      void supabase.rpc("mark_messages_delivered");
+      void db.rpc("mark_messages_delivered");
       const { count, error } = await supabase
         .from("messages")
         .select("id", { count: "exact", head: true })
@@ -49,7 +49,7 @@ export function useConversations() {
       const otherIds = convos.map((c) => (c.participant_one === user!.id ? c.participant_two : c.participant_one));
       const convoIds = convos.map((c) => c.id);
       const [{ data: profiles }, { data: msgs }] = await Promise.all([
-        supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", otherIds),
+        db.from("profiles").select("id, username, display_name, avatar_url").in("id", otherIds),
         supabase
           .from("messages")
           .select("conversation_id, content, created_at, sender_id, read, receiver_id")
@@ -97,7 +97,7 @@ export function useThread(conversationId: string | null) {
       // mark unread as read
       const unreadIds = data.filter((m) => m.receiver_id === user!.id && !m.read).map((m) => m.id);
       if (unreadIds.length) {
-        await supabase.from("messages").update({ read: true }).in("id", unreadIds);
+        await db.from("messages").update({ read: true }).in("id", unreadIds);
         queryClient.invalidateQueries({ queryKey: ["unread", user!.id] });
         queryClient.invalidateQueries({ queryKey: ["conversations", user!.id] });
       }
@@ -113,11 +113,11 @@ export function useConversation(conversationId: string | undefined) {
     queryKey: ["conversation", conversationId],
     enabled: !!conversationId && !!user,
     queryFn: async (): Promise<ConversationWithOther | null> => {
-      const { data: c, error } = await supabase.from("conversations").select("*").eq("id", conversationId!).maybeSingle();
+      const { data: c, error } = await db.from("conversations").select("*").eq("id", conversationId!).maybeSingle();
       if (error) throw error;
       if (!c) return null;
       const otherId = c.participant_one === user!.id ? c.participant_two : c.participant_one;
-      const { data: p } = await supabase.from("profiles").select("id, username, display_name, avatar_url").eq("id", otherId).maybeSingle();
+      const { data: p } = await db.from("profiles").select("id, username, display_name, avatar_url").eq("id", otherId).maybeSingle();
       return { ...c, other: (p as ProfileLite | null) ?? { id: otherId, username: "unknown", display_name: "Unknown user", avatar_url: null }, lastMessage: null, unread: 0 };
     },
   });
@@ -166,7 +166,7 @@ export function useStartConversation() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (otherUserId: string) => {
-      const { data, error } = await supabase.rpc("get_or_create_conversation", { p_other: otherUserId });
+      const { data, error } = await db.rpc("get_or_create_conversation", { p_other: otherUserId });
       if (error) throw error;
       return data as string;
     },

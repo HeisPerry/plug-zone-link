@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 import type { ProfileLite } from "@/lib/types";
@@ -23,11 +23,11 @@ async function hydrate(rows: Dispute[]): Promise<DisputeWithOrder[]> {
   const orderIds = [...new Set(rows.map((d) => d.order_id))];
   const userIds = [...new Set(rows.flatMap((d) => [d.buyer_id, d.seller_id]))];
   const [{ data: orders }, { data: profiles }] = await Promise.all([
-    supabase.from("orders").select("id, order_number, total_price, ad_id").in("id", orderIds),
-    supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds),
+    db.from("orders").select("id, order_number, total_price, ad_id").in("id", orderIds),
+    db.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds),
   ]);
   const adIds = [...new Set((orders ?? []).map((o) => o.ad_id))];
-  const { data: ads } = adIds.length ? await supabase.from("ads").select("id, title, currency").in("id", adIds) : { data: [] as { id: string; title: string; currency: string }[] };
+  const { data: ads } = adIds.length ? await db.from("ads").select("id, title, currency").in("id", adIds) : { data: [] as { id: string; title: string; currency: string }[] };
   const adMap = new Map((ads ?? []).map((a) => [a.id, a]));
   const orderMap = new Map((orders ?? []).map((o) => [o.id, o]));
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p as ProfileLite]));
@@ -53,7 +53,7 @@ export function useMyDisputes() {
     queryKey: ["disputes", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<DisputeWithOrder[]> => {
-      const { data, error } = await supabase.from("disputes").select("*").order("created_at", { ascending: false }).limit(100);
+      const { data, error } = await db.from("disputes").select("*").order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
       return hydrate(data ?? []);
     },
@@ -66,7 +66,7 @@ export function useDispute(disputeId: string | undefined) {
     queryKey: ["dispute-detail", disputeId],
     enabled: !!disputeId,
     queryFn: async (): Promise<DisputeWithOrder | null> => {
-      const { data, error } = await supabase.from("disputes").select("*").eq("id", disputeId!).maybeSingle();
+      const { data, error } = await db.from("disputes").select("*").eq("id", disputeId!).maybeSingle();
       if (error) throw error;
       if (!data) return null;
       return (await hydrate([data]))[0] ?? null;
@@ -79,7 +79,7 @@ export function useDisputeMessages(disputeId: string | undefined) {
     queryKey: ["dispute-messages", disputeId],
     enabled: !!disputeId,
     queryFn: async (): Promise<DisputeMessage[]> => {
-      const { data, error } = await supabase.from("dispute_messages").select("*").eq("dispute_id", disputeId!).order("created_at", { ascending: true });
+      const { data, error } = await db.from("dispute_messages").select("*").eq("dispute_id", disputeId!).order("created_at", { ascending: true });
       if (error) throw error;
       return data ?? [];
     },
@@ -92,7 +92,7 @@ export function useSendDisputeMessage(disputeId: string | undefined) {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (body: string) => {
-      const { error } = await supabase.from("dispute_messages").insert({ dispute_id: disputeId!, author_id: user!.id, body });
+      const { error } = await db.from("dispute_messages").insert({ dispute_id: disputeId!, author_id: user!.id, body });
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["dispute-messages", disputeId] }),
