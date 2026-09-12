@@ -78,15 +78,12 @@ export function useRecentAds(limit = 8) {
   });
 }
 
-export async function uploadAdImage(userId: string, file: File): Promise<string> {
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
-  if (error) throw error;
-  // Bucket is private: issue a long-lived signed URL so listings render for everyone.
-  const { data, error: signErr } = await supabase.storage.from(STORAGE_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-  if (signErr || !data) throw signErr ?? new Error("Could not create image URL");
-  return data.signedUrl;
+/**
+ * Uploads a listing image (or a profile photo) to UploadThing.
+ * `_userId` is ignored — the server derives the owner from the verified session.
+ */
+export async function uploadAdImage(_userId: string, file: File, folder: UploadFolder = "ads"): Promise<string> {
+  return uploadToStorage(file, folder);
 }
 
 export function useSaveAd() {
