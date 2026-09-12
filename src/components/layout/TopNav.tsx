@@ -130,7 +130,7 @@ function WalletPill() {
 }
 
 function AccountMenu() {
-  const { profile, signOut } = useAuth();
+  const { profile: loadedProfile, user, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -151,7 +151,16 @@ function AccountMenu() {
     };
   }, [open]);
 
-  if (!profile) return null;
+  if (!user) return null;
+  // While the profile is still loading, fall back to the signed-in email so the
+  // account button never vanishes.
+  const fallbackName = user.email?.split("@")[0] ?? "Account";
+  const profile = loadedProfile ?? {
+    username: fallbackName,
+    display_name: fallbackName,
+    avatar_url: null as string | null,
+  };
+
 
   return (
     <div ref={ref} className="relative">
