@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -33,7 +33,7 @@ export function useSellerProfile() {
     queryKey: ["seller-profile", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<SellerProfile | null> => {
-      const { data, error } = await supabase.from("seller_profiles").select("*").eq("user_id", user!.id).maybeSingle();
+      const { data, error } = await db.from("seller_profiles").select("*").eq("user_id", user!.id).maybeSingle();
       if (error) throw error;
       return data ?? null;
     },
@@ -56,7 +56,7 @@ export function useBecomeSeller() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: BecomeSellerInput) => {
-      const { data, error } = await supabase.rpc("become_seller", {
+      const { data, error } = await db.rpc("become_seller", {
         p_business_name: input.businessName,
         p_about: input.about,
         p_contact_email: input.contactEmail,
@@ -82,7 +82,7 @@ export function useSellerEarnings() {
     queryKey: ["seller-earnings", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<SellerEarnings> => {
-      const { data, error } = await supabase.rpc("get_seller_earnings", { p_user: user!.id });
+      const { data, error } = await db.rpc("get_seller_earnings", { p_user: user!.id });
       if (error) throw error;
       const row = (data ?? [])[0];
       if (!row) return ZERO;
@@ -106,7 +106,7 @@ export function useWithdrawals() {
     queryKey: ["withdrawals", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Withdrawal[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("withdrawals")
         .select("*")
         .eq("seller_id", user!.id)
@@ -123,7 +123,7 @@ export function useRequestWithdrawal() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ amount, method, destination, kind }: { amount: number; method: string; destination: string; kind?: "sales" | "affiliate" | "referral" }) => {
-      const { data, error } = await supabase.rpc("request_withdrawal", {
+      const { data, error } = await db.rpc("request_withdrawal", {
         p_amount: amount,
         p_method: method,
         p_destination: destination,

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -23,7 +23,7 @@ export function useAffiliateStats() {
     queryKey: ["affiliate", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("affiliate_clicks").select("converted").eq("affiliate_user_id", user!.id);
+      const { data, error } = await db.from("affiliate_clicks").select("converted").eq("affiliate_user_id", user!.id);
       if (error) throw error;
       const clicks = data.length;
       const signups = data.filter((c) => c.converted).length;
@@ -39,7 +39,7 @@ export function useRewardBalances() {
     queryKey: ["reward-balances", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Record<RewardKind, RewardBalance>> => {
-      const { data, error } = await supabase.rpc("get_reward_balances", { p_user: user!.id });
+      const { data, error } = await db.rpc("get_reward_balances", { p_user: user!.id });
       if (error) throw error;
       const out: Record<RewardKind, RewardBalance> = { affiliate: ZERO("affiliate"), referral: ZERO("referral") };
       for (const row of data ?? []) {
@@ -66,7 +66,7 @@ export function useRewardEntries() {
     queryKey: ["reward-entries", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<RewardEntry[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("reward_entries")
         .select("*")
         .eq("user_id", user!.id)
@@ -86,7 +86,7 @@ export function useReferredMembers() {
     queryKey: ["referred-members", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("profiles")
         .select("id, username, display_name, avatar_url, created_at")
         .eq("referred_by", user!.id)

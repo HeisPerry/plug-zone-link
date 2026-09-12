@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode }
 import type { Session } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import type { Profile } from "@/lib/types";
 import { answerSessionPings, clearSessionMode, shouldDropStoredSession } from "@/lib/session-mode";
 
@@ -18,7 +19,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       return;
     }
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    // Makes sure this account exists in our own database before we read it.
+    await db.syncAccount();
+    const { data } = await db.from("profiles").select("*").eq("id", userId).maybeSingle();
     setProfile(data ?? null);
   }, []);
 

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import { uploadToStorage } from "@/lib/uploads";
 import type { ConversationWithOther, Message, ProfileLite } from "@/lib/types";
@@ -18,8 +18,8 @@ export function useUnreadCount() {
     refetchInterval: UNREAD_POLL_MS,
     queryFn: async () => {
       // Anything addressed to me that arrived while I was away is now "delivered".
-      void supabase.rpc("mark_messages_delivered");
-      const { count, error } = await supabase
+      void db.rpc("mark_messages_delivered");
+      const { count, error } = await db
         .from("messages")
         .select("id", { count: "exact", head: true })
         .eq("receiver_id", user!.id)
@@ -37,7 +37,7 @@ export function useConversations() {
     enabled: !!user,
     refetchInterval: CONVERSATIONS_POLL_MS,
     queryFn: async (): Promise<ConversationWithOther[]> => {
-      const { data: convos, error } = await supabase
+      const { data: convos, error } = await db
         .from("conversations")
         .select("*")
         .or(`participant_one.eq.${user!.id},participant_two.eq.${user!.id}`)
@@ -49,8 +49,8 @@ export function useConversations() {
       const otherIds = convos.map((c) => (c.participant_one === user!.id ? c.participant_two : c.participant_one));
       const convoIds = convos.map((c) => c.id);
       const [{ data: profiles }, { data: msgs }] = await Promise.all([
-        supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", otherIds),
-        supabase
+        db.from("profiles").select("id, username, display_name, avatar_url").in("id", otherIds),
+        db
           .from("messages")
           .select("conversation_id, content, created_at, sender_id, read, receiver_id")
           .in("conversation_id", convoIds)
@@ -87,7 +87,7 @@ export function useThread(conversationId: string | null) {
     // Open threads refetch frequently; this replaces the previous live subscription.
     refetchInterval: THREAD_POLL_MS,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("messages")
         .select("*")
         .eq("conversation_id", conversationId!)
@@ -97,7 +97,7 @@ export function useThread(conversationId: string | null) {
       // mark unread as read
       const unreadIds = data.filter((m) => m.receiver_id === user!.id && !m.read).map((m) => m.id);
       if (unreadIds.length) {
-        await supabase.from("messages").update({ read: true }).in("id", unreadIds);
+        await db.from("messages").update({ read: true }).in("id", unreadIds);
         queryClient.invalidateQueries({ queryKey: ["unread", user!.id] });
         queryClient.invalidateQueries({ queryKey: ["conversations", user!.id] });
       }
@@ -113,11 +113,11 @@ export function useConversation(conversationId: string | undefined) {
     queryKey: ["conversation", conversationId],
     enabled: !!conversationId && !!user,
     queryFn: async (): Promise<ConversationWithOther | null> => {
-      const { data: c, error } = await supabase.from("conversations").select("*").eq("id", conversationId!).maybeSingle();
+      const { data: c, error } = await db.from("conversations").select("*").eq("id", conversationId!).maybeSingle();
       if (error) throw error;
       if (!c) return null;
       const otherId = c.participant_one === user!.id ? c.participant_two : c.participant_one;
-      const { data: p } = await supabase.from("profiles").select("id, username, display_name, avatar_url").eq("id", otherId).maybeSingle();
+      const { data: p } = await db.from("profiles").select("id, username, display_name, avatar_url").eq("id", otherId).maybeSingle();
       return { ...c, other: (p as ProfileLite | null) ?? { id: otherId, username: "unknown", display_name: "Unknown user", avatar_url: null }, lastMessage: null, unread: 0 };
     },
   });
@@ -144,7 +144,7 @@ export function useSendMessage(conversationId: string | null, receiverId: string
         attachment = { attachment_url: url, attachment_name: file.name, attachment_type: file.type || "application/octet-stream", attachment_size: file.size };
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("messages")
         .insert({ conversation_id: conversationId, sender_id: user.id, receiver_id: receiverId, content: text || (file ? `Sent a file: ${file.name}` : ""), ...attachment })
         .select("*")
@@ -166,7 +166,7 @@ export function useStartConversation() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (otherUserId: string) => {
-      const { data, error } = await supabase.rpc("get_or_create_conversation", { p_other: otherUserId });
+      const { data, error } = await db.rpc("get_or_create_conversation", { p_other: otherUserId });
       if (error) throw error;
       return data as string;
     },

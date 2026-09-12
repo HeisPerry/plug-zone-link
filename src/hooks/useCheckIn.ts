@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 
 export function useMonthCheckins(month: Date) {
@@ -11,7 +11,7 @@ export function useMonthCheckins(month: Date) {
     queryKey: ["checkins", user?.id, from],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("daily_checkins")
         .select("check_in_date, streak_count")
         .eq("user_id", user!.id)
@@ -28,7 +28,7 @@ export function useCheckIn() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.rpc("daily_check_in");
+      const { data, error } = await db.rpc("daily_check_in");
       if (error) throw error;
       return data[0]!;
     },

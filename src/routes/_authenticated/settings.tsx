@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import { useAffiliateStats } from "@/hooks/useAffiliate";
 import { uploadAdImage } from "@/hooks/useAds";
@@ -73,7 +74,7 @@ function ProfileSection() {
     }
     setErrors({});
     setSaving(true);
-    const { error } = await supabase
+    const { error } = await db
       .from("profiles")
       .update({ display_name: parsed.data.display_name, bio: parsed.data.bio || null, phone_number: parsed.data.phone_number || null })
       .eq("id", user!.id);
@@ -86,7 +87,7 @@ function ProfileSection() {
   async function onAvatar(file: File) {
     try {
       const url = await uploadAdImage(user!.id, file, "avatars");
-      const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user!.id);
+      const { error } = await db.from("profiles").update({ avatar_url: url }).eq("id", user!.id);
       if (error) throw error;
       await refreshProfile();
       toast.success("Photo updated");
@@ -255,7 +256,7 @@ function NotificationsSection() {
   }, []);
 
   async function save(next: NotificationPrefs) {
-    const { error } = await supabase.from("profiles").update({ notification_prefs: next }).eq("id", user!.id);
+    const { error } = await db.from("profiles").update({ notification_prefs: next }).eq("id", user!.id);
     if (error) return toast.error(error.message);
     await refreshProfile();
   }
@@ -299,7 +300,7 @@ function PrivacySection() {
   const { profile, user, refreshProfile } = useAuth();
   const toast = useToast();
   async function set(v: boolean) {
-    const { error } = await supabase.from("profiles").update({ show_last_seen: v }).eq("id", user!.id);
+    const { error } = await db.from("profiles").update({ show_last_seen: v }).eq("id", user!.id);
     if (error) return toast.error(error.message);
     await refreshProfile();
   }
@@ -321,7 +322,7 @@ function DangerSection() {
 
   async function del() {
     setBusy(true);
-    const { error } = await supabase.rpc("delete_my_account");
+    const { error } = await db.rpc("delete_my_account");
     setBusy(false);
     if (error) return toast.error(error.message);
     await signOut();

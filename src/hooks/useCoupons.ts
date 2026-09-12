@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -39,7 +39,7 @@ export function useMyCoupons() {
     queryKey: ["coupons", "mine", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Coupon[]> => {
-      const { data, error } = await supabase.from("coupons").select("*").eq("owner_id", user!.id).order("created_at", { ascending: false });
+      const { data, error } = await db.from("coupons").select("*").eq("owner_id", user!.id).order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -51,7 +51,7 @@ export function useAllCoupons(enabled: boolean) {
     queryKey: ["coupons", "all"],
     enabled,
     queryFn: async (): Promise<Coupon[]> => {
-      const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false }).limit(200);
+      const { data, error } = await db.from("coupons").select("*").order("created_at", { ascending: false }).limit(200);
       if (error) throw error;
       return data ?? [];
     },
@@ -63,7 +63,7 @@ export function useCreateCoupon() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (input: CouponInput) => {
-      const { error } = await supabase.from("coupons").insert({
+      const { error } = await db.from("coupons").insert({
         ...input,
         owner_id: input.scope === "seller" ? user!.id : null,
         created_by: user!.id,
@@ -78,7 +78,7 @@ export function useSetCouponActive() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from("coupons").update({ is_active }).eq("id", id);
+      const { error } = await db.from("coupons").update({ is_active }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["coupons"] }),
@@ -89,7 +89,7 @@ export function useDeleteCoupon() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("coupons").delete().eq("id", id);
+      const { error } = await db.from("coupons").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["coupons"] }),
@@ -100,7 +100,7 @@ export function useDeleteCoupon() {
 export function useValidateCoupon() {
   return useMutation({
     mutationFn: async ({ code, adId, quantity }: { code: string; adId: string; quantity: number }): Promise<CouponQuote> => {
-      const { data, error } = await supabase.rpc("validate_coupon", { p_code: code, p_ad: adId, p_quantity: quantity });
+      const { data, error } = await db.rpc("validate_coupon", { p_code: code, p_ad: adId, p_quantity: quantity });
       if (error) throw error;
       const row = (data as CouponQuote[] | null)?.[0];
       if (!row) throw new Error("That coupon code is not valid");

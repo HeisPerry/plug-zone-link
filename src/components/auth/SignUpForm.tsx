@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { signUpSchema, usernameSchema } from "@/lib/validators";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Field } from "@/components/shared/Field";
@@ -44,7 +45,7 @@ export function SignUpForm({ initialReferral }: { initialReferral?: string | und
     }
     let cancelled = false;
     setUsernameState("checking");
-    supabase.rpc("is_username_available", { p_username: debouncedUsername }).then(({ data, error }) => {
+    db.rpc("is_username_available", { p_username: debouncedUsername }).then(({ data, error }) => {
       if (cancelled) return;
       setUsernameState(error ? "idle" : data ? "available" : "taken");
     });

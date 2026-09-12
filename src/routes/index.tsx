@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import { PublicHeader, PublicFooter } from "@/components/layout/PageLayout";
 import { Logo } from "@/components/layout/TopNav";
@@ -27,7 +27,7 @@ function usePublicStats() {
   return useQuery({
     queryKey: ["public-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_public_stats");
+      const { data, error } = await db.rpc("get_public_stats");
       if (error) throw error;
       return data[0]!;
     },

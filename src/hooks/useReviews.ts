@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import type { ProfileLite } from "@/lib/types";
 
@@ -20,7 +20,7 @@ export function useSellerReviews(sellerId?: string | null) {
     queryKey: ["reviews", sellerId],
     enabled: !!sellerId,
     queryFn: async (): Promise<ReviewWithReviewer[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("reviews")
         .select("id, order_id, ad_id, reviewer_id, seller_id, rating, comment, created_at")
         .eq("seller_id", sellerId!)
@@ -30,7 +30,7 @@ export function useSellerReviews(sellerId?: string | null) {
       const rows = data ?? [];
       if (!rows.length) return [];
       const ids = [...new Set(rows.map((r) => r.reviewer_id))];
-      const { data: profiles } = await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", ids);
+      const { data: profiles } = await db.from("profiles").select("id, username, display_name, avatar_url").in("id", ids);
       const map = new Map((profiles ?? []).map((p) => [p.id, p as ProfileLite]));
       return rows.map((r) => ({
         ...r,
@@ -47,7 +47,7 @@ export function useReviewableOrders(sellerId?: string | null) {
     queryKey: ["reviewable-orders", user?.id, sellerId],
     enabled: !!user && !!sellerId && user.id !== sellerId,
     queryFn: async () => {
-      const { data: orders, error } = await supabase
+      const { data: orders, error } = await db
         .from("orders")
         .select("id, ad_id, created_at, total_price")
         .eq("buyer_id", user!.id)
@@ -57,7 +57,7 @@ export function useReviewableOrders(sellerId?: string | null) {
       if (error) throw error;
       const list = orders ?? [];
       if (!list.length) return [];
-      const { data: mine } = await supabase
+      const { data: mine } = await db
         .from("reviews")
         .select("order_id")
         .eq("reviewer_id", user!.id)
@@ -73,7 +73,7 @@ export function useSubmitReview() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { orderId: string; adId: string | null; sellerId: string; rating: number; comment: string }) => {
-      const { error } = await supabase.from("reviews").insert({
+      const { error } = await db.from("reviews").insert({
         order_id: input.orderId,
         ad_id: input.adId,
         reviewer_id: user!.id,
@@ -97,7 +97,7 @@ export function useSellerStats(sellerId?: string | null) {
     queryKey: ["profile-stats", sellerId],
     enabled: !!sellerId,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_profile_stats", { p_user: sellerId! });
+      const { data, error } = await db.rpc("get_profile_stats", { p_user: sellerId! });
       if (error) throw error;
       return data?.[0] ?? null;
     },

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import { DEFAULT_NOTIFICATION_PREFS, type Notification, type NotificationPrefs } from "@/lib/types";
 import { notificationMeta } from "@/lib/notifications";
@@ -66,7 +66,7 @@ export function useUnreadNotifications() {
     enabled: !!user,
     refetchInterval: NOTIFICATIONS_POLL_MS,
     queryFn: async () => {
-      const { count, error } = await supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user!.id).is("read_at", null);
+      const { count, error } = await db.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user!.id).is("read_at", null);
       if (error) throw error;
       return count ?? 0;
     },
@@ -80,7 +80,7 @@ export function useNotifications() {
     enabled: !!user,
     refetchInterval: NOTIFICATIONS_POLL_MS,
     queryFn: async () => {
-      const { data, error } = await supabase.from("notifications").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(100);
+      const { data, error } = await db.from("notifications").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
       return data;
     },
@@ -92,7 +92,7 @@ export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null);
+      const { error } = await db.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null);
       if (error) throw error;
     },
     onMutate: (id) => {
@@ -115,7 +115,7 @@ export function useMarkAllNotificationsRead() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.rpc("mark_all_notifications_read");
+      const { error } = await db.rpc("mark_all_notifications_read");
       if (error) throw error;
     },
     onSuccess: () => {
