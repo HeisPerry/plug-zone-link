@@ -292,7 +292,8 @@ function SheetRow({
 }
 
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { profile, user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const profile = useDisplayProfile();
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const { data: unread = 0 } = useUnreadCount();
