@@ -19,11 +19,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       return;
     }
-    // Makes sure this account exists in our own database before we read it.
-    await db.syncAccount();
-    const { data } = await db.from("profiles").select("*").eq("id", userId).maybeSingle();
-    setProfile(data ?? null);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        // Makes sure this account exists in our own database before we read it.
+        await db.syncAccount();
+        const { data } = await db.from("profiles").select("*").eq("id", userId).maybeSingle();
+        if (data) {
+          setProfile(data);
+          return;
+        }
+      } catch {
+        // fall through and try again
+      }
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+    }
+    setProfile(null);
   }, []);
+
 
   useEffect(() => {
     let mounted = true;
