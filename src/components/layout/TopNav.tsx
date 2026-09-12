@@ -148,7 +148,8 @@ function useDisplayProfile() {
 }
 
 function AccountMenu() {
-  const { profile: loadedProfile, user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const displayProfile = useDisplayProfile();
   const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
