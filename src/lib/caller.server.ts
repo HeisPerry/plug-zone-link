@@ -73,5 +73,23 @@ export async function syncUser(): Promise<string | null> {
      on conflict (id) do update set email = excluded.email`,
     [user.id, user.email ?? null, JSON.stringify(user.user_metadata ?? {})],
   );
+
+  // Accounts created before the move may already exist here without a profile
+  // row (or the sign-up trigger may have been skipped). Make sure one exists.
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const wanted = String(meta["username"] ?? "").trim().toLowerCase();
+  const base = /^[a-z0-9_]{3,20}$/.test(wanted) ? wanted : `user_${user.id.slice(0, 8)}`;
+  const display = String(meta["display_name"] ?? "").trim() || base;
+  await queryAs(
+    userId,
+    `insert into public.profiles (id, username, display_name, affiliate_code)
+     select $1::uuid,
+            case when exists (select 1 from public.profiles p where p.username = $2)
+                 then $2 || '_' || substr($1::text, 1, 4) else $2 end,
+            $3,
+            public.generate_affiliate_code()
+     where not exists (select 1 from public.profiles p where p.id = $1::uuid)`,
+    [user.id, base, display],
+  );
   return userId;
 }
