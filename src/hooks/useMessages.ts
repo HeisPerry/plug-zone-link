@@ -1,39 +1,23 @@
-import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import type { ConversationWithOther, Message, ProfileLite } from "@/lib/types";
 
+/** Polling intervals that replace the previous live subscriptions. */
+const UNREAD_POLL_MS = 15_000;
+const CONVERSATIONS_POLL_MS = 15_000;
+const THREAD_POLL_MS = 5_000;
+
 export function useUnreadCount() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!user) return;
-    // Anything addressed to me that arrived while I was away is now "delivered".
-    void supabase.rpc("mark_messages_delivered");
-    // Unique per hook instance: several components (Sidebar, MobileNav) mount this hook at once,
-    // and supabase.channel() returns an existing subscribed channel for a duplicate name.
-    const channel = supabase
-      .channel(`unread-${user.id}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, (payload) => {
-        if (payload.eventType === "INSERT") {
-          const msg = payload.new as Message;
-          if (!msg.delivered_at) void supabase.from("messages").update({ delivered_at: new Date().toISOString() }).eq("id", msg.id).is("delivered_at", null);
-        }
-        queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
-        queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, queryClient]);
 
   return useQuery({
     queryKey: ["unread", user?.id],
     enabled: !!user,
+    refetchInterval: UNREAD_POLL_MS,
     queryFn: async () => {
+      // Anything addressed to me that arrived while I was away is now "delivered".
+      void supabase.rpc("mark_messages_delivered");
       const { count, error } = await supabase
         .from("messages")
         .select("id", { count: "exact", head: true })
@@ -50,6 +34,7 @@ export function useConversations() {
   return useQuery({
     queryKey: ["conversations", user?.id],
     enabled: !!user,
+    refetchInterval: CONVERSATIONS_POLL_MS,
     queryFn: async (): Promise<ConversationWithOther[]> => {
       const { data: convos, error } = await supabase
         .from("conversations")
@@ -95,42 +80,11 @@ export function useThread(conversationId: string | null) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!conversationId || !user) return;
-    const channel = supabase
-      .channel(`thread-${conversationId}-${Math.random().toString(36).slice(2)}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-        (payload) => {
-          const msg = payload.new as Message;
-          queryClient.setQueryData<Message[]>(["thread", conversationId], (old = []) =>
-            old.some((m) => m.id === msg.id) ? old : [...old, msg],
-          );
-          if (msg.receiver_id === user.id) {
-            supabase.from("messages").update({ read: true }).eq("id", msg.id).then(() => {
-              queryClient.invalidateQueries({ queryKey: ["unread", user.id] });
-            });
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-        (payload) => {
-          const msg = payload.new as Message;
-          queryClient.setQueryData<Message[]>(["thread", conversationId], (old = []) => old.map((m) => (m.id === msg.id ? { ...m, ...msg } : m)));
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId, user, queryClient]);
-
   return useQuery({
     queryKey: ["thread", conversationId],
     enabled: !!conversationId && !!user,
+    // Open threads refetch frequently; this replaces the previous live subscription.
+    refetchInterval: THREAD_POLL_MS,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
