@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { uploadToStorage } from "@/lib/uploads";
 import type { ConversationWithOther, Message, ProfileLite } from "@/lib/types";
 
 /** Polling intervals that replace the previous live subscriptions. */
@@ -139,14 +140,8 @@ export function useSendMessage(conversationId: string | null, receiverId: string
       let attachment: Partial<Pick<Message, "attachment_url" | "attachment_name" | "attachment_type" | "attachment_size">> = {};
       if (file) {
         if (file.size > MAX_ATTACHMENT_BYTES) throw new Error("Files must be 20 MB or smaller");
-        const safeName = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
-        const path = `${conversationId}/${user.id}/${Date.now()}-${safeName}`;
-        const { error: upErr } = await supabase.storage.from(MESSAGE_FILES_BUCKET).upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false });
-        if (upErr) throw upErr;
-        // Private bucket: store a long-lived signed URL that both participants can open.
-        const { data: signed, error: signErr } = await supabase.storage.from(MESSAGE_FILES_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-        if (signErr || !signed) throw signErr ?? new Error("Could not prepare the file link");
-        attachment = { attachment_url: signed.signedUrl, attachment_name: file.name, attachment_type: file.type || "application/octet-stream", attachment_size: file.size };
+        const url = await uploadToStorage(file, "messages");
+        attachment = { attachment_url: url, attachment_name: file.name, attachment_type: file.type || "application/octet-stream", attachment_size: file.size };
       }
 
       const { data, error } = await supabase

@@ -85,7 +85,7 @@ function ProfileSection() {
 
   async function onAvatar(file: File) {
     try {
-      const url = await uploadAdImage(user!.id, file);
+      const url = await uploadAdImage(user!.id, file, "avatars");
       const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user!.id);
       if (error) throw error;
       await refreshProfile();
