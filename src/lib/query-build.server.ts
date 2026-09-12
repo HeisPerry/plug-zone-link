@@ -56,7 +56,7 @@ function parseColumns(columns: string): Parsed {
     }
     const head = part.slice(0, open);
     const inner = part.slice(open + 1, part.lastIndexOf(")"));
-    const alias = (head.includes(":") ? head.split(":")[0] : head.split("!")[0]).trim();
+    const alias = (head.includes(":") ? head.split(":")[0] ?? head : head.split("!")[0] ?? head).trim();
     out.embeds.push({ alias, columns: inner });
   }
   return out;
