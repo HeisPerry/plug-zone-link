@@ -129,6 +129,24 @@ function WalletPill() {
   );
 }
 
+/**
+ * While the account details are still loading we show the name the person
+ * signed up with, so the menu and their name never disappear.
+ */
+function useDisplayProfile() {
+  const { profile: loaded, user } = useAuth();
+  if (loaded) return loaded;
+  if (!user) return null;
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const emailName = user.email?.split("@")[0] ?? "Account";
+  const username = String(meta["username"] ?? "").trim() || emailName;
+  return {
+    username,
+    display_name: String(meta["display_name"] ?? "").trim() || username,
+    avatar_url: (meta["avatar_url"] as string | null) ?? null,
+  };
+}
+
 function AccountMenu() {
   const { profile: loadedProfile, user, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
