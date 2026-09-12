@@ -19,6 +19,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       return;
     }
+    // Makes sure this account exists in our own database before we read it.
+    await db.syncAccount();
     const { data } = await db.from("profiles").select("*").eq("id", userId).maybeSingle();
     setProfile(data ?? null);
   }, []);
