@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "./useAuth";
 import { generateReference } from "@/lib/utils";
 import type { Provider } from "@/lib/constants";
@@ -10,7 +10,7 @@ export function useDataAirtimeOrders() {
     queryKey: ["data-airtime-orders", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("data_airtime_orders")
         .select("*")
         .eq("user_id", user!.id)
@@ -36,7 +36,7 @@ export function usePlaceDataAirtimeOrder() {
       // 'processing' -> 'completed' after the VTU provider confirms delivery.
       // For now the order is saved as 'pending'.
 
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("data_airtime_orders")
         .insert({ user_id: user.id, reference, ...input, data_plan: input.data_plan ?? null })
         .select("*")

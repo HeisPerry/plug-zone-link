@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import type { AdWithSeller } from "@/lib/types";
 
 export const FEED_PAGE_SIZE = 20;
@@ -22,7 +22,7 @@ export function useDashboardFeed(filters: FeedFilters) {
     queryKey: ["feed", filters],
     initialPageParam: 0,
     queryFn: async ({ pageParam }): Promise<AdWithSeller[]> => {
-      let q = supabase
+      let q = db
         .from("ads")
         .select("*, seller:profiles!ads_seller_id_fkey(id, username, display_name, avatar_url)")
         .eq("status", "active")

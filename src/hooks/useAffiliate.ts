@@ -66,7 +66,7 @@ export function useRewardEntries() {
     queryKey: ["reward-entries", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<RewardEntry[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("reward_entries")
         .select("*")
         .eq("user_id", user!.id)
@@ -86,7 +86,7 @@ export function useReferredMembers() {
     queryKey: ["referred-members", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("profiles")
         .select("id, username, display_name, avatar_url, created_at")
         .eq("referred_by", user!.id)

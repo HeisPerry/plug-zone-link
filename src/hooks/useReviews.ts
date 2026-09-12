@@ -20,7 +20,7 @@ export function useSellerReviews(sellerId?: string | null) {
     queryKey: ["reviews", sellerId],
     enabled: !!sellerId,
     queryFn: async (): Promise<ReviewWithReviewer[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("reviews")
         .select("id, order_id, ad_id, reviewer_id, seller_id, rating, comment, created_at")
         .eq("seller_id", sellerId!)
@@ -47,7 +47,7 @@ export function useReviewableOrders(sellerId?: string | null) {
     queryKey: ["reviewable-orders", user?.id, sellerId],
     enabled: !!user && !!sellerId && user.id !== sellerId,
     queryFn: async () => {
-      const { data: orders, error } = await supabase
+      const { data: orders, error } = await db
         .from("orders")
         .select("id, ad_id, created_at, total_price")
         .eq("buyer_id", user!.id)
@@ -57,7 +57,7 @@ export function useReviewableOrders(sellerId?: string | null) {
       if (error) throw error;
       const list = orders ?? [];
       if (!list.length) return [];
-      const { data: mine } = await supabase
+      const { data: mine } = await db
         .from("reviews")
         .select("order_id")
         .eq("reviewer_id", user!.id)

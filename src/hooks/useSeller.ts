@@ -106,7 +106,7 @@ export function useWithdrawals() {
     queryKey: ["withdrawals", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Withdrawal[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("withdrawals")
         .select("*")
         .eq("seller_id", user!.id)

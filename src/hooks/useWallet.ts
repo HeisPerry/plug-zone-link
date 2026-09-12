@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import type { Transaction } from "@/lib/types";
 
@@ -19,7 +19,7 @@ export function useWallet() {
     queryKey: ["wallet", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<WalletSummary> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("transactions")
         .select("*")
         .or(`payer_id.eq.${user!.id},payee_id.eq.${user!.id}`)

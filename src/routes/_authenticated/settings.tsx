@@ -74,7 +74,7 @@ function ProfileSection() {
     }
     setErrors({});
     setSaving(true);
-    const { error } = await supabase
+    const { error } = await db
       .from("profiles")
       .update({ display_name: parsed.data.display_name, bio: parsed.data.bio || null, phone_number: parsed.data.phone_number || null })
       .eq("id", user!.id);

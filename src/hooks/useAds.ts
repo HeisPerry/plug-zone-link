@@ -12,7 +12,7 @@ export function useMyAds(opts: { status: string; search: string; page: number })
     queryKey: ["my-ads", user?.id, opts],
     enabled: !!user,
     queryFn: async () => {
-      let q = supabase
+      let q = db
         .from("ads")
         .select("*", { count: "exact" })
         .eq("seller_id", user!.id)
@@ -35,7 +35,7 @@ export function useAd(adId: string) {
       const { data, error } = await db.from("ads").select("*").eq("id", adId).maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const { data: seller } = await supabase
+      const { data: seller } = await db
         .from("profiles")
         .select("id, username, display_name, avatar_url")
         .eq("id", data.seller_id)
@@ -50,7 +50,7 @@ export function useUserActiveAds(userId: string | undefined) {
     queryKey: ["user-ads", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("ads")
         .select("*")
         .eq("seller_id", userId!)
@@ -67,7 +67,7 @@ export function useRecentAds(limit = 8) {
   return useQuery({
     queryKey: ["recent-ads", limit],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("ads")
         .select("*")
         .eq("status", "active")

@@ -63,7 +63,7 @@ export function useSearchPeople(term: string) {
     queryKey: ["people-search", q],
     enabled: q.length >= 2,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("profiles")
         .select("id, username, display_name, avatar_url")
         .ilike("username", `%${q}%`)

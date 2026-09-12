@@ -28,7 +28,7 @@ export function useOrders(side: "buying" | "selling") {
     queryKey: ["orders", user?.id, side],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("orders")
         .select("*")
         .eq(side === "buying" ? "buyer_id" : "seller_id", user!.id)
@@ -46,7 +46,7 @@ export function useAllOrders() {
     queryKey: ["orders", user?.id, "all"],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("orders")
         .select("*")
         .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
@@ -64,7 +64,7 @@ export function useRecentOrders(limit = 5) {
     queryKey: ["dashboard", "recent-orders", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("orders")
         .select("*")
         .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
@@ -82,7 +82,7 @@ export function usePlaceOrder() {
   return useMutation({
     mutationFn: async ({ adId, sellerId, quantity, unitPrice, notes }: { adId: string; sellerId: string; quantity: number; unitPrice: number; notes?: string }) => {
       if (!user) throw new Error("Sign in to place an order");
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("orders")
         .insert({ ad_id: adId, seller_id: sellerId, buyer_id: user.id, quantity, total_price: unitPrice * quantity, notes: notes || null })
         .select("*")
@@ -119,7 +119,7 @@ export function useOngoingOrdersCount() {
     queryKey: ["orders", "ongoing-count", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { count, error } = await db
         .from("orders")
         .select("id", { count: "exact", head: true })
         .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)

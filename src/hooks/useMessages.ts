@@ -19,7 +19,7 @@ export function useUnreadCount() {
     queryFn: async () => {
       // Anything addressed to me that arrived while I was away is now "delivered".
       void db.rpc("mark_messages_delivered");
-      const { count, error } = await supabase
+      const { count, error } = await db
         .from("messages")
         .select("id", { count: "exact", head: true })
         .eq("receiver_id", user!.id)
@@ -37,7 +37,7 @@ export function useConversations() {
     enabled: !!user,
     refetchInterval: CONVERSATIONS_POLL_MS,
     queryFn: async (): Promise<ConversationWithOther[]> => {
-      const { data: convos, error } = await supabase
+      const { data: convos, error } = await db
         .from("conversations")
         .select("*")
         .or(`participant_one.eq.${user!.id},participant_two.eq.${user!.id}`)
@@ -50,7 +50,7 @@ export function useConversations() {
       const convoIds = convos.map((c) => c.id);
       const [{ data: profiles }, { data: msgs }] = await Promise.all([
         db.from("profiles").select("id, username, display_name, avatar_url").in("id", otherIds),
-        supabase
+        db
           .from("messages")
           .select("conversation_id, content, created_at, sender_id, read, receiver_id")
           .in("conversation_id", convoIds)
@@ -87,7 +87,7 @@ export function useThread(conversationId: string | null) {
     // Open threads refetch frequently; this replaces the previous live subscription.
     refetchInterval: THREAD_POLL_MS,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("messages")
         .select("*")
         .eq("conversation_id", conversationId!)
@@ -144,7 +144,7 @@ export function useSendMessage(conversationId: string | null, receiverId: string
         attachment = { attachment_url: url, attachment_name: file.name, attachment_type: file.type || "application/octet-stream", attachment_size: file.size };
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("messages")
         .insert({ conversation_id: conversationId, sender_id: user.id, receiver_id: receiverId, content: text || (file ? `Sent a file: ${file.name}` : ""), ...attachment })
         .select("*")

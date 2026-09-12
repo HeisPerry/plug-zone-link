@@ -35,7 +35,7 @@ function useProfileByUsername(username: string) {
   return useQuery({
     queryKey: ["profile", username.toLowerCase()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("profiles")
         .select("id, username, display_name, avatar_url, bio, created_at")
         .eq("username", username.toLowerCase())

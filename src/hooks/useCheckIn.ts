@@ -11,7 +11,7 @@ export function useMonthCheckins(month: Date) {
     queryKey: ["checkins", user?.id, from],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("daily_checkins")
         .select("check_in_date, streak_count")
         .eq("user_id", user!.id)
