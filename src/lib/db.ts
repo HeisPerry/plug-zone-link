@@ -8,11 +8,11 @@
 import type { Filter, OrderBy, QueryResult, QuerySpec } from "./db-spec";
 import { dbQuery, dbRpc, syncAccount } from "./data.functions";
 
-export type Row = Record<string, any>;
+export type Row = any;
 
 type Raw = { data: any; error: { message: string } | null; count: number | null };
 
-class Query<T = Row[]> implements PromiseLike<QueryResult<T>> {
+class Query<T = any[]> implements PromiseLike<QueryResult<T>> {
   private spec: QuerySpec;
 
   constructor(table: string, action: QuerySpec["action"], values?: any) {
@@ -60,8 +60,8 @@ class Query<T = Row[]> implements PromiseLike<QueryResult<T>> {
     return this;
   }
 
-  single(): Query<Row> { this.spec.single = "one"; return this as any; }
-  maybeSingle(): Query<Row | null> { this.spec.single = "maybe"; return this as any; }
+  single(): Query<any> { this.spec.single = "one"; return this as any; }
+  maybeSingle(): Query<any> { this.spec.single = "maybe"; return this as any; }
 
   private async run(): Promise<QueryResult<any>> {
     let raw: Raw;
@@ -110,8 +110,8 @@ class Rpc<T = any> implements PromiseLike<QueryResult<T>> {
   private mode: "one" | "maybe" | null = null;
   constructor(private name: string, private args: Record<string, unknown>) {}
 
-  single(): Rpc<Row> { this.mode = "one"; return this as any; }
-  maybeSingle(): Rpc<Row | null> { this.mode = "maybe"; return this as any; }
+  single(): Rpc<any> { this.mode = "one"; return this as any; }
+  maybeSingle(): Rpc<any> { this.mode = "maybe"; return this as any; }
 
   private async run(): Promise<QueryResult<any>> {
     let raw: Raw;
