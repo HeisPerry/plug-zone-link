@@ -18,9 +18,13 @@ Decisions: recreate the ~60 SQL routines in Neon, start with an empty database (
 - [x] Step 1 — Realtime → polling (messages 5s/15s, notifications 20s, presence 30s heartbeat window)
 - [x] Step 2 — Storage → UploadThing (server-side `uploadFile`, scoped by verified user id; ads, avatars, chat attachments)
 - [ ] Step 2b — Verify a real upload end-to-end (needs a signed-in test account)
-- [ ] Step 3 — Neon schema via Drizzle (keep UUID PKs/FKs; auth user ids become plain columns)
-- [ ] Step 4 — Port SQL routines into Neon
-- [ ] Step 5 — Swap data reads/writes hook by hook, every query scoped by user id
-- [ ] Step 6 — Verify, then remove /supabase
+- [x] Step 3 — Neon schema applied (28 tables, all routines, triggers, indexes; auth.users mirror + auth.uid() from `app.user_id`)
+- [x] Step 4 — All SQL routines ported into Neon; platform settings + owner admin email seeded
+- [x] Step 5 — All data reads/writes go through `src/lib/db.ts` → server → Neon, with per-table access rules in `src/lib/data-policy.server.ts` replacing RLS
+- [ ] Step 6 — Watch in real use, then remove /supabase (auth still lives there)
 - [ ] Typing indicator: currently disabled (no live channel); restore later if wanted
 - [ ] Rotate the Neon password (it was pasted in chat)
+
+Verified end to end on Neon: sign-up creates the account record and profile, signed-in
+pages (dashboard, orders, wallet, messages, notifications, settings) load, and saving a
+profile writes back. Admin and trust-score screens use the same path.
